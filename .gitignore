@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+tmp/
+temp/
+.tmp/
+
+# Backups
+backups/*.sql
+backups/*.dump
+
+# Python
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Neo4j
+neo4j-data/
+
+# Exports
+exports/*.csv
+exports/*.json
+exports/*.xlsx
+
+# Freebuff
+.freebuff/

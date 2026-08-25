@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* ========================================
+   DHAROHAR AI — Design System
+   Museum + Digital Archive + Modern AI
+   ======================================== */
+
+:root {
+  /* ---- Colors ---- */
+  --color-ivory: #FAF7F2;
+  --color-parchment: #F5F0E8;
+  --color-cream: #EDE8DE;
+  --color-warm-gray: #C4BCAE;
+  --color-indigo: #1E1B4B;
+  --color-charcoal: #2D2A26;
+  --color-terracotta: #C2703E;
+  --color-terracotta-light: #D4915E;
+  --color-heritage-gold: #B8963E;
+  --color-heritage-gold-light: #D4B36A;
+  --color-deep-green: #2D5016;
+  --color-muted: #8A8279;
+  --color-border: #E0D8CC;
+  --color-card: #FFFFFF;
+  --color-destructive: #B91C1C;
+  --color-success: #15803D;
+
+  /* ---- Background ---- */
+  --background: var(--color-ivory);
+  --foreground: var(--color-charcoal);
+
+  /* ---- Semantic ---- */
+  --primary: var(--color-indigo);
+  --secondary: var(--color-terracotta);
+  --accent: var(--color-heritage-gold);
+  --muted: var(--color-muted);
+  --border: var(--color-border);
+  --card: var(--color-card);
+  --destructive: var(--color-destructive);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ivory: var(--color-ivory);
+  --color-parchment: var(--color-parchment);
+  --color-cream: var(--color-cream);
+  --color-warm-gray: var(--color-warm-gray);
+  --color-indigo: var(--color-indigo);
+  --color-charcoal: var(--color-charcoal);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-light: var(--color-terracotta-light);
+  --color-heritage-gold: var(--color-heritage-gold);
+  --color-heritage-gold-light: var(--color-heritage-gold-light);
+  --color-deep-green: var(--color-deep-green);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
+  --color-card: var(--color-card);
+  --color-destructive: var(--color-destructive);
+  --color-success: var(--color-success);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  /* Spacing scale */
+  --spacing-section: 6rem;
+  --spacing-content: 4rem;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+}
+
+/* Editorial heading styles */
+.font-display {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.font-serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* Subtle Indian-inspired decorative border */
+.border-heritage {
+  border-image: linear-gradient(
+    to right,
+    var(--color-terracotta),
+    var(--color-heritage-gold),
+    var(--color-terracotta)
+  ) 1;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-heritage-gold-light);
+  color: var(--color-indigo);
+}

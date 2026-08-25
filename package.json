@@ -1,0 +1,23 @@
+{
+  "name": "dharohar-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dharohar AI - An intelligent cultural and historical knowledge platform for Gujarat's heritage",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:ai": "cd ai-service && python -m uvicorn app.main:app --reload --port 8000",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build": "npm run build:frontend && npm run build:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit",
+    "typecheck:backend": "cd backend && npx tsc --noEmit",
+    "typecheck": "npm run typecheck:frontend && npm run typecheck:backend"
+  },
+  "keywords": ["heritage", "culture", "gujarat", "ai", "knowledge-graph"],
+  "license": "UNLICENSED"
+}
