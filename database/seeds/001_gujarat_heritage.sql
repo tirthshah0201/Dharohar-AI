@@ -7,7 +7,7 @@
 
 -- ---- Historical Periods ----
 INSERT INTO historical_periods (id, name, start_year, end_year, description) VALUES
-('a0000001-0000-0000-0000-000000000001', 'Ancient Period', NULL, 700, 'Early civilizations and cultural foundations in Gujarat, including the Indus Valley Civilization at Lothal and Dholavira.'),
+('a0000001-0000-0000-0000-000000000001', 'Ancient Period', -3300, 700, 'Early civilizations and cultural foundations in Gujarat, including the Indus Valley Civilization at Lothal and Dholavira.'),
 ('a0000001-0000-0000-0000-000000000002', 'Medieval Period', 700, 1300, 'Solanki/Chaulukya dynasty rule, golden age of temple architecture, and the rise of major trading centers.'),
 ('a0000001-0000-0000-0000-000000000003', 'Sultanate Period', 1300, 1573, 'Rule of Gujarat Sultanate, including Ahmedabad as a major cultural and trade center.'),
 ('a0000001-0000-0000-0000-000000000004', 'Colonial Period', 1573, 1947, 'Mughal rule followed by British colonial administration and the emergence of the freedom movement.'),
@@ -68,23 +68,24 @@ INSERT INTO heritage_entities (id, name, category, description, location_id, per
 ('c0000001-0000-0000-0000-000000000060', 'Solanki Temple Architecture', 'architecture', 'Distinctive architectural style of the Solanki/Chaulukya dynasty period. Characterized by intricate carvings, stepped wells, and elaborate temple complexes.', 'b0000001-0000-0000-0000-000000000011', 'a0000001-0000-0000-0000-000000000002')
 ON CONFLICT (id) DO NOTHING;
 
--- ---- Relationships ----
+-- ---- Relationships (heritage-entity to heritage-entity only) ----
 INSERT INTO relationships (source_id, target_id, type, description) VALUES
--- Locations
-('c0000001-0000-0000-0000-000000000001', 'b0000001-0000-0000-0000-000000000011', 'LOCATED_AT', 'Rani ki Vav is located in Patan district'),
-('c0000001-0000-0000-0000-000000000002', 'b0000001-0000-0000-0000-000000000001', 'LOCATED_AT', 'Modhera Sun Temple is in Gujarat'),
-('c0000001-0000-0000-0000-000000000003', 'b0000001-0000-0000-0000-000000000001', 'LOCATED_AT', 'Dholavira is in Gujarat'),
-('c0000001-0000-0000-0000-000000000004', 'b0000001-0000-0000-0000-000000000010', 'LOCATED_AT', 'Sabarmati Ashram is in Ahmedabad'),
-
--- Periods
-('c0000001-0000-0000-0000-000000000001', 'a0000001-0000-0000-0000-000000000002', 'OCCURRED_DURING', 'Rani ki Vav built during the Solanki period'),
-('c0000001-0000-0000-0000-000000000010', 'a0000001-0000-0000-0000-000000000002', 'ASSOCIATED_WITH', 'Patola weaving tradition from the Solanki period'),
-
--- Associations
-('c0000001-0000-0000-0000-000000000010', 'b0000001-0000-0000-0000-000000000011', 'ASSOCIATED_WITH', 'Patola weaving is closely associated with Patan'),
+-- Patola Weaving practiced by Salvi Community
 ('c0000001-0000-0000-0000-000000000010', 'c0000001-0000-0000-0000-000000000040', 'PRACTICED_BY', 'Patola weaving is practiced by the Salvi community'),
+-- Kutch Embroidery practiced by Rabari Community
 ('c0000001-0000-0000-0000-000000000011', 'c0000001-0000-0000-0000-000000000041', 'PRACTICED_BY', 'Kutch embroidery is practiced by the Rabari community'),
+-- Sabarmati Ashram associated with Mahatma Gandhi
 ('c0000001-0000-0000-0000-000000000004', 'c0000001-0000-0000-0000-000000000020', 'ASSOCIATED_WITH', 'Sabarmati Ashram is associated with Mahatma Gandhi'),
-('c0000001-0000-0000-0000-000000000021', 'b0000001-0000-0000-0000-000000000013', 'ASSOCIATED_WITH', 'Narsinh Mehta is associated with Junagadh'),
-('c0000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000060', 'ASSOCIATED_WITH', 'Rani ki Vav exemplifies Solanki temple architecture')
+-- Rani ki Vav exemplifies Solanki Architecture
+('c0000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000060', 'ASSOCIATED_WITH', 'Rani ki Vav exemplifies Solanki temple architecture'),
+-- Modhera Sun Temple also exemplifies Solanki Architecture
+('c0000001-0000-0000-0000-000000000002', 'c0000001-0000-0000-0000-000000000060', 'ASSOCIATED_WITH', 'Modhera Sun Temple exemplifies Solanki temple architecture'),
+-- Narsinh Mehta associated with Mahatma Gandhi (Vaishnav Jan To)
+('c0000001-0000-0000-0000-000000000021', 'c0000001-0000-0000-0000-000000000020', 'ASSOCIATED_WITH', 'Narsinh Mehta bhajan Vaishnav Jan To was Gandhi''s favorite'),
+-- Navratri associated with Gujarat culture
+('c0000001-0000-0000-0000-000000000030', 'c0000001-0000-0000-0000-000000000041', 'ASSOCIATED_WITH', 'Navratri Garba is celebrated across Kutch and Gujarat'),
+-- Patola Weaving influences Bandhani
+('c0000001-0000-0000-0000-000000000010', 'c0000001-0000-0000-0000-000000000012', 'INFLUENCED_BY', 'Patola and Bandhani are related textile traditions'),
+-- Sabarmati Ashram linked to Modern Period events
+('c0000001-0000-0000-0000-000000000004', 'c0000001-0000-0000-0000-000000000031', 'ASSOCIATED_WITH', 'Sabarmati Ashram is in Ahmedabad where Uttarayan is celebrated')
 ON CONFLICT DO NOTHING;

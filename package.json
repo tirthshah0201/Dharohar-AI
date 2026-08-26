@@ -18,6 +18,17 @@
     "typecheck:backend": "cd backend && npx tsc --noEmit",
     "typecheck": "npm run typecheck:frontend && npm run typecheck:backend"
   },
-  "keywords": ["heritage", "culture", "gujarat", "ai", "knowledge-graph"],
-  "license": "UNLICENSED"
+  "keywords": [
+    "heritage",
+    "culture",
+    "gujarat",
+    "ai",
+    "knowledge-graph"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.0",
+    "ts-node": "^10.9.2"
+  }
 }

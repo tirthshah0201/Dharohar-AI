@@ -4,8 +4,10 @@
 
 import { Router } from "express";
 import { requireDevelopmentApiKey } from "../middleware/apiKey";
+import { validateUUID } from "../middleware/validate";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
+import { isOneOf, VALID_LOCATION_TYPES } from "../utils/validation";
 
 const router = Router();
 
@@ -20,7 +22,20 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
     const type = req.query.type as string | undefined;
-    let sql = "SELECT id, name, type, description, latitude, longitude, parent_id, state FROM locations";
+
+    if (type && !isOneOf(type, VALID_LOCATION_TYPES)) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_QUERY_PARAMETER",
+          message: `Invalid type parameter. Allowed values: ${VALID_LOCATION_TYPES.join(", ")}`,
+        },
+      });
+      return;
+    }
+
+    let sql =
+      "SELECT id, name, type, description, latitude, longitude, parent_id, state FROM locations";
     const params: unknown[] = [];
 
     if (type) {
@@ -52,42 +67,48 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
 /**
  * GET /api/locations/:id
  *
- * Get a single location by ID.
+ * Get a single location by UUID.
  * Requires: X-API-Key header
+ * Validates: UUID format before query
  */
-router.get("/:id", requireDevelopmentApiKey, async (req, res) => {
-  if (!requireDatabase(res)) return;
-  try {
-    const { rows } = await query(
-      "SELECT id, name, type, description, latitude, longitude, parent_id, state FROM locations WHERE id = $1",
-      [req.params.id]
-    );
+router.get(
+  "/:id",
+  requireDevelopmentApiKey,
+  validateUUID("id"),
+  async (req, res) => {
+    if (!requireDatabase(res)) return;
+    try {
+      const { rows } = await query(
+        "SELECT id, name, type, description, latitude, longitude, parent_id, state FROM locations WHERE id = $1",
+        [req.params.id]
+      );
 
-    if (rows.length === 0) {
-      res.status(404).json({
+      if (rows.length === 0) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "Location not found",
+          },
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: rows[0],
+      });
+    } catch (err) {
+      console.error("[Locations] Query error:", (err as Error).message);
+      res.status(500).json({
         success: false,
         error: {
-          code: "NOT_FOUND",
-          message: "Location not found",
+          code: "DATABASE_ERROR",
+          message: "Failed to retrieve location",
         },
       });
-      return;
     }
-
-    res.json({
-      success: true,
-      data: rows[0],
-    });
-  } catch (err) {
-    console.error("[Locations] Query error:", (err as Error).message);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: "DATABASE_ERROR",
-        message: "Failed to retrieve location",
-      },
-    });
   }
-});
+);
 
 export { router as locationsRouter };

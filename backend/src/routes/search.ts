@@ -6,6 +6,11 @@ import { Router } from "express";
 import { requireDevelopmentApiKey } from "../middleware/apiKey";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
+import {
+  isOneOf,
+  isValidSearchQuery,
+  VALID_HERITAGE_CATEGORIES,
+} from "../utils/validation";
 
 const router = Router();
 
@@ -27,6 +32,28 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
         success: true,
         data: [],
         total: 0,
+      });
+      return;
+    }
+
+    if (!isValidSearchQuery(q)) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_QUERY_PARAMETER",
+          message: "Search query must be between 1 and 500 characters",
+        },
+      });
+      return;
+    }
+
+    if (category && !isOneOf(category, VALID_HERITAGE_CATEGORIES)) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_QUERY_PARAMETER",
+          message: `Invalid category parameter. Allowed values: ${VALID_HERITAGE_CATEGORIES.join(", ")}`,
+        },
       });
       return;
     }
