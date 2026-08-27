@@ -1,0 +1,207 @@
+text,language,state,intent
+Tell me about the Sun Temple in Gujarat,en,Gujarat,heritage_information
+What is Rani ki Vav,en,Gujarat,heritage_information
+How is Patan connected to Patola weaving,en,Gujarat,craft_information
+Tell me about Mahatma Gandhi,en,Gujarat,person_information
+What is Garba dance,en,Gujarat,festival_information
+Describe the Dholavira archaeological site,en,Gujarat,heritage_information
+What crafts are famous in Kutch,en,Gujarat,craft_information
+Tell me about Adalaj Stepwell,en,Gujarat,heritage_information
+What is Patola silk weaving,en,Gujarat,craft_information
+Who built Modhera Sun Temple,en,Gujarat,person_information
+Tell me about Gujarat heritage,en,Gujarat,state_exploration
+What can I explore in Gujarat,en,Gujarat,state_exploration
+Gujarat na varshe vishay ma jano,gu,Gujarat,heritage_information
+Rani ki Vav gurunichi mahiti dayo,gu,Gujarat,heritage_information
+Patan ni Patola kalaa vishay ma jano,gu,Gujarat,craft_information
+Mahatma Gandhi vishay ma jano,gu,Gujarat,person_information
+Garba nritya vishay ma jano,gu,Gujarat,festival_information
+Gujarat na vidyaman sthalo explor karo,gu,Gujarat,state_exploration
+Dholavira archaeological site gurunichi mahiti dayo,gu,Gujarat,heritage_information
+Sun Temple Modhera vishay ma jano,gu,Gujarat,heritage_information
+Adalaj ni Vav gurunichi mahiti dayo,gu,Gujarat,heritage_information
+Kutch na hathkala vishay ma jano,gu,Gujarat,craft_information
+Rajasthan ke killo ke baare mein batao,hi,Rajasthan,heritage_information
+Amber Fort ka itihas batao,hi,Rajasthan,heritage_information
+Hawa Mahal kyun famous hai,hi,Rajasthan,heritage_information
+Rajasthan ki virasat ke baare mein batao,hi,Rajasthan,state_exploration
+Blue pottery kaise banti hai,hi,Rajasthan,craft_information
+Rajasthan mein kya dekhna chahiye,hi,Rajasthan,state_exploration
+Bhangra nritya ke baare mein batao,hi,Punjab,festival_information
+Golden Temple ka itihas batao,hi,Punjab,heritage_information
+Punjab ki virasat ke baare mein batao,hi,Punjab,state_exploration
+Phulkari kaise banti hai,hi,Punjab,craft_information
+Jallianwala Bagh mein kya hua tha,hi,Punjab,heritage_information
+Punjab mein kya dekhna chahiye,hi,Punjab,state_exploration
+Maharashtra chi killa kuthhe ahet,mr,Maharashtra,heritage_information
+Ajanta Cave s baddal mahiti dya,mr,Maharashtra,heritage_information
+Ellora Cave s baddal mahiti dya,mr,Maharashtra,heritage_information
+Warli art baddal mahiti dya,mr,Maharashtra,craft_information
+Maharashtra chya virasat baddal vichara,mr,Maharashtra,state_exploration
+Tamil Nadu koilgalai patri sollunga,ta,Tamil Nadu,heritage_information
+Bharatanatyam varalaru sollunga,ta,Tamil Nadu,heritage_information
+Chola bronzes eppadi seyvadhunu solunga,ta,Tamil Nadu,craft_information
+Tamil Nadu ina pagudhigalai patri sollunga,ta,Tamil Nadu,state_exploration
+Meenakshi Amman Temple patri sollunga,ta,Tamil Nadu,heritage_information
+Punjab di virasat bare daso,pa,Punjab,heritage_information
+Golden Temple da itihas daso,pa,Punjab,heritage_information
+Bhangra nritya bare daso,pa,Punjab,festival_information
+Phulkari kive bani jandi hai,pa,Punjab,craft_information
+Punjab vich ki vekhna chahida,pa,Punjab,state_exploration
+Tell me about Amber Fort,en,Rajasthan,heritage_information
+What is Hawa Mahal,en,Rajasthan,heritage_information
+Describe Blue Pottery of Jaipur,en,Rajasthan,craft_information
+Tell me about Rajasthan heritage,en,Rajasthan,state_exploration
+What can I see in Rajasthan,en,Rajasthan,state_exploration
+Tell me about Golden Temple,en,Punjab,heritage_information
+What happened at Jallianwala Bagh,en,Punjab,heritage_information
+Describe Phulkari embroidery,en,Punjab,craft_information
+Tell me about Punjab heritage,en,Punjab,state_exploration
+What is Bhangra dance,en,Punjab,festival_information
+Tell me about Ajanta Caves,en,Maharashtra,heritage_information
+What are the Ellora Caves,en,Maharashtra,heritage_information
+Describe Warli tribal art,en,Maharashtra,craft_information
+Tell me about Maharashtra heritage,en,Maharashtra,state_exploration
+What can I explore in Maharashtra,en,Maharashtra,state_exploration
+Tell me about Meenakshi Temple,en,Tamil Nadu,heritage_information
+What is Bharatanatyam dance,en,Tamil Nadu,heritage_information
+Describe Chola Bronze sculptures,en,Tamil Nadu,craft_information
+Tell me about Tamil Nadu heritage,en,Tamil Nadu,state_exploration
+What temples are in Tamil Nadu,en,Tamil Nadu,heritage_information
+Tell me about Basilica of Bom Jesus,en,Goa,heritage_information
+What is the Goa Carnival,en,Goa,festival_information
+Describe Feni of Goa,en,Goa,craft_information
+Tell me about Goa heritage,en,Goa,state_exploration
+What can I see in Goa,en,Goa,state_exploration
+Tell me about Khajuraho Temples,en,Madhya Pradesh,heritage_information
+What is the Sanchi Stupa,en,Madhya Pradesh,heritage_information
+Describe Gond tribal art,en,Madhya Pradesh,craft_information
+Tell me about Madhya Pradesh heritage,en,Madhya Pradesh,state_exploration
+What is famous in Madhya Pradesh,en,Madhya Pradesh,state_exploration
+Tell me about Red Fort Delhi,en,Delhi,heritage_information
+What is the Qutub Minar,en,Delhi,heritage_information
+Describe Chandni Chowk market,en,Delhi,heritage_information
+Tell me about Delhi heritage,en,Delhi,state_exploration
+What can I explore in Delhi,en,Delhi,state_exploration
+Hello how are you,en,,greeting
+Hi there,en,,greeting
+Namaste,en,,greeting
+Hello,en,,greeting
+Hey how are you doing,en,,greeting
+Namaskar,hi,,greeting
+नमस्ते,hi,,greeting
+नमस्कार,hi,,greeting
+नमस्ते कैसे हैं,hi,,greeting
+નમસ્તે,gu,,greeting
+નમસ્કાર,gu,,greeting
+કેમ છો,gu,,greeting
+नमस्कार मी कशी आहे,mr,,greeting
+वणक्कम்,ta,,greeting
+வணக்கம்,ta,,greeting
+ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ,pa,,greeting
+ਨਮਸਤੇ,pa,,greeting
+What historical periods are covered,en,,historical_period
+Tell me about the Solanki dynasty,en,Gujarat,historical_period
+What era was the Sun Temple built in,en,Gujarat,historical_period
+Describe the Mughal period in Delhi,en,Delhi,historical_period
+What was the Chola period like,en,Tamil Nadu,historical_period
+Tell me about the Maratha era,en,Maharashtra,historical_period
+What centuries are covered in the timeline,en,,historical_period
+Describe the Indus Valley Civilization at Dholavira,en,Gujarat,historical_period
+What is the ancient period in Gujarat,en,Gujarat,historical_period
+Tell me about the Sultanate period,en,Gujarat,historical_period
+Where is Rani ki Vav located,en,Gujarat,location_information
+What city is Amber Fort in,en,Rajasthan,location_information
+Which district has Dholavira,en,Gujarat,location_information
+What is the location of Meenakshi Temple,en,Tamil Nadu,location_information
+Where can I find Warli art,en,Maharashtra,location_information
+What city has the Golden Temple,en,Punjab,location_information
+Where is the Red Fort in Delhi,en,Delhi,location_information
+Where are the Ajanta Caves,en,Maharashtra,location_information
+Which place has Khajuraho Temples,en,Madhya Pradesh,location_information
+What city has Chandni Chowk,en,Delhi,location_information
+I want to visit Gujarat for heritage tourism,en,Gujarat,state_exploration
+What are the UNESCO sites in India,en,,heritage_information
+Can you tell me about Indian culture,en,,heritage_information
+Tell me about Indian heritage,en,,heritage_information
+What is the significance of stepwells in India,en,Gujarat,heritage_information
+Tell me about Indian textile traditions,en,Gujarat,craft_information
+What folk dances are famous in India,en,Gujarat,festival_information
+Tell me about Indian classical dance,en,Tamil Nadu,festival_information
+What are famous Indian monuments,en,,heritage_information
+I have a question about heritage,en,,heritage_information
+Tell me about history,en,,historical_period
+What is this application about,en,,greeting
+How does this chatbot work,en,,greeting
+Who are you,en,,greeting
+What can you help me with,en,,greeting
+I want to learn about heritage,en,,state_exploration
+Show me heritage sites in Gujarat,en,Gujarat,state_exploration
+Show me heritage sites in Rajasthan,en,Rajasthan,state_exploration
+What temples are in Goa,en,Goa,heritage_information
+What forts are in Maharashtra,en,Maharashtra,heritage_information
+Tell me about Sikh heritage in Punjab,en,Punjab,heritage_information
+What is the weather like today,en,,unknown
+Can you order food for me,en,,unknown
+What is 2 plus 2,en,,unknown
+Tell me a joke,en,,unknown
+Who won the cricket match,en,,unknown
+What stocks should I buy,en,,unknown
+How do I cook pasta,en,,unknown
+What is the capital of France,en,,unknown
+Tell me about space exploration,en,,unknown
+Can you write a poem,en,,unknown
+What movies are playing,en,,unknown
+How do I learn programming,en,,unknown
+What is machine learning,en,,unknown
+Can you translate this to French,en,,unknown
+Tell me about climate change,en,,unknown
+What is the population of India,en,,unknown
+gujarat na heritage places vishe janavo,gu,Gujarat,heritage_information
+modhera surya mandir vishe mahiti aapo,gu,Gujarat,heritage_information
+rani ki vav kya aveli chhe,gu,Gujarat,location_information
+gujarat ma kaya historical places chhe,gu,Gujarat,state_exploration
+somnath mandir no itihas janavo,gu,Gujarat,heritage_information
+ahmedabad ni heritage sites batavo,gu,Gujarat,state_exploration
+gujarat na kila vishe janavo,gu,Gujarat,heritage_information
+gujarat ni sanskrutik virasat shu chhe,gu,Gujarat,state_exploration
+gujarat ma farva jeva historical places kaya chhe,gu,Gujarat,state_exploration
+gujarat no itihas janavo,gu,Gujarat,historical_period
+dholavira archaeological site vishe mahiti aapo,gu,Gujarat,heritage_information
+patola silk weaving kai rite thay chhe,gu,Gujarat,craft_information
+garba nritya vishe janavo,gu,Gujarat,festival_information
+gandhinagar ma kai jova lakhay chhe,gu,Gujarat,state_exploration
+dwarka mandir vishe mahiti aapo,gu,Gujarat,heritage_information
+kutch na hathkala vishe janavo,gu,Gujarat,craft_information
+gandhi ji nu jivan vishe batavo,gu,Gujarat,person_information
+rajkot ma kai heritage places chhe,gu,Gujarat,state_exploration
+modhera surya mandir kya chhe,gu,Gujarat,location_information
+gujarat ni famous crafts kai chhe,gu,Gujarat,craft_information
+jalaram bapa vishe janavo,gu,Gujarat,person_information
+savaji bholanath vishe mahiti aapo,gu,Gujarat,person_information
+adhmedabad ni old city vishe janavo,gu,Gujarat,heritage_information
+gujarat ma kaya festivals manavama aave chhe,gu,Gujarat,festival_information
+uttarayan kya kyare ujavama aave chhe,gu,Gujarat,festival_information
+gujarat na famous temples kai chhe,gu,Gujarat,heritage_information
+patan ni rani ki vav vishe janavo,gu,Gujarat,heritage_information
+gandhinagar thi somnath ketla km chhe,gu,Gujarat,location_information
+gujarat ma kai museums chhe,gu,Gujarat,state_exploration
+vadodara ma kai jova lakhay chhe,gu,Gujarat,state_exploration
+surat ni history janavo,gu,Gujarat,historical_period
+gujarat na stepwells vishe janavo,gu,Gujarat,heritage_information
+rajkot nu khojvato chhe,gu,Gujarat,state_exploration
+kutch ma kai kila chhe,gu,Gujarat,heritage_information
+amdavad nu traditional food shu chhe,gu,Gujarat,craft_information
+hello kem cho,gu,,greeting
+namaste bhai,gu,,greeting
+su chhe latest news,gu,,unknown
+gujarat ma weather kya chhe,gu,,unknown
+kai restaurant achi chhe,gu,,unknown
+show me heritage sites in rajasthan,gu,Rajasthan,state_exploration
+tell me about punjab heritage,gu,Punjab,state_exploration
+what is bhangra dance,gu,Punjab,festival_information
+describe ajanta caves,gu,Maharashtra,heritage_information
+maharashtra chi killa kuthhe ahet,gu,Maharashtra,heritage_information
+tamil nadu koilgalai patri sollunga,gu,Tamil Nadu,heritage_information
+golden temple da itihas daso,gu,Punjab,heritage_information
+rajasthan ke killo ke baare mein batao,gu,Rajasthan,heritage_information

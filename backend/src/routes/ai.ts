@@ -163,16 +163,18 @@ router.get("/suggestions", requireDevelopmentApiKey, async (_req, res) => {
     });
   } catch (err) {
     console.error("[Suggestions] Error:", (err as Error).message);
-    // Fallback suggestions
+    // Fallback suggestions with multilingual + Romanized Gujarati
     res.json({
       success: true,
       data: [
         "Tell me about Rani ki Vav",
         "What is the Golden Temple?",
+        "gujarat na heritage places vishe janavo",
+        "modhera surya mandir vishe mahiti aapo",
         "Describe Bharatanatyam dance",
-        "Tell me about Red Fort Delhi",
-        "What crafts are famous in Gujarat?",
         "Tell me about Khajuraho Temples",
+        "Rajasthan ke killo ke baare mein batao",
+        "rani ki vav kya aveli chhe",
       ],
     });
   }
