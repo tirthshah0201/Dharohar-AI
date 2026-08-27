@@ -1,72 +1,62 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
-
-export const metadata: Metadata = {
-  title: "Historical Timeline",
-  description:
-    "Explore Gujarat's history through an interactive timeline spanning ancient to modern periods.",
-};
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useApi } from "@/hooks/useApi";
 
 /* ========================================
-   Placeholder timeline data.
-   Clearly marked as non-final.
+   Types
    ======================================== */
 
-const eras = [
-  {
-    id: "ancient",
-    label: "Ancient",
-    period: "Before 700 CE",
-    events: [
-      { year: "~2500 BCE", title: "Indus Valley Influences", description: "Early settlements in the Gujarat region show connections to Indus Valley civilization patterns." },
-      { year: "~300 BCE", title: "Maurya Period", description: "Gujarat becomes part of the Mauryan Empire under Chandragupta Maurya." },
-      { year: "~100 CE", title: "Western Kshatrapas", description: "Rule of the Western Kshatrapas in parts of Gujarat." },
-    ],
-  },
-  {
-    id: "medieval",
-    label: "Medieval",
-    period: "700 – 1300 CE",
-    events: [
-      { year: "~950 CE", title: "Solanki Dynasty Rise", description: "The Solanki (Chaulukya) dynasty establishes power in Gujarat." },
-      { year: "~1026 CE", title: "Mahmud's Invasions", description: "Historical raids affecting Gujarat's temple architecture period." },
-      { year: "~1063 CE", title: "Rani ki Vav Construction", description: "Construction of the stepwell at Patan attributed to Queen Udayamati." },
-    ],
-  },
-  {
-    id: "sultanate",
-    label: "Sultanate",
-    period: "1300 – 1573 CE",
-    events: [
-      { year: "~1400 CE", title: "Ahmedabad Founded", description: "Ahmed Shah I establishes Ahmedabad as the capital of the Gujarat Sultanate." },
-      { year: "~1500 CE", title: "Golden Age of Trade", description: "Gujarat becomes a major center for international maritime trade." },
-    ],
-  },
-  {
-    id: "colonial",
-    label: "Colonial",
-    period: "1573 – 1947 CE",
-    events: [
-      { year: "1573", title: "Mughal Conquest", description: "Akbar conquers Gujarat, incorporating it into the Mughal Empire." },
-      { year: "1818", title: "British Paramountcy", description: "Gujarat's princely states come under British influence." },
-    ],
-  },
-  {
-    id: "modern",
-    label: "Modern",
-    period: "1947 – Present",
-    events: [
-      { year: "1947", title: "Independence", description: "Gujarat becomes part of independent India." },
-      { year: "1960", title: "Gujarat State Formation", description: "Gujarat is formed as a separate state from the former Bombay State." },
-    ],
-  },
-];
+interface TimelinePeriod {
+  id: string;
+  name: string;
+  start_year: number;
+  end_year: number | null;
+  description: string;
+  entity_count: number;
+}
+
+/* ========================================
+   Helpers
+   ======================================== */
+
+function formatYearRange(start: number, end: number | null): string {
+  const formatYear = (y: number) =>
+    y < 0 ? `${Math.abs(y)} BCE` : y > 2024 ? "Present" : `${y} CE`;
+  const endStr = end === null ? "Present" : formatYear(end);
+  return `${formatYear(start)} — ${endStr}`;
+}
+
+function getEraColor(index: number): string {
+  const colors = [
+    "border-l-terracotta",
+    "border-l-heritage-gold",
+    "border-l-indigo",
+    "border-l-deep-green",
+    "border-l-warm-gray",
+  ];
+  return colors[index % colors.length];
+}
+
+/* ========================================
+   Page Component
+   ======================================== */
 
 export default function TimelinePage() {
+  const {
+    data: periods,
+    loading,
+    error,
+    refetch,
+  } = useApi<TimelinePeriod[]>("/timeline");
+
   return (
     <div className="py-8 sm:py-12">
       <Container>
@@ -74,38 +64,94 @@ export default function TimelinePage() {
           title="Historical Timeline"
           subtitle="Journey through the major periods and events that shaped Gujarat's heritage."
         />
-        <p className="text-xs text-warm-gray italic mb-6">
-          Placeholder events — detailed historical data will be curated and verified.
-        </p>
 
-        <Tabs
-          tabs={eras.map((era) => ({
-            id: era.id,
-            label: era.label,
-            content: (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <h3 className="font-display text-2xl text-charcoal">{era.label}</h3>
-                  <Badge variant="secondary">{era.period}</Badge>
-                </div>
-                <div className="relative pl-8 border-l-2 border-border space-y-6">
-                  {era.events.map((event, index) => (
-                    <div key={index} className="relative">
+        {/* Loading */}
+        {loading && <LoadingState message="Loading historical periods..." />}
+
+        {/* Error */}
+        {error && (
+          <ErrorState
+            title="Unable to load timeline"
+            message={error}
+            onRetry={refetch}
+          />
+        )}
+
+        {/* Empty */}
+        {!loading && !error && periods && periods.length === 0 && (
+          <EmptyState
+            title="No historical periods"
+            description="Timeline data will appear here once historical periods are added to the database."
+          />
+        )}
+
+        {/* Timeline content */}
+        {!loading && !error && periods && periods.length > 0 && (
+          <Tabs
+            tabs={periods.map((period, index) => ({
+              id: period.id,
+              label: period.name,
+              content: (
+                <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+                    <h3 className="font-display text-2xl text-charcoal">
+                      {period.name}
+                    </h3>
+                    <Badge variant="secondary">
+                      {formatYearRange(period.start_year, period.end_year)}
+                    </Badge>
+                    {period.entity_count > 0 && (
+                      <Badge variant="accent">
+                        {period.entity_count} {period.entity_count === 1 ? "entity" : "entities"}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-muted leading-relaxed mb-6 max-w-2xl">
+                    {period.description}
+                  </p>
+
+                  {/* Decorative era timeline visualization */}
+                  <div className={`relative pl-8 border-l-2 ${getEraColor(index)} space-y-4`}>
+                    {/* Start marker */}
+                    <div className="relative">
                       <div className="absolute -left-[1.6rem] top-1 h-3 w-3 rounded-full bg-terracotta border-2 border-ivory" />
                       <Card hover>
                         <CardContent>
-                          <Badge variant="accent" className="mb-2">{event.year}</Badge>
-                          <h4 className="font-semibold text-charcoal">{event.title}</h4>
-                          <p className="text-sm text-muted mt-1">{event.description}</p>
+                          <Badge variant="accent" className="mb-2">
+                            {formatYearRange(period.start_year, period.end_year)}
+                          </Badge>
+                          <h4 className="font-semibold text-charcoal">
+                            {period.name} Period
+                          </h4>
+                          <p className="text-sm text-muted mt-1">
+                            {period.description}
+                          </p>
+                          {period.entity_count > 0 && (
+                            <p className="text-xs text-terracotta mt-2 font-medium">
+                              {period.entity_count} heritage {period.entity_count === 1 ? "entity" : "entities"} from this period are recorded in the database.
+                            </p>
+                          )}
                         </CardContent>
                       </Card>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ),
-          }))}
-        />
+              ),
+            }))}
+          />
+        )}
+
+        {/* Footer info */}
+        {!loading && !error && periods && periods.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-border text-center">
+            <p className="text-sm text-muted">
+              This timeline covers {periods.length} major historical periods of Gujarat.
+            </p>
+            <p className="text-xs text-warm-gray mt-2">
+              Heritage data is sourced and verified from the database.
+            </p>
+          </div>
+        )}
       </Container>
     </div>
   );
