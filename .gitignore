@@ -55,6 +55,12 @@ backups/*.dump
 .pytest_cache/
 .ruff_cache/
 
+# ML Models (binary)
+ml/models/*.joblib
+ml/models/*.pkl
+ml/models/*.h5
+ml/models/*.pt
+
 # Neo4j
 neo4j-data/
 
