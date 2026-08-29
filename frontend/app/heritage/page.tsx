@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
@@ -21,9 +21,10 @@ import {
   MapPin,
   BookOpen,
   Theater,
-  ChevronRight,
+  Search,
+  X,
 } from "lucide-react";
-import { CATEGORY_IMAGES, type HeritageImage } from "@/constants/images";
+import { CATEGORY_IMAGES } from "@/constants/images";
 
 /* ========================================
    Types
@@ -73,28 +74,53 @@ const categories = [
 
 export default function HeritagePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const categoryParam = activeCategory ? `?category=${activeCategory}` : "";
   const { data: heritage, loading, error, refetch } = useApi<HeritageEntity[]>(
     `/heritage${categoryParam}`
   );
 
-  const groupedHeritage = heritage?.reduce(
-    (acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
-      }
-      acc[item.category].push(item);
-      return acc;
-    },
-    {} as Record<string, HeritageEntity[]>
-  ) ?? {};
+  // Client-side search filter
+  const filteredHeritage = useMemo(() => {
+    if (!heritage) return [];
+    if (!searchQuery.trim()) return heritage;
+    const query = searchQuery.toLowerCase();
+    return heritage.filter(
+      (item) =>
+        item.name.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query)
+    );
+  }, [heritage, searchQuery]);
+
+  const groupedHeritage = useMemo(() => {
+    return filteredHeritage.reduce(
+      (acc, item) => {
+        if (!acc[item.category]) {
+          acc[item.category] = [];
+        }
+        acc[item.category].push(item);
+        return acc;
+      },
+      {} as Record<string, HeritageEntity[]>
+    );
+  }, [filteredHeritage]);
+
+  // Get unique categories from results
+  const activeCategories = useMemo(() => {
+    return categories.filter((cat) => groupedHeritage[cat.id]?.length > 0);
+  }, [groupedHeritage]);
+
+  const hasResults = filteredHeritage.length > 0;
+  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <div className="py-8 sm:py-12">
       <Container>
+        {/* Header */}
         <FadeIn>
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="h-5 w-5 text-terracotta" />
               <span className="text-sm font-medium text-terracotta">Heritage Directory</span>
@@ -108,36 +134,63 @@ export default function HeritagePage() {
           </div>
         </FadeIn>
 
-        {/* Category filter chips */}
+        {/* Search and Category Filters */}
         <FadeIn delay={0.1}>
-          <div className="flex flex-wrap gap-2 mb-8">
-            <button
-              onClick={() => setActiveCategory(null)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === null
-                  ? "bg-terracotta text-white"
-                  : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              return (
+          <div className="mb-6 space-y-4">
+            {/* Search Input */}
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search heritage by name, category, or description..."
+                className="w-full rounded-lg border border-border bg-white pl-10 pr-10 py-2.5 text-sm text-charcoal placeholder:text-warm-gray outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-colors"
+              />
+              {searchQuery && (
                 <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    activeCategory === cat.id
-                      ? "bg-terracotta text-white"
-                      : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
-                  }`}
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-parchment transition-colors"
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {cat.label}
+                  <X className="h-4 w-4 text-muted" />
                 </button>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Category Chips */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveCategory(null)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  activeCategory === null
+                    ? "bg-terracotta text-white"
+                    : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
+                }`}
+              >
+                All
+              </button>
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                const count = groupedHeritage[cat.id]?.length ?? 0;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      activeCategory === cat.id
+                        ? "bg-terracotta text-white"
+                        : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {cat.label}
+                    {!isSearching && count > 0 && (
+                      <span className="text-[10px] opacity-70">({count})</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </FadeIn>
 
@@ -150,11 +203,14 @@ export default function HeritagePage() {
         )}
 
         {/* Empty */}
-        {!loading && !error && heritage && heritage.length === 0 && (
+        {!loading && !error && filteredHeritage.length === 0 && (
           <EmptyState
-            title="No heritage entries"
+            icon={<Search className="h-8 w-8" />}
+            title={isSearching ? "No results found" : "No heritage entries"}
             description={
-              activeCategory
+              isSearching
+                ? `No heritage results found for "${searchQuery}". Try a different search term.`
+                : activeCategory
                 ? `No heritage entries found in the "${activeCategory}" category.`
                 : "Heritage entries will appear here once they are added to the database."
             }
@@ -162,14 +218,43 @@ export default function HeritagePage() {
         )}
 
         {/* Results */}
-        {!loading && !error && heritage && heritage.length > 0 && (
+        {!loading && !error && hasResults && (
           <div>
+            {/* Result count */}
+            <div className="mb-6 flex items-center justify-between">
+              <p className="text-sm text-muted">
+                {isSearching ? (
+                  <>
+                    Showing <span className="font-medium text-charcoal">{filteredHeritage.length}</span>{" "}
+                    result{filteredHeritage.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
+                  </>
+                ) : (
+                  <>
+                    Showing <span className="font-medium text-charcoal">{filteredHeritage.length}</span>{" "}
+                    heritage {filteredHeritage.length === 1 ? "entry" : "entries"} across{" "}
+                    <span className="font-medium text-charcoal">{activeCategories.length}</span>{" "}
+                    categor{activeCategories.length !== 1 ? "ies" : "y"}
+                  </>
+                )}
+              </p>
+              {(isSearching || activeCategory) && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setActiveCategory(null);
+                  }}
+                  className="text-xs text-terracotta hover:text-terracotta-dark font-medium transition-colors"
+                >
+                  Clear all filters
+                </button>
+              )}
+            </div>
+
             {/* All view — grouped by category */}
-            {!activeCategory && Object.keys(groupedHeritage).length > 0 && (
+            {!activeCategory && !isSearching && Object.keys(groupedHeritage).length > 0 && (
               <Stagger className="space-y-8" staggerDelay={0.05}>
-                {categories.map((cat) => {
+                {activeCategories.map((cat) => {
                   const items = groupedHeritage[cat.id];
-                  if (!items || items.length === 0) return null;
                   const Icon = cat.icon;
 
                   return (
@@ -177,7 +262,9 @@ export default function HeritagePage() {
                       <div className="flex items-center gap-2 mb-4">
                         <Icon className="h-5 w-5 text-terracotta" />
                         <h2 className="font-display text-xl text-charcoal">{cat.label}</h2>
-                        <Badge variant="outline" className="ml-1">{items.length}</Badge>
+                        <Badge variant="outline" className="ml-1">
+                          {items.length}
+                        </Badge>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {items.map((item) => {
@@ -186,7 +273,10 @@ export default function HeritagePage() {
                           return (
                             <Link key={item.id} href={`/heritage/${item.id}`}>
                               <motion.div
-                                whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(139,69,19,0.08)" }}
+                                whileHover={{
+                                  y: -2,
+                                  boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
+                                }}
                                 className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
                               >
                                 {/* Image header */}
@@ -211,7 +301,9 @@ export default function HeritagePage() {
                                       <ItemIcon className="h-4 w-4 text-terracotta" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                      <h3 className="font-semibold text-charcoal font-display text-sm">{item.name}</h3>
+                                      <h3 className="font-semibold text-charcoal font-display text-sm">
+                                        {item.name}
+                                      </h3>
                                       {item.location_id && (
                                         <div className="flex items-center gap-1.5 mt-1">
                                           <MapPin className="h-3 w-3 text-terracotta" />
@@ -223,7 +315,9 @@ export default function HeritagePage() {
                                           </Link>
                                         </div>
                                       )}
-                                      <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                                      <p className="text-xs text-muted mt-1.5 line-clamp-2">
+                                        {item.description}
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
@@ -238,17 +332,20 @@ export default function HeritagePage() {
               </Stagger>
             )}
 
-            {/* Category-filtered view */}
-            {activeCategory && (
+            {/* Category-filtered or search view */}
+            {(activeCategory || isSearching) && (
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {heritage.map((item) => {
+                {filteredHeritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
                   const catImage = CATEGORY_IMAGES[item.category];
                   return (
                     <StaggerItem key={item.id}>
                       <Link href={`/heritage/${item.id}`}>
                         <motion.div
-                          whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(139,69,19,0.08)" }}
+                          whileHover={{
+                            y: -2,
+                            boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
+                          }}
                           className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
                         >
                           {/* Image header */}
@@ -273,7 +370,12 @@ export default function HeritagePage() {
                                 <ItemIcon className="h-4 w-4 text-terracotta" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-charcoal font-display text-sm">{item.name}</h3>
+                                <h3 className="font-semibold text-charcoal font-display text-sm">
+                                  {item.name}
+                                </h3>
+                                <Badge variant="outline" className="mt-1 text-[10px] capitalize">
+                                  {item.category}
+                                </Badge>
                                 {item.location_id && (
                                   <div className="flex items-center gap-1.5 mt-1">
                                     <MapPin className="h-3 w-3 text-terracotta" />
@@ -285,7 +387,9 @@ export default function HeritagePage() {
                                     </Link>
                                   </div>
                                 )}
-                                <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                                <p className="text-xs text-muted mt-1.5 line-clamp-2">
+                                  {item.description}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -296,16 +400,6 @@ export default function HeritagePage() {
                 })}
               </Stagger>
             )}
-          </div>
-        )}
-
-        {/* Footer stats */}
-        {!loading && !error && heritage && heritage.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-border text-center">
-            <p className="text-sm text-muted">
-              Showing {heritage.length} heritage {heritage.length === 1 ? "entry" : "entries"}
-              {activeCategory ? ` in ${activeCategory}` : ""} from across India.
-            </p>
           </div>
         )}
       </Container>
