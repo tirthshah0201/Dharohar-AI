@@ -4,10 +4,10 @@
 
 export const APP_NAME = "Dharohar AI";
 export const APP_DESCRIPTION =
-  "An intelligent cultural and historical knowledge platform for discovering Gujarat's heritage.";
+  "An AI-powered platform for discovering and exploring the cultural heritage of India — monuments, crafts, festivals, traditions, and stories across every state.";
 
 // ---- Geographic ----
-export const PRIMARY_STATE = "Gujarat";
+export const PRIMARY_STATE = "India";
 
 export const GUJARAT_DISTRICTS = [
   "Ahmedabad",

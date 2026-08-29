@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Tabs } from "@/components/ui/Tabs";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { useApi } from "@/hooks/useApi";
 import {
   Landmark,
@@ -72,13 +72,11 @@ const categories = [
 export default function HeritagePage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Fetch heritage entities, optionally filtered by category
   const categoryParam = activeCategory ? `?category=${activeCategory}` : "";
   const { data: heritage, loading, error, refetch } = useApi<HeritageEntity[]>(
     `/heritage${categoryParam}`
   );
 
-  // Group by category for the "All" view
   const groupedHeritage = heritage?.reduce(
     (acc, item) => {
       if (!acc[item.category]) {
@@ -90,43 +88,63 @@ export default function HeritagePage() {
     {} as Record<string, HeritageEntity[]>
   ) ?? {};
 
-  // Build tabs
-  const tabs = categories.map((cat) => ({
-    id: cat.id,
-    label: cat.label,
-    content: null, // Will render content outside tabs
-  }));
-
   return (
     <div className="py-8 sm:py-12">
       <Container>
-        <SectionHeading
-          title="Heritage Directory"
-          subtitle="Explore Gujarat's heritage across monuments, people, crafts, traditions, festivals, and more."
-        />
+        <FadeIn>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="h-5 w-5 text-terracotta" />
+              <span className="text-sm font-medium text-terracotta">Heritage Directory</span>
+            </div>
+            <h1 className="font-display text-3xl sm:text-4xl text-charcoal mb-2">
+              India&apos;s Heritage
+            </h1>
+            <p className="text-muted max-w-xl">
+              Explore heritage across monuments, people, crafts, traditions, festivals, and more.
+            </p>
+          </div>
+        </FadeIn>
 
-        {/* Category tabs */}
-        <div className="mb-6">
-          <Tabs
-            tabs={[
-              { id: "all", label: "All", content: null },
-              ...tabs,
-            ]}
-            defaultTab={activeCategory ?? "all"}
-            onChange={(id) => setActiveCategory(id === "all" ? null : id)}
-          />
-        </div>
+        {/* Category filter chips */}
+        <FadeIn delay={0.1}>
+          <div className="flex flex-wrap gap-2 mb-8">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                activeCategory === null
+                  ? "bg-terracotta text-white"
+                  : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
+              }`}
+            >
+              All
+            </button>
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === cat.id
+                      ? "bg-terracotta text-white"
+                      : "bg-parchment text-muted hover:bg-cream hover:text-charcoal"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </FadeIn>
 
         {/* Loading */}
         {loading && <LoadingState message="Loading heritage..." />}
 
         {/* Error */}
         {error && (
-          <ErrorState
-            title="Unable to load heritage"
-            message={error}
-            onRetry={refetch}
-          />
+          <ErrorState title="Unable to load heritage" message={error} onRetry={refetch} />
         )}
 
         {/* Empty */}
@@ -146,83 +164,77 @@ export default function HeritagePage() {
           <div>
             {/* All view — grouped by category */}
             {!activeCategory && Object.keys(groupedHeritage).length > 0 && (
-              <div className="space-y-8">
+              <Stagger className="space-y-8" staggerDelay={0.05}>
                 {categories.map((cat) => {
                   const items = groupedHeritage[cat.id];
                   if (!items || items.length === 0) return null;
                   const Icon = cat.icon;
 
                   return (
-                    <div key={cat.id}>
+                    <StaggerItem key={cat.id}>
                       <div className="flex items-center gap-2 mb-4">
                         <Icon className="h-5 w-5 text-terracotta" />
-                        <h3 className="font-display text-xl text-charcoal">
-                          {cat.label}
-                        </h3>
-                        <Badge variant="outline" className="ml-1">
-                          {items.length}
-                        </Badge>
+                        <h2 className="font-display text-xl text-charcoal">{cat.label}</h2>
+                        <Badge variant="outline" className="ml-1">{items.length}</Badge>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {items.map((item) => {
                           const ItemIcon = categoryIcons[item.category] || Landmark;
                           return (
                             <Link key={item.id} href={`/heritage/${item.id}`}>
-                              <Card hover>
-                                <CardContent>
-                                  <div className="flex items-start gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
-                                      <ItemIcon className="h-5 w-5 text-terracotta" />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <h4 className="font-semibold text-charcoal font-serif text-base truncate">
-                                        {item.name}
-                                      </h4>
-                                      {item.location_id && (
-                                        <div className="flex items-center gap-1.5 mt-1">
-                                          <MapPin className="h-3 w-3 text-terracotta" />
-                                          <Link
-                                            href={`/explore/${item.location_id}`}
-                                            className="text-xs text-muted hover:text-terracotta transition-colors"
-                                          >
-                                            View location
-                                          </Link>
-                                        </div>
-                                      )}
-                                      <p className="text-sm text-muted mt-2 line-clamp-2">
-                                        {item.description}
-                                      </p>
-                                    </div>
+                              <motion.div
+                                whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
+                                className="rounded-xl border border-border bg-card p-4 cursor-pointer"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta/8 shrink-0">
+                                    <ItemIcon className="h-4 w-4 text-terracotta" />
                                   </div>
-                                </CardContent>
-                              </Card>
+                                  <div className="min-w-0">
+                                    <h3 className="font-semibold text-charcoal font-serif text-sm">{item.name}</h3>
+                                    {item.location_id && (
+                                      <div className="flex items-center gap-1.5 mt-1">
+                                        <MapPin className="h-3 w-3 text-terracotta" />
+                                        <Link
+                                          href={`/explore/${item.location_id}`}
+                                          className="text-xs text-muted hover:text-terracotta transition-colors"
+                                        >
+                                          View location
+                                        </Link>
+                                      </div>
+                                    )}
+                                    <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                                  </div>
+                                </div>
+                              </motion.div>
                             </Link>
                           );
                         })}
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </Stagger>
             )}
 
             {/* Category-filtered view */}
             {activeCategory && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {heritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
                   return (
-                    <Link key={item.id} href={`/heritage/${item.id}`}>
-                      <Card hover>
-                        <CardContent>
+                    <StaggerItem key={item.id}>
+                      <Link href={`/heritage/${item.id}`}>
+                        <motion.div
+                          whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
+                          className="rounded-xl border border-border bg-card p-4 cursor-pointer"
+                        >
                           <div className="flex items-start gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
-                              <ItemIcon className="h-5 w-5 text-terracotta" />
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta/8 shrink-0">
+                              <ItemIcon className="h-4 w-4 text-terracotta" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-semibold text-charcoal font-serif text-base truncate">
-                                {item.name}
-                              </h4>
+                              <h3 className="font-semibold text-charcoal font-serif text-sm">{item.name}</h3>
                               {item.location_id && (
                                 <div className="flex items-center gap-1.5 mt-1">
                                   <MapPin className="h-3 w-3 text-terracotta" />
@@ -234,17 +246,15 @@ export default function HeritagePage() {
                                   </Link>
                                 </div>
                               )}
-                              <p className="text-sm text-muted mt-2 line-clamp-2">
-                                {item.description}
-                              </p>
+                              <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
+                        </motion.div>
+                      </Link>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </Stagger>
             )}
           </div>
         )}
@@ -254,7 +264,7 @@ export default function HeritagePage() {
           <div className="mt-8 pt-6 border-t border-border text-center">
             <p className="text-sm text-muted">
               Showing {heritage.length} heritage {heritage.length === 1 ? "entry" : "entries"}
-              {activeCategory ? ` in ${activeCategory}` : ""} from the database.
+              {activeCategory ? ` in ${activeCategory}` : ""} from across India.
             </p>
           </div>
         )}
