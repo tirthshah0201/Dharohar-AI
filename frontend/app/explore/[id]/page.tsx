@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Container } from "@/components/ui/Container";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -10,6 +11,22 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useApi } from "@/hooks/useApi";
 import { MapPin, ArrowLeft, Landmark, Clock, ExternalLink } from "lucide-react";
+
+// Dynamic import for MapLibre (no SSR)
+const IndiaHeritageMap = dynamic(
+  () => import("@/components/map/IndiaHeritageMap").then((mod) => mod.IndiaHeritageMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[350px] rounded-xl border border-border bg-parchment animate-pulse flex items-center justify-center">
+        <div className="flex items-center gap-2 text-muted">
+          <div className="h-4 w-4 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">Loading map...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 /* ========================================
    Types
@@ -97,17 +114,20 @@ export default function LocationDetailPage({
               </div>
             </div>
 
-            {/* Map placeholder */}
-            <div className="rounded-xl border border-border bg-parchment min-h-[250px] flex items-center justify-center mb-8">
-              <div className="text-center p-8">
-                <MapPin className="h-8 w-8 text-terracotta mx-auto mb-2" />
-                <p className="text-sm text-muted">Interactive map — coming soon</p>
-                {location.latitude && location.longitude && (
-                  <p className="text-xs text-warm-gray mt-1">
-                    Coordinates: {Number(location.latitude).toFixed(4)}, {Number(location.longitude).toFixed(4)}
-                  </p>
-                )}
-              </div>
+            {/* Interactive Map — real implementation */}
+            <div className="mb-8">
+              {location.latitude && location.longitude ? (
+                <div className="rounded-xl overflow-hidden border border-border">
+                  <IndiaHeritageMap height="350px" />
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border bg-parchment min-h-[250px] flex items-center justify-center">
+                  <div className="text-center p-8">
+                    <MapPin className="h-8 w-8 text-terracotta mx-auto mb-2 opacity-50" />
+                    <p className="text-sm text-muted">Location coordinates not available for map view</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -124,12 +144,12 @@ export default function LocationDetailPage({
                 <Card hover>
                   <CardContent>
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo/5">
-                        <Landmark className="h-5 w-5 text-indigo" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10">
+                        <Landmark className="h-5 w-5 text-terracotta" />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-charcoal">Heritage Directory</h3>
-                        <p className="text-xs text-muted">Browse all heritage in Gujarat</p>
+                        <p className="text-xs text-muted">Browse all heritage sites</p>
                       </div>
                       <ExternalLink className="h-4 w-4 text-muted ml-auto" />
                     </div>
@@ -140,7 +160,7 @@ export default function LocationDetailPage({
                 <Card hover>
                   <CardContent>
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/5">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/10">
                         <Clock className="h-5 w-5 text-heritage-gold" />
                       </div>
                       <div>
@@ -158,14 +178,14 @@ export default function LocationDetailPage({
             {location.latitude && location.longitude && (
               <div className="mt-8 pt-6 border-t border-border">
                 <p className="text-xs text-warm-gray">
-                  📍 Location coordinates: {Number(location.latitude).toFixed(4)}°N, {Number(location.longitude).toFixed(4)}°E
+                  Location coordinates: {Number(location.latitude).toFixed(4)}°N, {Number(location.longitude).toFixed(4)}°E
                 </p>
               </div>
             )}
           </>
         )}
 
-        {/* Not found (API returned success but no data — shouldn't happen, 404 is caught by error) */}
+        {/* Not found */}
         {!loading && !error && !location && (
           <ErrorState
             title="Location not found"

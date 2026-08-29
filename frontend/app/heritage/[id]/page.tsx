@@ -21,6 +21,7 @@ import {
   UtensilsCrossed,
   BookOpen,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 
 /* ========================================
@@ -56,12 +57,12 @@ const categoryIcons: Record<string, typeof Landmark> = {
 const categoryColors: Record<string, string> = {
   monument: "bg-terracotta/10 text-terracotta",
   craft: "bg-heritage-gold/10 text-heritage-gold",
-  person: "bg-indigo/10 text-indigo",
-  festival: "bg-deep-green/10 text-deep-green",
+  person: "bg-terracotta-dark/10 text-terracotta-dark",
+  festival: "bg-terracotta-light/10 text-terracotta-dark",
   architecture: "bg-terracotta/10 text-terracotta",
-  event: "bg-indigo/10 text-indigo",
+  event: "bg-terracotta-dark/10 text-terracotta-dark",
   food: "bg-heritage-gold/10 text-heritage-gold",
-  community: "bg-deep-green/10 text-deep-green",
+  community: "bg-terracotta-light/10 text-terracotta-dark",
   tradition: "bg-heritage-gold/10 text-heritage-gold",
 };
 
@@ -190,12 +191,12 @@ export default function HeritageDetailPage({
                   <Card hover>
                     <CardContent>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo/5">
-                          <Clock className="h-5 w-5 text-indigo" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/10">
+                          <Clock className="h-5 w-5 text-heritage-gold" />
                         </div>
                         <div>
                           <p className="text-xs text-muted uppercase tracking-wider">Historical Period</p>
-                          <p className="text-sm font-semibold text-indigo">View timeline →</p>
+                          <p className="text-sm font-semibold text-heritage-gold">View timeline →</p>
                         </div>
                         <ExternalLink className="h-4 w-4 text-muted ml-auto" />
                       </div>
@@ -205,13 +206,24 @@ export default function HeritageDetailPage({
               )}
             </div>
 
-            {/* Source info placeholder */}
-            <Card className="mb-8">
+            {/* Ask Heritage Atlas about this */}
+            <Card className="mb-8 border-terracotta/20">
               <CardContent>
-                <h2 className="font-display text-xl text-charcoal mb-3">Sources & References</h2>
-                <p className="text-sm text-muted italic">
-                  Source attribution will be available in a future phase.
-                </p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
+                    <Sparkles className="h-5 w-5 text-terracotta" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-charcoal">Ask Heritage Atlas about {heritage.name}</h3>
+                    <p className="text-sm text-muted">Get AI-powered insights about this heritage entry.</p>
+                  </div>
+                  <Link href="/ai">
+                    <Button size="sm" variant="secondary">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Ask Heritage Atlas
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
 

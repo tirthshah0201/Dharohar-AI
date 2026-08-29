@@ -254,13 +254,12 @@ export function ChatBot() {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-parchment rounded-t-xl">
-        <div className="flex items-center gap-2">
-          <motion.div
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white"
-          >
-            <Sparkles className="h-4 w-4" />
-          </motion.div>
+        <div className="flex items-center gap-2">            <motion.div
+              whileHover={{ rotate: 10, scale: 1.1 }}
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta text-white"
+            >
+              <Sparkles className="h-4 w-4" />
+            </motion.div>
           <div>
             <h3 className="text-sm font-semibold text-charcoal">Heritage Atlas</h3>
             <p className="text-[10px] text-stone">Heritage Guide</p>
@@ -332,7 +331,7 @@ export function ChatBot() {
               <div
                 className={`max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === "user"
-                    ? "bg-indigo text-white"
+                    ? "bg-terracotta text-white"
                     : "bg-white border border-border text-charcoal"
                 }`}
               >

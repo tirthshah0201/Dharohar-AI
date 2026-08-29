@@ -102,8 +102,8 @@ export default function AboutPage() {
               return (
                 <Card key={goal.title}>
                   <CardContent>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo/5 mb-3">
-                      <Icon className="h-5 w-5 text-indigo" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/8 mb-3">
+                      <Icon className="h-5 w-5 text-terracotta" />
                     </div>
                     <h3 className="font-semibold text-charcoal">{goal.title}</h3>
                     <p className="text-sm text-muted mt-1">{goal.description}</p>
@@ -123,7 +123,7 @@ export default function AboutPage() {
               "Next.js", "TypeScript", "React", "Tailwind CSS",
               "Node.js", "Express.js", "PostgreSQL",
               "Python", "scikit-learn", "AI/ML",
-              "Motion", "OpenStreetMap",
+              "Motion", "MapLibre GL", "OpenStreetMap",
             ].map((tech) => (
               <Badge key={tech} variant="secondary">{tech}</Badge>
             ))}

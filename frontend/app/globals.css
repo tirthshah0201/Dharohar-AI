@@ -112,9 +112,9 @@
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-serif: Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
 
   --spacing-section: 6rem;
   --spacing-content: 4rem;
@@ -130,16 +130,21 @@ body {
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
 }
 
-/* Editorial heading styles */
+/* Editorial heading styles — Playfair Display */
 .font-display {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .font-serif {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+}
+
+/* Body / UI text — Manrope */
+.font-body {
+  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
 }
 
 /* Heritage decorative border */

@@ -1,368 +1,163 @@
-# HERITAGE ATLAS — COMPLETE UI/UX TRANSFORMATION REPORT
-
-## 1. Executive Summary
+# HERITAGE ATLAS — UI/UX IMPROVEMENT REPORT
+
+## 1. Implementation Summary
+
+Major UI/UX improvements to Heritage Atlas: fixed button contrast throughout the entire application, removed "coming soon" placeholders, replaced broken map popups, upgraded typography to Playfair Display + Manrope, and fixed inconsistent indigo references across all components.
+
+## 2. Previous UI Issues Found
+
+| Issue | Severity | Location |
+|-------|----------|----------|
+| Primary button used indigo (#1E1B4B) instead of terracotta | HIGH | Button.tsx, all pages |
+| "Interactive map — coming soon" placeholder | HIGH | explore/[id]/page.tsx |
+| HeritagePopup used emojis as icons | MEDIUM | HeritagePopup.tsx |
+| HeritagePopup detail link was broken | HIGH | HeritagePopup.tsx |
+| HeritagePopup used indigo button color | MEDIUM | HeritagePopup.tsx |
+| About page goal icons used indigo bg | MEDIUM | about/page.tsx |
+| Timeline page said "Gujarat's heritage" | MEDIUM | timeline/page.tsx |
+| Explore Ask AI button used indigo | MEDIUM | explore/page.tsx |
+| ChatBot header icon bg used indigo | MEDIUM | ChatBot.tsx |
+| ChatBot user messages used indigo | MEDIUM | ChatBot.tsx |
+| Timeline era colors referenced undefined `deep-green` | LOW | timeline/page.tsx |
+| Typography used generic Georgia/Geist | LOW | globals.css, layout.tsx |
+| "Browse all heritage in Gujarat" hardcoded | LOW | explore/[id]/page.tsx |
+
+## 3. Button/Contrast Improvements
+
+### Button Component (`components/ui/Button.tsx`)
+
+| Variant | Before | After |
+|---------|--------|-------|
+| primary | `bg-indigo text-white` | `bg-terracotta text-white hover:bg-terracotta-dark` |
+| secondary | `bg-terracotta text-white hover:bg-terracotta-light` | `bg-white text-terracotta border-2 border-terracotta hover:bg-terracotta-mist` |
+| ghost | `bg-transparent text-charcoal hover:bg-cream` | Same + `active:bg-cream` |
+| outline | `bg-transparent text-charcoal border border-border hover:bg-parchment` | Same + `active:bg-cream` |
+
+### Other Button Fixes
+
+| Component | Before | After |
+|-----------|--------|-------|
+| Explore Ask AI button | `bg-indigo-600 text-white` | `bg-terracotta text-white` |
+| HeritagePopup "Ask AI" | `bg-indigo-600 text-white` | `bg-[#C2703E] text-white` |
+| ChatBot header icon | `bg-indigo text-white` | `bg-terracotta text-white` |
+| ChatBot user messages | `bg-indigo text-white` | `bg-terracotta text-white` |
+
+### Badge Component (`components/ui/Badge.tsx`)
+
+| Variant | Before | After |
+|---------|--------|-------|
+| default | `bg-indigo/10 text-indigo` | `bg-terracotta/10 text-terracotta` |
+| secondary | `bg-terracotta/10 text-terracotta` | `bg-terracotta-mist text-stone` |
+
+## 4. "Coming Soon" Removed
+
+### explore/[id]/page.tsx
+- **Before:** Map placeholder with "Interactive map — coming soon"
+- **After:** Full interactive `IndiaHeritageMap` component with dynamic import (SSR disabled)
+- **Map shows:** All heritage markers, state selector, category filter
+- **Graceful fallback:** Shows "Location coordinates not available" when no lat/lng
+
+### heritage/[id]/page.tsx
+- **Before:** "Source info placeholder — will be available in a future phase"
+- **After:** "Ask Heritage Atlas about [name]" card linking to AI page
+- **Fixed:** indigo → terracotta for all category icon backgrounds
+
+## 5. Map Popup Fixes (`components/map/HeritagePopup.tsx`)
+
+| Issue | Before | After |
+|-------|--------|-------|
+| Icons | Emoji strings (🏛️, 🏘️, etc.) | Lucide React icons (Landmark, Palette, etc.) |
+| Detail link | `/heritage/${name.toLowerCase().replace(/\s+/g, "-")}` (broken) | `/heritage` (correct directory link) |
+| Ask AI button | `bg-indigo-600` | `bg-[#C2703E]` (terracotta) |
+| Type badge | `text-amber-600` | `text-[#C2703E]` (terracotta) |
+
+## 6. Typography Changes
+
+### Layout (`app/layout.tsx`)
+- **Before:** `Geist` (variable font) for both display and body
+- **After:** `Playfair Display` for headings/display + `Manrope` for body/UI
+- **Mono:** `Geist_Mono` retained for code
+
+### CSS (`app/globals.css`)
+- `--font-sans`: `var(--font-manrope), system-ui, sans-serif`
+- `--font-serif`: `var(--font-playfair), Georgia, serif`
+- `.font-display`: `var(--font-playfair), Georgia, serif` (elegant serif for headings)
+- Added `.font-body` utility class
+
+### Visual Impact
+- Headings now use elegant Playfair Display serif
+- Body/UI text uses clean Manrope sans-serif
+- Creates editorial museum-like typography pairing
+
+## 7. Color Fixes
+
+### About Page (`app/about/page.tsx`)
+- Goal icon backgrounds: `bg-indigo/5` → `bg-terracotta/8`
+- Goal icon colors: `text-indigo` → `text-terracotta`
+- Added `MapLibre GL` to technology badges (was missing)
+
+### Timeline Page (`app/timeline/page.tsx`)
+- Subtitle: "Gujarat's heritage" → "India's heritage"
+- Footer text: "periods of Gujarat" → "periods of India"
+- Era border colors: `border-l-indigo`/`border-l-deep-green` → `border-l-terracotta-dark`/`border-l-terracotta-light`
 
-Complete transformation of the Dharohar AI frontend into "Heritage Atlas" — an immersive, premium digital heritage platform with an orange/terracotta-based design system. Rebranded from "Dharohar AI" to "Heritage Atlas" across all user-facing surfaces, redesigned the hero experience, navigation, footer, and established a sophisticated visual identity inspired by Indian sandstone and terracotta architecture.
+### Heritage Detail Page (`app/heritage/[id]/page.tsx`)
+- All category color mappings: indigo/deep-green → terracotta variants
+- Period icon: `bg-indigo/5 text-indigo` → `bg-heritage-gold/10 text-heritage-gold`
 
-## 2. Previous UI Analysis
-
-### Weaknesses Identified
-
-- "Dharohar AI" branding — generic name, not memorable for users
-- Gujarat-only hero identity ("Gujarati, India")
-- Indigo-based color system — not culturally distinctive
-- Static sections without discovery journey
-- No interactive map integration on homepage
-- Generic CTA section
-- Footer referenced old branding
-- No immersive brand experience
-
-## 3. New Brand
-
-### Heritage Atlas
-
-**Tagline:** "Explore India. Discover Its Stories."
-
-### Brand Identity
-
-- **Name:** Heritage Atlas
-- **Position:** Interactive digital platform for India's cultural heritage
-- **Tone:** Premium, cultural, modern, intelligent
-- **Visual Language:** Indian sandstone, terracotta, warm sunlight, handcrafted materials
-
-## 4. Brand Name Decision
-
-**Decision:** Replace "Dharohar AI" with "Heritage Atlas"
-
-### Rationale
-- "Heritage Atlas" is memorable and descriptive
-- Communicates interactive discovery (Atlas)
-- Professional enough for government/cultural institutions
-- Works for nationwide expansion
-- No Gujarat-specific association
-
-### Changes Made
-
-| Location | Before | After |
-|----------|--------|-------|
-| Logo text | Dharohar AI | Heritage Atlas |
-| Logo icon | "DA" text | MapPin icon |
-| Navbar badge | "AI-Powered Heritage Platform" | "Heritage Atlas" |
-| Hero headline | "Every Monument Has a Story" | "Explore India. Discover Its Stories." |
-| Hero CTA | "Ask Dharohar AI" | "Ask Heritage Atlas" |
-| AI page title | "Dharohar AI" | "Heritage Atlas Guide" |
-| Chatbot header | "Dharohar AI" | "Heritage Atlas" |
-| Chatbot subtitle | "Heritage Assistant" | "Heritage Guide" |
-| Footer | "Dharohar AI" | "Heritage Atlas" |
-| Metadata | "Dharohar AI" | "Heritage Atlas" |
-| About page | "Dharohar AI" | "Heritage Atlas" |
-
-## 5. Visual Design Direction
-
-### Design Concept: "Contemporary Heritage"
-
-A warm, immersive visual language inspired by:
-- Indian sandstone architecture
-- Terracotta pottery and crafts
-- Heritage manuscripts and archives
-- Warm sunlight on ancient walls
-- Handcrafted materials and textures
-
-## 6. Orange Color System
-
-### Core Palette
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| terracotta | #C2703E | Primary accent, buttons, links |
-| terracotta-dark | #A85A2E | Hover states, dark accents |
-| terracotta-deep | #8B4513 | Hero background, deep tones |
-| terracotta-light | #D4915E | Light accents, highlights |
-| terracotta-pale | #E8C4A0 | Borders, subtle backgrounds |
-| terracotta-mist | #F5E6D3 | Card backgrounds, badges |
-
-### Neutral Palette
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| ivory | #FAF7F2 | Page background |
-| sandstone | #F5F0E8 | Section backgrounds |
-| parchment | #F0E8DC | Warm section backgrounds |
-| cream | #EDE8DE | Borders, subtle accents |
-| stone | #8A8279 | Muted text |
-| charcoal | #2D2A26 | Body text |
-| deep-brown | #1C1915 | Footer background |
-
-### Heritage Gold
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| heritage-gold | #B8963E | Secondary accent |
-| heritage-gold-light | #D4B36A | Hero headline accent |
-
-## 7. Typography
-
-- **Display:** Georgia, "Times New Roman", serif — for headings, editorial feel
-- **Body:** Geist Sans — modern, clean, readable
-- **Mono:** Geist Mono — code, technical elements
-
-## 8. Navigation
-
-### Design
-- Logo: Terracotta circle with MapPin icon + "Heritage Atlas" text
-- Tagline: "Explore India. Discover Its Stories." (desktop only)
-- Nav links: Explore, Timeline, Heritage, Ask AI, About
-- Active indicator: terracotta underline with spring animation
-- Mobile: animated hamburger → X toggle, staggered link entrance
-- Scroll-aware: border/shadow appears on scroll
-
-## 9. Hero
-
-### Design
-- Full-width terracotta gradient background (terracotta-deep → terracotta → terracotta-dark)
-- Subtle heritage pattern overlay
-- Warm glow accents (gold blur effects)
-- Badge: "Heritage Atlas" with MapPin icon
-- Headline: "Explore India." + "Discover Its Stories." (gold accent)
-- Description: India's heritage is more than monuments...
-- Primary CTA: "Explore Heritage" (white button on terracotta)
-- Secondary CTA: "Ask Heritage Atlas" (outline white)
-- Trust indicators: Live Heritage Data, 6 Languages, AI-Powered
-- Parallax scroll effect on hero
-
-## 10. Interactive India Experience
-
-### Statistics
-- 8+ States, 31+ Heritage Records, 6 Languages, 9 Heritage Categories
-- Animated CountUp with terracotta color
-
-### State Cards
-- 4 initial states with "Show all 8" expand
-- Color accent bar per state
-- Highlight tags in terracotta-mist background
-- Hover elevation with warm shadow
-- "Explore [State] >" link in terracotta
-
-### Map CTA Section
-- Split layout: text left, map preview right
-- "Heritage Across India" headline
-- Interactive Map button linking to /explore
-- Map preview showing 22 markers, 8 states
-
-## 11. Map
-
-- MapLibre GL JS with OpenStreetMap tiles
-- 22 heritage markers from Neon database
-- Color-coded by type (state, district, city, village, site)
-- State selector with fly-to animation
-- Category filter
-- Heritage popup with "Ask Heritage Atlas" button
-- Legend with type colors
-
-## 12. State Exploration
-
-- 8 states: Gujarat, Rajasthan, Punjab, Goa, Tamil Nadu, Maharashtra, Madhya Pradesh, Delhi
-- Each card has region, tagline, highlights, heritage count
-- Expandable from 4 to all 8 states
-
-## 13. Heritage Discovery
-
-### Categories
-- Monuments, Crafts, People, Festivals, Food, Events
-- Terracotta-mist icon backgrounds
-- Hover elevation animation
-
-### Featured Heritage
-- Cards from API data
-- Category icon in terracotta-mist
-- Serif font for heritage names
-- Link to heritage detail page
-
-## 14. Timeline
-
-- Vertical timeline with terracotta dots
-- Alternating left/right layout (desktop)
-- Period badges in terracotta-mist
-- Heritage entity count in terracotta
-- "View Full Timeline" CTA
-
-## 15. AI Guide
-
-### Page Design
-- Header: terracotta sparkle icon
-- Title: "Heritage Atlas Guide"
-- Badges: 6 Languages, 31 Heritage Records, 8 States
-- Chat card with warm shadow
-- Supported states display
-
-### Chatbot
-- Header: "Heritage Atlas" / "Heritage Guide"
-- Welcome: "Welcome to Heritage Atlas"
-- Messages labeled "Heritage Atlas"
-- Language selector: 6 languages
-- Context-aware suggestions
-- Romanized Gujarati support
-
-## 16. Search
-
-- Preserved existing search functionality
-- Updated to use new color tokens
-
-## 17. Recommendations
-
-- Context-aware suggestions from API
-- Displayed as clickable chips
-- Updated branding references
-
-## 18. Location Experience
-
-- Map integration with heritage markers
-- State fly-to animation
-- Heritage popup with Ask AI context
-- Responsive on mobile
-
-## 19. Motion / Animation
-
-- Hero parallax scroll
-- Staggered card entrances
-- CountUp animated statistics
-- Navbar scroll-aware border
-- Mobile menu animated toggle
-- Card hover elevation
-- Button press scale
-- All respecting prefers-reduced-motion
-
-## 20. Responsive Design
-
-| Viewport | Status |
-|----------|--------|
-| 375px | ✅ Mobile layout |
-| 768px | ✅ Tablet layout |
-| 1024px | ✅ Desktop layout |
-| 1440px | ✅ Wide layout |
-
-## 21. Accessibility
-
-- Focus-visible with terracotta outline
-- Semantic HTML
-- ARIA labels on interactive elements
-- Keyboard navigation
-- Reduced motion support
-- Sufficient contrast (WCAG AA)
-
-## 22. Performance
-
-- GPU-accelerated animations (transform, opacity)
-- No layout reflow animations
-- viewport: { once: true } prevents re-triggering
-- Map uses efficient DOM markers
-
-## 23. Errors Found
-
-| Error | Resolution |
-|-------|------------|
-| "Dharohar AI" in chatbot messages | Replaced with "Heritage Atlas" |
-| "Dharohar AI" in metadata | Updated to "Heritage Atlas" |
-| Indigo color tokens in components | Updated to terracotta palette |
-| Old branding in footer | Updated to Heritage Atlas |
-| "Ask Dharohar AI" button | Updated to "Ask Heritage Atlas" |
-
-## 24. Errors Fixed
-
-All branding and color system errors fixed. TypeScript compilation passes with 0 errors.
-
-## 25. Final UI/UX Audit
-
-### Visual ✅
-- Orange/terracotta color system consistent
-- Typography hierarchy clear
-- Spacing uniform
-- Branding "Heritage Atlas" everywhere
-
-### UX ✅
-- Discovery journey flows naturally
-- Map integrated as major feature
-- AI guide clearly branded
-- Navigation clear and responsive
-
-### Interaction ✅
-- Hover effects working
-- Scroll animations present
-- Loading states functional
-- Error states friendly
-
-### Responsive ✅
-- Mobile layout works
-- Tablet layout works
-- Desktop layout works
-
-### Accessibility ✅
-- Focus states visible
-- Keyboard navigation works
-- Reduced motion supported
-
-## 26. Second Improvement Pass
-
-Applied during implementation:
-- Consistent terracotta tokens across all pages
-- Warm shadow system for elevated elements
-- Terracotta-mist backgrounds for section variety
-- MapPin icon replacing text-based logo
-
-## 27. Verification
-
-| Check | Status |
-|-------|--------|
-| TypeScript | ✅ Clean (0 errors) |
-| Backend API | ✅ All endpoints 200 |
-| Map | ✅ 22 markers loading |
-| Chatbot | ✅ 6 languages working |
-| State detection | ✅ All 8 states |
-| Heritage search | ✅ Results returned |
-| No secrets | ✅ .env gitignored |
-
-## 28. Files Changed
+## 8. Files Modified
 
 | File | Changes |
 |------|---------|
-| `frontend/app/globals.css` | Complete orange design system |
-| `frontend/app/layout.tsx` | Heritage Atlas metadata |
-| `frontend/app/page.tsx` | Complete homepage redesign |
-| `frontend/app/ai/page.tsx` | Heritage Atlas Guide branding |
-| `frontend/app/about/page.tsx` | Heritage Atlas branding |
-| `frontend/components/layout/Navbar.tsx` | Heritage Atlas logo + navigation |
-| `frontend/components/layout/Footer.tsx` | Heritage Atlas footer |
-| `frontend/components/ai/ChatBot.tsx` | Heritage Atlas chatbot branding |
-| `frontend/constants/index.ts` | Heritage Atlas constants |
+| `components/ui/Button.tsx` | Primary = terracotta, improved all variants |
+| `components/ui/Badge.tsx` | Default = terracotta, fixed secondary |
+| `components/ui/Card.tsx` | Updated hover shadow to warm tones |
+| `app/globals.css` | Playfair Display + Manrope font system |
+| `app/layout.tsx` | Load Playfair + Manrope from Google Fonts |
+| `app/explore/[id]/page.tsx` | Replaced map placeholder with real map |
+| `app/heritage/[id]/page.tsx` | Fixed colors, added Ask AI section |
+| `app/about/page.tsx` | Fixed indigo → terracotta |
+| `app/timeline/page.tsx` | Fixed Gujarat → India, era colors |
+| `app/explore/page.tsx` | Fixed Ask AI button color |
+| `components/ai/ChatBot.tsx` | Fixed header + message colors |
+| `components/map/HeritagePopup.tsx` | Fixed icons, links, colors |
 
-## 29. Known Limitations
+## 9. Verification
 
-- MapTiler API key not configured (uses free OSM tiles)
-- Heritage images not yet integrated
-- Dark mode not implemented
-- No page transitions yet
+| Check | Status |
+|-------|--------|
+| TypeScript (`tsc --noEmit`) | ✅ Clean — 0 errors |
+| Production build (`next build`) | ✅ Passes — all 9 routes |
+| No "coming soon" remaining | ✅ Verified via code search |
+| No user-facing indigo button text | ✅ All buttons use terracotta |
+| Map renders with markers | ✅ 22 markers loaded |
+| Backend API responding | ✅ Port 3001, health = 200 |
+| No secrets committed | ✅ .env gitignored |
+| No Dharohar user-facing branding | ✅ All "Heritage Atlas" |
 
-## 30. Future Improvements
+## 10. Visual QA
 
-| Priority | Item |
-|----------|------|
-| Medium | Heritage images/media in cards |
-| Medium | Dark mode support |
-| Low | Search command palette (Cmd+K) |
-| Low | Page transition animations |
-| Low | Additional Indian states |
-| Low | MapTiler styled tiles |
+| Page | Status | Notes |
+|------|--------|-------|
+| Home (/) | ✅ | Hero, states, map CTA, timeline, categories, featured, AI CTA, footer |
+| Explore (/explore) | ✅ | Map, state cards, search, location results |
+| Explore Detail (/explore/[id]) | ✅ | Real map, description, quick links |
+| Heritage (/heritage) | ✅ | Category filters, heritage cards |
+| Heritage Detail (/heritage/[id]) | ✅ | Description, metadata, Ask AI CTA |
+| Timeline (/timeline) | ✅ | Period tabs, era visualization |
+| AI (/ai) | ✅ | Chat interface, language selector |
+| About (/about) | ✅ | Problem, approach, technology |
 
-## 31. PRD Status
+## 11. Remaining Issues / Future Improvements
 
-**UPDATED** — docs/chatbot/PRD.md
+| Priority | Issue | Notes |
+|----------|-------|-------|
+| LOW | No heritage images yet | Architecture supports adding images to cards |
+| LOW | MapTiler API key not in .env | Free OSM tiles working as fallback |
+| LOW | Dark mode not implemented | Future feature |
+| LOW | No page transitions | Could add route transition animations |
+| LOW | Heritage popup "Details" link goes to /heritage | Could use ID-based links when heritage data is linked to location |
 
-## 32. Git Commit
-
-- **Commit:** Pending
-- **Branch:** main
-- **Push:** Pending
-
-## 33. Final Status
+## 12. Final Status
 
 **PASS** ✅

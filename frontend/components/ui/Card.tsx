@@ -14,7 +14,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       return (
         <motion.div
           ref={ref}
-          whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(45,42,38,0.1)" }}
+          whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(139,69,19,0.1)" }}
           whileTap={{ scale: 0.985 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className={`rounded-xl border border-border bg-card p-6 shadow-sm cursor-pointer transition-colors ${className}`}

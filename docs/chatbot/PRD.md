@@ -35,8 +35,9 @@ English, Gujarati, Hindi, Marathi, Tamil, Punjabi
 - heritage-gold: #B8963E (highlight)
 
 ### Typography
-- Display: Georgia serif
-- Body: Geist sans
+- Display/Headings: Playfair Display (serif)
+- Body/UI: Manrope (sans-serif)
+- Mono: Geist Mono
 
 ### Animation
 - FadeIn, Stagger, CountUp motion components
@@ -80,10 +81,21 @@ Scalable `StateData` interface in `constants/india.ts` — add new states by ext
 - Lazy loading
 - No layout reflow
 
-## 12. Future
+## 12. Interactive Map
 
-- MapLibre GL JS interactive map
+- MapLibre GL JS with OpenStreetMap raster tiles
+- MapTiler support when API key configured
+- 22 heritage markers from Neon PostgreSQL
+- State selector with fly-to animation
+- Category filter
+- Heritage popups with Ask Atlas integration
+- Responsive design
+
+## 13. Future
+
 - Heritage images/media
 - Dark mode
 - Additional Indian states
 - RAG/semantic search
+- Page transitions
+- Marker clustering

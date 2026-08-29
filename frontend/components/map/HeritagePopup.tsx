@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Bot, ExternalLink } from "lucide-react";
+import { MapPin, Sparkles, ExternalLink, Landmark, Palette, Users, Calendar, Clock, UtensilsCrossed, BookOpen, Theater } from "lucide-react";
 
 /* ========================================
    Types
@@ -19,18 +19,24 @@ interface HeritagePopupProps {
    Helpers
    ======================================== */
 
-const CATEGORY_ICONS: Record<string, string> = {
-  state: "🗺️",
-  district: "🏘️",
-  city: "🏙️",
-  village: "🏡",
-  site: "🏛️",
-  monument: "🏛️",
-  temple: "🛕",
-  fort: "🏰",
-  museum: "🏛️",
-  craft: "🎨",
-  festival: "🎭",
+const CATEGORY_ICONS: Record<string, typeof Landmark> = {
+  state: MapPin,
+  district: MapPin,
+  city: MapPin,
+  village: MapPin,
+  site: Landmark,
+  monument: Landmark,
+  temple: Landmark,
+  fort: Landmark,
+  museum: Landmark,
+  craft: Palette,
+  festival: Calendar,
+  person: Users,
+  food: UtensilsCrossed,
+  tradition: BookOpen,
+  community: Theater,
+  architecture: Landmark,
+  event: Clock,
 };
 
 /* ========================================
@@ -45,21 +51,23 @@ export function HeritagePopup({
   category,
   onAskAI,
 }: HeritagePopupProps) {
-  const icon = CATEGORY_ICONS[category] || CATEGORY_ICONS[type] || "📍";
+  const Icon = CATEGORY_ICONS[category] || CATEGORY_ICONS[type] || MapPin;
 
   return (
     <div className="p-0 min-w-[220px] max-w-[280px]" style={{ fontFamily: "system-ui, sans-serif" }}>
       {/* Header */}
       <div className="px-3 pt-3 pb-2 border-b border-gray-100">
         <div className="flex items-start gap-2">
-          <span className="text-lg mt-0.5">{icon}</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C2703E]/10 shrink-0 mt-0.5">
+            <Icon className="h-4 w-4 text-[#C2703E]" />
+          </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm text-gray-900 leading-tight">{name}</h3>
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="h-3 w-3 text-gray-400" />
               <span className="text-[11px] text-gray-500">{state}</span>
               <span className="text-[11px] text-gray-300">·</span>
-              <span className="text-[11px] text-amber-600 font-medium capitalize">{type}</span>
+              <span className="text-[11px] text-[#C2703E] font-medium capitalize">{type}</span>
             </div>
           </div>
         </div>
@@ -76,13 +84,13 @@ export function HeritagePopup({
       <div className="px-3 pb-3 flex gap-2">
         <button
           onClick={() => onAskAI?.({ name, state, category: type })}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition-colors cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#C2703E] text-white text-xs font-medium rounded-md hover:bg-[#A85A2E] transition-colors cursor-pointer"
         >
-          <Bot className="h-3 w-3" />
-          Ask AI
+          <Sparkles className="h-3 w-3" />
+          Ask Atlas
         </button>
         <a
-          href={`/heritage/${name.toLowerCase().replace(/\s+/g, "-")}`}
+          href={`/heritage`}
           className="flex items-center justify-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors"
         >
           <ExternalLink className="h-3 w-3" />

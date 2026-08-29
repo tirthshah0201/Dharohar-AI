@@ -38,8 +38,8 @@ function getEraColor(index: number): string {
   const colors = [
     "border-l-terracotta",
     "border-l-heritage-gold",
-    "border-l-indigo",
-    "border-l-deep-green",
+    "border-l-terracotta-dark",
+    "border-l-terracotta-light",
     "border-l-warm-gray",
   ];
   return colors[index % colors.length];
@@ -62,7 +62,7 @@ export default function TimelinePage() {
       <Container>
         <SectionHeading
           title="Historical Timeline"
-          subtitle="Journey through the major periods and events that shaped Gujarat's heritage."
+          subtitle="Journey through the major periods and events that shaped India's heritage."
         />
 
         {/* Loading */}
@@ -145,7 +145,7 @@ export default function TimelinePage() {
         {!loading && !error && periods && periods.length > 0 && (
           <div className="mt-10 pt-8 border-t border-border text-center">
             <p className="text-sm text-muted">
-              This timeline covers {periods.length} major historical periods of Gujarat.
+              This timeline covers {periods.length} major historical periods of India.
             </p>
             <p className="text-xs text-warm-gray mt-2">
               Heritage data is sourced and verified from the database.

@@ -144,7 +144,7 @@ export default function ExplorePage() {
               </div>
               <a
                 href="/ai"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-terracotta text-white text-xs font-semibold rounded-lg hover:bg-terracotta-dark transition-colors"
               >
                 <Bot className="h-3.5 w-3.5" />
                 Ask AI
