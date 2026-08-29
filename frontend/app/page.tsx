@@ -257,7 +257,7 @@ export default function HomePage() {
               <Link href="/explore">
                 <Button
                   size="lg"
-                  className="!bg-white !text-terracotta-deep hover:!bg-white/90 !border-0 shadow-lg shadow-black/10 font-semibold"
+                  className="!bg-[#1a237e] !text-white hover:!bg-[#283593] !border-0 shadow-lg shadow-black/20 font-semibold"
                 >
                   <Compass className="h-4 w-4" />
                   Explore Heritage
@@ -396,7 +396,7 @@ export default function HomePage() {
                   </div>
                   <div className="relative text-center p-6">
                     <MapPin className="h-12 w-12 text-terracotta mx-auto mb-3 opacity-60" />
-                    <p className="text-sm text-stone font-medium">22 Heritage Markers</p>
+                    <p className="text-sm text-stone font-medium">30+ Heritage Markers</p>
                     <p className="text-xs text-stone/60 mt-1">8 States · Interactive Zoom</p>
                   </div>
                 </div>

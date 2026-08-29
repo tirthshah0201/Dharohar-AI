@@ -6,6 +6,7 @@ import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { INDIAN_STATES, INDIA_CENTER, INDIA_ZOOM, type StateData } from "@/constants/india";
 import { API_BASE_URL, DEMO_API_KEY } from "@/constants";
+import { FAMOUS_HERITAGE_MARKERS, type FamousMarker } from "@/constants/famousMarkers";
 import { HeritagePopup } from "./HeritagePopup";
 import { StateSelector } from "./StateSelector";
 import { MapControls } from "./MapControls";
@@ -111,7 +112,7 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
   }, [locations]);
 
   const herWithCoords = useMemo(() => {
-    return heritage
+    const dbHeritage = heritage
       .map(h => {
         const loc = locations.find(l => l.id === h.location_id);
         if (!loc) return null;
@@ -124,7 +125,35 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
         return { ...h, latitude: lat, longitude: lng, state: loc.state };
       })
       .filter(Boolean) as (HeritageEntity & { latitude: number; longitude: number; state: string })[];
+
+    // Merge famous markers not already covered by database
+    const existingNames = new Set(dbHeritage.map(h => h.name.toLowerCase()));
+    const famousAsHeritage: (HeritageEntity & { latitude: number; longitude: number; state: string })[] = [];
+    for (const fm of FAMOUS_HERITAGE_MARKERS) {
+      if (fm.type !== "site") continue; // Only heritage sites, not cities/states
+      if (existingNames.has(fm.name.toLowerCase())) continue; // Skip if already in DB
+      famousAsHeritage.push({
+        id: fm.id,
+        name: fm.name,
+        category: fm.category,
+        description: fm.description,
+        location_id: null,
+        latitude: fm.latitude,
+        longitude: fm.longitude,
+        state: fm.state,
+      });
+    }
+
+    return [...dbHeritage, ...famousAsHeritage];
   }, [heritage, locations]);
+
+  // Famous city markers (supplemental, not from DB)
+  const famousCityMarkers = useMemo(() => {
+    const dbCityNames = new Set(mappable.filter(l => l.type === "city").map(l => l.name.toLowerCase()));
+    return FAMOUS_HERITAGE_MARKERS.filter(
+      fm => fm.type === "city" && !dbCityNames.has(fm.name.toLowerCase())
+    );
+  }, [mappable]);
 
   const categories = useMemo(() => [...new Set(herWithCoords.map(h => h.category))].sort(), [herWithCoords]);
 
@@ -145,7 +174,7 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
   }, []);
 
   // ---- Create markers function ----
-  const renderMarkers = useCallback((map: maplibregl.Map, locs: typeof mappable, her: typeof herWithCoords, state: string | null, cat: string) => {
+  const renderMarkers = useCallback((map: maplibregl.Map, locs: typeof mappable, her: typeof herWithCoords, cityMarkers: FamousMarker[], state: string | null, cat: string) => {
     // Clean up existing
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
@@ -156,6 +185,7 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
     const fLocs = state ? locs.filter(l => l.state === state) : locs;
     let fHer = state ? her.filter(h => h.state === state) : her;
     if (cat !== "all") fHer = fHer.filter(h => h.category === cat);
+    const fCities = state ? cityMarkers.filter(c => c.stateCode === state) : cityMarkers;
 
     // Location markers (circles)
     fLocs.forEach(loc => {
@@ -275,6 +305,42 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
       markersRef.current.push(m);
     });
 
+    // Famous city markers (triangles)
+    fCities.forEach(c => {
+      const markerWrap = document.createElement("div");
+      markerWrap.style.cssText = "position:relative;";
+
+      const el = document.createElement("div");
+      el.style.cssText = `
+        width:20px; height:20px; border-radius:4px;
+        background:#7C3AED; border:2px solid white;
+        box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer;
+        transition:transform .15s; clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+      `;
+      markerWrap.appendChild(el);
+
+      // Hover tooltip
+      const tooltipText = `${c.name}\n${c.state}`;
+      const tooltip = createTooltip(tooltipText);
+      markerWrap.appendChild(tooltip);
+      tooltipsRef.current.push(tooltip);
+
+      el.onmouseenter = () => {
+        el.style.transform = "scale(1.3)";
+        tooltip.style.opacity = "1";
+      };
+      el.onmouseleave = () => {
+        el.style.transform = "scale(1)";
+        tooltip.style.opacity = "0";
+      };
+
+      const m = new maplibregl.Marker({ element: markerWrap, anchor: "center" })
+        .setLngLat([c.longitude, c.latitude])
+        .addTo(map);
+
+      markersRef.current.push(m);
+    });
+
     setMarkerCount(markersRef.current.length);
   }, [onAskAI, createTooltip]);
 
@@ -315,8 +381,8 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || mappable.length === 0) return;
-    renderMarkers(map, mappable, herWithCoords, selState, catFilter);
-  }, [mappable, herWithCoords, selState, catFilter, renderMarkers]);
+    renderMarkers(map, mappable, herWithCoords, famousCityMarkers, selState, catFilter);
+  }, [mappable, herWithCoords, famousCityMarkers, selState, catFilter, renderMarkers]);
 
   // ---- Fly ----
   const flyTo = useCallback((st: StateData | null) => {
@@ -359,6 +425,10 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
               <span className="text-[10px] text-muted capitalize">{type}</span>
             </div>
           ))}
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5" style={{ backgroundColor: "#7C3AED", clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }} />
+            <span className="text-[10px] text-muted">famous city</span>
+          </div>
         </div>
       </div>
     </div>

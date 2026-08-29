@@ -85,26 +85,34 @@ Scalable `StateData` interface in `constants/india.ts` — add new states by ext
 
 - MapLibre GL JS with OpenStreetMap raster tiles
 - MapTiler support when API key configured
-- 22 heritage markers from Neon PostgreSQL
+- 30+ heritage markers across all 8 states
+- Database markers (circles) from Neon PostgreSQL
+- Famous heritage site markers (diamonds) from `famousMarkers.ts`
+- Famous city markers (triangles) from `famousMarkers.ts`
 - State selector with fly-to animation
 - Category filter
 - Hover tooltips showing name, state, type
 - Heritage popups with Ask Atlas integration
 - Coordinate validation (lat/lng bounds checking)
 - Invalid coordinates logged and skipped
+- Deduplication between DB and famous markers
 - Responsive design
 
 ## 13. Image System
 
-- Per-heritage unique Unsplash photos via `getHeritageImage()`
-- Category fallback images (distinct per category)
-- State representative photos
+- **Local asset images** in `public/assets/states/` and `public/assets/heritage/`
+- Deterministic mapping via `constants/images.ts`
+- `STATE_IMAGES` — exact image per state code
+- `HERITAGE_IMAGES` — exact image per heritage name
+- `CATEGORY_IMAGES` — fallback only (never overrides entity images)
+- `getHeritageImage(name, category)` — priority lookup
 - Lazy loading on all images
 - No duplicate photos across heritage entries
+- 8 state images + 20 heritage images supplied by developer
 
 ## 14. Future
 
-- Heritage images stored in database
+- Compress kutch_embroidery.png (currently 47MB)
 - Dark mode
 - Additional Indian states
 - RAG/semantic search

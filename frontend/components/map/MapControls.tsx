@@ -58,8 +58,8 @@ export function MapControls({
       </motion.button>
 
       {/* Marker count */}
-      <div className="px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-border text-[10px] text-muted font-medium text-center min-w-[32px]">
-        {totalMarkers}
+      <div className="px-2.5 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-border text-[10px] text-muted font-medium text-center min-w-[40px]">
+        {totalMarkers} markers
       </div>
 
       {/* Filter dropdown */}

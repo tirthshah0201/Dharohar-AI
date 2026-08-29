@@ -1,149 +1,154 @@
-# HERITAGE ATLAS — UI/UX + Functional Correction Report
+# Heritage Atlas — Image Asset Integration & Map Markers Report
 
 ## 1. Implementation Summary
 
-Critical UI/UX and functional corrections to Heritage Atlas: fixed wrong heritage images (Taj Mahal appearing for all monuments), improved map marker interactions with hover tooltips, added coordinate validation, fixed hero button contrast, and verified no remaining "coming soon" labels.
+This implementation integrates supplied local image assets into Heritage Atlas and adds famous heritage markers for all 8 supported states.
 
-## 2. Root Causes Discovered
+**Key changes:**
+- Replaced all external Unsplash/Wikimedia image URLs with local `/assets/` images
+- Fixed Explore Heritage hero button contrast (dark blue background + white text)
+- Added 30+ famous heritage markers covering all 8 states
+- Every state card now displays its correct supplied state image
+- Every heritage entity now displays its correct supplied heritage image
 
-### Bug 1: Wrong Heritage Images (CRITICAL)
-**Root cause:** Featured heritage cards in `page.tsx` and `heritage/page.tsx` used `CATEGORY_IMAGES[item.category]` which mapped ALL monument entries to the same Taj Mahal photo. The `HERITAGE_IMAGES` map and `getHeritageImage()` function existed but were never called.
+## 2. Image Architecture
 
-**Fix:** Updated both pages to call `getHeritageImage(item.name, item.category)` which matches heritage entries by name against unique photo URLs.
+### Local Asset Paths
 
-### Bug 2: Duplicate Photo IDs
-**Root cause:** `HERITAGE_IMAGES` mapped multiple heritage entries to the same Unsplash photo ID (e.g., "rani ki vav" and "modhera sun temple" both used `photo-1609766418204-94aae0ecfab5`).
+Images are stored in:
+```
+frontend/public/assets/states/    (8 files)
+frontend/public/assets/heritage/  (20 files)
+```
 
-**Fix:** Rewrote `images.ts` with verified unique Unsplash photo IDs for every heritage entry. Each entry now has a distinct photo.
+### Deterministic Mapping
 
-### Bug 3: Map Marker Tooltips Missing
-**Root cause:** Map markers had basic hover scale effect but no information tooltip.
+`frontend/constants/images.ts` contains the single source of truth:
 
-**Fix:** Added hover tooltips showing name, state, and type/category for each marker.
+- `STATE_IMAGES` — maps state codes (GJ, RJ, PB, etc.) to exact local images
+- `HERITAGE_IMAGES` — maps normalized heritage names to exact local images
+- `CATEGORY_IMAGES` — fallback only, never overrides entity-specific images
+- `getHeritageImage(name, category)` — priority lookup function
+- `getStateImage(stateCode)` — state image lookup
 
-### Bug 4: Hero Button Contrast
-**Root cause:** "Explore Heritage" button used `className="bg-white text-terracotta-deep"` on a `variant="primary"` button, which could have CSS specificity conflicts.
+### Fallback Hierarchy
 
-**Fix:** Changed to `variant="secondary"` with explicit `border-white text-white` for clear contrast on the terracotta hero background.
+1. Exact entity image (`HERITAGE_IMAGES[name]`)
+2. Partial name match
+3. Category fallback (`CATEGORY_IMAGES[category]`)
+4. Null (component handles gracefully)
 
-## 3. Files Modified
+## 3. State Image Mapping
 
-| File | Changes |
-|------|---------|
-| `frontend/constants/images.ts` | Complete rewrite with unique photo IDs per heritage entry |
-| `frontend/app/page.tsx` | Featured heritage uses `getHeritageImage()`, hero button contrast fixed |
-| `frontend/app/heritage/page.tsx` | Heritage cards use `getHeritageImage()` |
-| `frontend/components/map/IndiaHeritageMap.tsx` | Coordinate validation, hover tooltips, improved marker interactions |
+| State | Code | Image File |
+|-------|------|-----------|
+| Gujarat | GJ | `gujarat_state.jpg` |
+| Rajasthan | RJ | `rajasthan_state.jpg` |
+| Punjab | PB | `punjab_state.jpg` |
+| Goa | GA | `goa_state.jpg` |
+| Tamil Nadu | TN | `tamil_nadu_state.jpg` |
+| Maharashtra | MH | `maharashtra_state.jpg` |
+| Madhya Pradesh | MP | `madhya_pradesh_state.jpg` |
+| Delhi | DL | `delhi_state.jpg` |
 
-## 4. Image Mapping Fixes
+## 4. Heritage Image Mapping
 
-### Heritage Entries — Verified Unique Photos
+20 heritage entities mapped to exact local images:
 
-| Heritage Entry | Photo Source | Status |
-|----------------|-------------|--------|
-| Rani ki Vav | Unsplash photo-1609766418204 | ✅ Unique |
-| Modhera Sun Temple | Unsplash photo-a9Ro6Ezvkn8 | ✅ Unique |
-| Patola Silk | Unsplash craft photo | ✅ Unique |
-| Adalaj Stepwell | Unsplash craft photo | ✅ Unique |
-| Dholavira | Unsplash archaeology photo | ✅ Unique |
-| Kutch Embroidery | Unsplash craft photo | ✅ Unique |
-| Garba | Unsplash festival photo | ✅ Unique |
-| Mahatma Gandhi | Unsplash heritage photo | ✅ Unique |
-| Amber Fort | Unsplash photo-1477587458883 | ✅ Unique |
-| Hawa Mahal | Unsplash photo-bywypDA3hwA | ✅ Unique |
-| Golden Temple | Unsplash photo-aCCt24KXzrM | ✅ Unique |
-| Red Fort | Unsplash photo-1587474260584 | ✅ Unique |
-| Ajanta Caves | Unsplash photo-1590050752117 | ✅ Unique |
-| Khajuraho Temples | Unsplash heritage photo | ✅ Unique |
-| Meenakshi Temple | Unsplash photo-1582510003544 | ✅ Unique |
-| All 31 entries | Verified | ✅ No duplicates |
+- Rani ki Vav → `rani_ki_vav.jpg`
+- Modhera Sun Temple → `modhera_sun_temple.jpg`
+- Adalaj Stepwell → `adalaj_stepwell.jpg`
+- Dholavira → `dholavira.jpg`
+- Patola Silk → `patola_silk.webp`
+- Kutch Embroidery → `kutch_embroidery.png`
+- Garba → `garba.jpg`
+- Mahatma Gandhi → `mahatma_gandhi.jpg`
+- Sabarmati Ashram → `sabarmati_ashram.jpg`
+- Amber Fort → `amber_fort.jpg`
+- Hawa Mahal → `hawa_mahal.jpg`
+- Golden Temple → `golden_temple.jpg`
+- Jallianwala Bagh → `jallianwala_bagh.jpg`
+- Phulkari → `phulkari.webp`
+- Basilica of Bom Jesus → `basilica_of_bom_jesus.jpg`
+- Se Cathedral → `se_cathedral.jpg`
+- Meenakshi Amman Temple → `meenakshi_temple.jpg`
+- Ajanta Caves → `ajanta_caves.jpg`
+- Khajuraho Temples → `khajuraho_temples.jpg`
+- Red Fort → `red_fort.jpg`
 
-### Category Fallback Images
-Each category now uses a DISTINCT photo (not Taj Mahal):
-- Monument → Indian architecture photo
-- Craft → Textile weaving photo
-- Person → Community gathering photo
-- Festival → Festival celebration photo
-- Food → Thali cuisine photo
+## 5. Button Contrast Fix
 
-## 5. Map Improvements
+**Problem:** Hero "Explore Heritage" button had white text on white/light background.
 
-### Coordinate Validation
-- All coordinates validated against -90≤lat≤90, -180≤lng≤180
-- Invalid coordinates logged as warnings and skipped
-- No markers placed at 0,0 or upper-left corner
+**Fix:** Changed to `!bg-[#1a237e] !text-white` — dark blue background with white text, clearly readable without hover.
 
-### Hover Tooltips
-- Each marker shows name, state, and type/category on hover
-- Clean tooltip with dark background and proper positioning
-- Smooth fade-in/fade-out animation
+## 6. Famous Heritage Markers
 
-### Marker Interactions
-- Hover: scale 1.25× with tooltip
-- Click: opens popup with name, description, state, type
-- Map click: closes existing popup
-- Markers use `anchor: "center"` for proper positioning
+`frontend/constants/famousMarkers.ts` contains 30+ pre-defined markers:
 
-### Data Validation
-- `validateCoord()` checks for null/NaN
-- `isValidLatLng()` checks valid ranges
-- Console warnings for invalid data
-- Graceful degradation — invalid markers skipped
+### Gujarat (6 markers)
+- Rani ki Vav, Modhera Sun Temple, Dholavira, Adalaj Stepwell, Sabarmati Ashram, Ahmedabad
 
-## 6. Button Contrast Fixes
+### Rajasthan (5 markers)
+- Amber Fort, Hawa Mahal, Mehrangarh Fort, Jaipur, Udaipur
 
-### Hero "Explore Heritage" Button
-- **Before:** `variant="primary"` with `className="bg-white text-terracotta-deep"` (potential CSS conflict)
-- **After:** `variant="secondary"` with `border-white text-white hover:bg-white/15` (clear white-on-terracotta)
+### Punjab (3 markers)
+- Golden Temple, Jallianwala Bagh, Amritsar
 
-### All Button Variants Verified
-| Variant | Background | Text | Hover | Status |
-|---------|-----------|------|-------|--------|
-| primary | terracotta | white | darker | ✅ |
-| secondary | white | terracotta | mist | ✅ |
-| ghost | transparent | charcoal | cream | ✅ |
-| outline | transparent | charcoal | parchment | ✅ |
-| hero override | transparent | white | white/15 | ✅ |
+### Goa (3 markers)
+- Basilica of Bom Jesus, Sé Cathedral, Panaji
 
-## 7. "Coming Soon" Audit
+### Tamil Nadu (3 markers)
+- Meenakshi Amman Temple, Mahabalipuram, Madurai
 
-| Location | Status |
-|----------|--------|
-| Frontend components (.tsx) | ✅ No "coming soon" found |
-| Explore detail page | ✅ Real map component |
-| Heritage detail page | ✅ Ask Heritage Atlas CTA |
-| Documentation (docs/) | ✅ Only in report.md references |
+### Maharashtra (4 markers)
+- Ajanta Caves, Ellora Caves, Gateway of India, Mumbai
 
-## 8. Typography Verification
+### Madhya Pradesh (3 markers)
+- Khajuraho Temples, Sanchi Stupa, Bhopal
 
-| Font | Loading | Usage | Status |
-|------|---------|-------|--------|
-| Playfair Display | Google Fonts via `next/font` | Headings (.font-display) | ✅ |
-| Manrope | Google Fonts via `next/font` | Body/UI (font-sans) | ✅ |
-| Geist Mono | Google Fonts via `next/font` | Code (font-mono) | ✅ |
+### Delhi (4 markers)
+- Red Fort, Qutub Minar, Humayun's Tomb, New Delhi
 
-## 9. Verification Results
+### Marker Types
+- **Circles** — Database locations (from API)
+- **Diamonds** — Heritage sites (gold #B8963E)
+- **Triangles** — Famous cities (purple #7C3AED)
+
+### Deduplication
+Famous markers are de-duplicated against database locations to prevent double-rendering.
+
+## 7. Files Modified
+
+| File | Change |
+|------|--------|
+| `frontend/constants/images.ts` | Complete rewrite — local assets only |
+| `frontend/constants/famousMarkers.ts` | New file — 30+ famous heritage markers |
+| `frontend/app/page.tsx` | Fixed hero button contrast, updated marker count |
+| `frontend/components/map/IndiaHeritageMap.tsx` | Merged famous markers, city markers, updated legend |
+| `frontend/components/map/MapControls.tsx` | Updated marker count display text |
+| `frontend/public/assets/states/` | 8 state images (new) |
+| `frontend/public/assets/heritage/` | 20 heritage images (new) |
+
+## 8. Verification
 
 | Check | Status |
 |-------|--------|
 | TypeScript (`tsc --noEmit`) | ✅ Clean — 0 errors |
 | Production build (`next build`) | ✅ Passes — all 9 routes |
-| No duplicate photos | ✅ Verified |
-| No "coming soon" labels | ✅ Verified |
-| Button contrast | ✅ All readable |
-| Map coordinate validation | ✅ All valid |
-| Map hover tooltips | ✅ Implemented |
+| All 8 state images present | ✅ Verified |
+| All 20 heritage images present | ✅ Verified |
+| No external image URLs | ✅ All local |
+| Hero button readable | ✅ Dark blue + white |
+| Famous markers added | ✅ 30+ across 8 states |
 | No secrets committed | ✅ .env gitignored |
 
-## 10. Remaining Issues / Future Improvements
+## 9. Remaining Issues
 
-| Priority | Issue | Notes |
-|----------|-------|-------|
-| LOW | MapTiler API key not configured | Free OSM tiles working |
-| LOW | No heritage images in database | Using Unsplash fallbacks |
-| LOW | Some heritage entries share similar photos | Different crops/hues used |
-| LOW | No marker clustering | Acceptable for 22 markers |
+- `kutch_embroidery.png` is 47MB — should be compressed for production
+- Some category fallback images could be more specific (currently using heritage images as fallback)
+- MapTiler API key not in `.env` — uses free OSM tiles as fallback
 
-## 11. Final Status
+## 10. Final Status
 
 **PASS** ✅
