@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { api } from "@/services/api";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -30,6 +31,11 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface SuggestionItem {
+  text: string;
+  category?: string;
+}
+
 interface ChatResponseData {
   success: boolean;
   data: {
@@ -38,13 +44,13 @@ interface ChatResponseData {
     state: string | null;
     knowledge_ids: string[];
     language: string;
-    suggestions: string[];
+    suggestions: SuggestionItem[];
   };
 }
 
 interface WelcomeResponse {
   success: boolean;
-  data: { message: string; language: string; suggestions: string[] };
+  data: { message: string; language: string; suggestions: SuggestionItem[] };
 }
 
 /* ---- Supported languages for display ---- */
@@ -58,6 +64,28 @@ const LANGUAGE_OPTIONS: Language[] = [
   { code: "pa", name: "Punjabi", nativeName: "ਪੰਜਾਬੀ" },
 ];
 
+/* ---- Typing Indicator ---- */
+
+function TypingIndicator() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      className="flex justify-start"
+    >
+      <div className="bg-white border border-border rounded-xl px-4 py-3 flex items-center gap-2">
+        <div className="flex gap-1">
+          <span className="typing-dot h-1.5 w-1.5 rounded-full bg-terracotta" />
+          <span className="typing-dot h-1.5 w-1.5 rounded-full bg-terracotta" />
+          <span className="typing-dot h-1.5 w-1.5 rounded-full bg-terracotta" />
+        </div>
+        <span className="text-xs text-muted">Thinking...</span>
+      </div>
+    </motion.div>
+  );
+}
+
 /* ---- ChatBot Component ---- */
 
 export function ChatBot() {
@@ -67,7 +95,7 @@ export function ChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [sessionId] = useState(() => `session-${Math.random().toString(36).slice(2, 10)}`);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [lastIntent, setLastIntent] = useState<string | null>(null);
   const [lastState, setLastState] = useState<string | null>(null);
   const idCounter = useRef(0);
@@ -118,8 +146,8 @@ export function ChatBot() {
   }, [messages]);
 
   // Send message
-  const handleSend = async (text?: string) => {
-    const messageText = text || input.trim();
+  const handleSend = async (text?: string | SuggestionItem) => {
+    const messageText = (typeof text === "string" ? text : text?.text) || input.trim();
     if (!messageText || isLoading) return;
 
     const userMsg: ChatMessage = {
@@ -218,13 +246,21 @@ export function ChatBot() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] max-h-[80vh]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col h-[600px] max-h-[80vh]"
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-parchment rounded-t-xl">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white">
+          <motion.div
+            whileHover={{ rotate: 10, scale: 1.1 }}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white"
+          >
             <Sparkles className="h-4 w-4" />
-          </div>
+          </motion.div>
           <div>
             <h3 className="text-sm font-semibold text-charcoal">Dharohar AI</h3>
             <p className="text-[10px] text-muted">Heritage Assistant</p>
@@ -233,93 +269,108 @@ export function ChatBot() {
         <div className="flex items-center gap-2">
           {/* Language Selector */}
           <div className="relative">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowLangDropdown(!showLangDropdown)}
               className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-medium text-charcoal hover:bg-parchment transition-colors"
             >
               <Globe className="h-3.5 w-3.5 text-muted" />
               <span>{currentLang.nativeName}</span>
               <ChevronDown className="h-3 w-3 text-muted" />
-            </button>
-            {showLangDropdown && (
-              <div className="absolute right-0 top-full mt-1 w-44 rounded-lg border border-border bg-white shadow-lg z-50">
-                {LANGUAGE_OPTIONS.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
-                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                      language === lang.code
-                        ? "bg-terracotta/5 text-terracotta font-medium"
-                        : "text-charcoal hover:bg-parchment"
-                    }`}
-                  >
-                    <span className="font-medium">{lang.nativeName}</span>
-                    <span className="text-muted ml-1.5">({lang.name})</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            </motion.button>
+            <AnimatePresence>
+              {showLangDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-1 w-44 rounded-lg border border-border bg-white shadow-lg z-50"
+                >
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                        language === lang.code
+                          ? "bg-terracotta/5 text-terracotta font-medium"
+                          : "text-charcoal hover:bg-parchment"
+                      }`}
+                    >
+                      <span className="font-medium">{lang.nativeName}</span>
+                      <span className="text-muted ml-1.5">({lang.name})</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           {/* Clear */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleClear}
             className="rounded-lg p-1.5 text-muted hover:text-charcoal hover:bg-parchment transition-colors"
             aria-label="Clear conversation"
           >
             <Trash2 className="h-4 w-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-ivory">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-indigo text-white"
-                  : "bg-white border border-border text-charcoal"
-              }`}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-ivory">
+        <AnimatePresence initial={false}>
+          {messages.map((msg) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {msg.role === "assistant" && (
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Sparkles className="h-3 w-3 text-heritage-gold" />
-                  <span className="text-[10px] font-medium text-muted">
-                    Dharohar AI
-                    {msg.intent && msg.intent !== "greeting" && (
-                      <Badge variant="outline" className="ml-1.5 text-[9px] py-0">
-                        {msg.intent.replace(/_/g, " ")}
-                      </Badge>
-                    )}
-                  </span>
+              <div
+                className={`max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-indigo text-white"
+                    : "bg-white border border-border text-charcoal"
+                }`}
+              >
+                {msg.role === "assistant" && (
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Sparkles className="h-3 w-3 text-heritage-gold" />
+                    <span className="text-[10px] font-medium text-muted">
+                      Dharohar AI
+                      {msg.intent && msg.intent !== "greeting" && (
+                        <Badge variant="outline" className="ml-1.5 text-[9px] py-0">
+                          {msg.intent.replace(/_/g, " ")}
+                        </Badge>
+                      )}
+                    </span>
+                  </div>
+                )}
+                <div className={msg.role === "user" ? "text-white" : "text-charcoal"}>
+                  {formatContent(msg.content)}
                 </div>
-              )}
-              <div className={msg.role === "user" ? "text-white" : "text-charcoal"}>
-                {formatContent(msg.content)}
               </div>
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-border rounded-xl px-4 py-3 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 text-terracotta animate-spin" />
-              <span className="text-sm text-muted">Thinking...</span>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isLoading && <TypingIndicator />}
+        </AnimatePresence>
 
         <div ref={messagesEndRef} />
       </div>
 
       {/* Context-Aware Suggestions */}
       {suggestions.length > 0 && !isLoading && (
-        <div className="px-4 py-2 border-t border-border bg-parchment">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 py-2 border-t border-border bg-parchment"
+        >
           <div className="flex items-center gap-1.5 mb-1.5">
             <MessageSquare className="h-3 w-3 text-muted" />
             <p className="text-[10px] text-muted">
@@ -328,16 +379,18 @@ export function ChatBot() {
           </div>
           <div className="flex flex-wrap gap-1.5">
             {suggestions.map((q) => (
-              <button
-                key={q}
-                onClick={() => handleSend(q)}
+              <motion.button
+                key={q.text}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleSend(q.text)}
                 className="rounded-full border border-border bg-white px-2.5 py-1 text-[11px] text-muted hover:text-charcoal hover:border-terracotta/30 transition-colors"
               >
-                {q}
-              </button>
+                {q.text}
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Input */}
@@ -384,6 +437,6 @@ export function ChatBot() {
           Responses are grounded in verified heritage data. Always verify important facts from primary sources.
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

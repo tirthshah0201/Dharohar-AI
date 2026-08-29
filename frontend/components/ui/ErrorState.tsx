@@ -1,29 +1,43 @@
-import { AlertCircle } from "lucide-react";
+"use client";
+
+import { motion } from "motion/react";
+import { AlertTriangle } from "lucide-react";
+import { type ReactNode } from "react";
 import { Button } from "./Button";
 
-interface ErrorStateProps {
+export interface ErrorStateProps {
   title?: string;
-  message?: string;
-  onRetry?: () => void;
+  message: string;
+  action?: ReactNode;
+  onRetry?: () => void | Promise<void>;
 }
 
-function ErrorState({
+export function ErrorState({
   title = "Something went wrong",
-  message = "An unexpected error occurred. Please try again.",
+  message,
+  action,
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
-      <AlertCircle className="h-10 w-10 text-destructive" />
-      <h3 className="text-lg font-semibold text-charcoal">{title}</h3>
-      <p className="text-sm text-muted max-w-md">{message}</p>
-      {onRetry && (
-        <Button variant="outline" onClick={onRetry}>
-          Try Again
-        </Button>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center py-12 text-center"
+    >
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 mb-4">
+        <AlertTriangle className="h-6 w-6 text-destructive" />
+      </div>
+      <h3 className="text-base font-semibold text-charcoal">{title}</h3>
+      <p className="text-sm text-muted mt-1 max-w-sm">{message}</p>
+      {onRetry && !action && (
+        <div className="mt-4">
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            Try Again
+          </Button>
+        </div>
       )}
-    </div>
+      {action && <div className="mt-4">{action}</div>}
+    </motion.div>
   );
 }
-
-export { ErrorState, type ErrorStateProps };

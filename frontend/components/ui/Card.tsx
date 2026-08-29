@@ -1,17 +1,34 @@
+"use client";
+
+import { motion, type HTMLMotionProps } from "motion/react";
 import { type HTMLAttributes, forwardRef } from "react";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
+  delay?: number;
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ hover = false, className = "", children, ...props }, ref) => {
+  ({ hover = false, className = "", children, delay = 0, ...props }, ref) => {
+    if (hover) {
+      return (
+        <motion.div
+          ref={ref}
+          whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(45,42,38,0.1)" }}
+          whileTap={{ scale: 0.985 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className={`rounded-xl border border-border bg-card p-6 shadow-sm cursor-pointer transition-colors ${className}`}
+          {...(props as HTMLMotionProps<"div">)}
+        >
+          {children}
+        </motion.div>
+      );
+    }
+
     return (
       <div
         ref={ref}
-        className={`rounded-xl border border-border bg-card p-6 shadow-sm ${
-          hover ? "transition-shadow duration-200 hover:shadow-md cursor-pointer" : ""
-        } ${className}`}
+        className={`rounded-xl border border-border bg-card p-6 shadow-sm ${className}`}
         {...props}
       >
         {children}

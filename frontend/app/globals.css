@@ -2,6 +2,7 @@
 
 /* ========================================
    DHAROHAR AI — Design System
+   "Contemporary Heritage" Direction
    Museum + Digital Archive + Modern AI
    ======================================== */
 
@@ -15,6 +16,7 @@
   --color-charcoal: #2D2A26;
   --color-terracotta: #C2703E;
   --color-terracotta-light: #D4915E;
+  --color-terracotta-dark: #A85A2E;
   --color-heritage-gold: #B8963E;
   --color-heritage-gold-light: #D4B36A;
   --color-deep-green: #2D5016;
@@ -36,6 +38,28 @@
   --border: var(--color-border);
   --card: var(--color-card);
   --destructive: var(--color-destructive);
+
+  /* ---- Shadows ---- */
+  --shadow-xs: 0 1px 2px rgba(45, 42, 38, 0.04);
+  --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.06), 0 1px 2px rgba(45, 42, 38, 0.04);
+  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.08);
+  --shadow-lg: 0 8px 30px rgba(45, 42, 38, 0.1);
+  --shadow-xl: 0 16px 50px rgba(45, 42, 38, 0.12);
+
+  /* ---- Animation Tokens ---- */
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --stagger: 80ms;
+
+  /* ---- Border Radius ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 }
 
 @theme inline {
@@ -65,7 +89,6 @@
   --font-mono: var(--font-geist-mono);
   --font-serif: Georgia, "Times New Roman", serif;
 
-  /* Spacing scale */
   --spacing-section: 6rem;
   --spacing-content: 4rem;
 }
@@ -119,3 +142,68 @@ html {
   background-color: var(--color-heritage-gold-light);
   color: var(--color-indigo);
 }
+
+/* ========================================
+   Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Heritage pattern overlay */
+.heritage-pattern {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.03) 2px,
+      rgba(255,255,255,0.03) 4px
+    );
+}
+
+/* Gradient text utility */
+.text-gradient-heritage {
+  background: linear-gradient(135deg, var(--color-terracotta), var(--color-heritage-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-parchment) 25%, var(--color-cream) 50%, var(--color-parchment) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Typing indicator dots */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.typing-dot {
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }

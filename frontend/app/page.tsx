@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { motion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -8,6 +10,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
+import { RevealText } from "@/components/motion/Typewriter";
 import { useApi } from "@/hooks/useApi";
 import {
   MapPin,
@@ -19,6 +24,7 @@ import {
   Calendar,
   Sparkles,
   ArrowRight,
+  ArrowUpRight,
 } from "lucide-react";
 
 /* ========================================
@@ -108,7 +114,14 @@ export default function HomePage() {
     error: heritageError,
   } = useApi<HeritageEntity[]>("/heritage");
 
-  // Take first 4 featured locations, 5 timeline periods, 6 heritage items
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+
   const featuredLocations = locations?.slice(0, 4) ?? [];
   const timelineData = timeline?.slice(0, 5) ?? [];
   const featuredHeritage = heritage?.slice(0, 6) ?? [];
@@ -116,32 +129,59 @@ export default function HomePage() {
   return (
     <>
       {/* ---- Hero ---- */}
-      <section className="relative bg-indigo text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo via-indigo/95 to-charcoal/90" />
-        <div className="absolute inset-0 opacity-5">
-          <div
-            className="h-full w-full"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)",
-            }}
-          />
-        </div>
+      <section ref={heroRef} className="relative bg-indigo text-white overflow-hidden">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-indigo via-indigo/95 to-charcoal/90"
+          style={{ opacity: heroOpacity, scale: heroScale }}
+        />
+        <div className="absolute inset-0 heritage-pattern opacity-[0.04]" />
         <Container>
           <div className="relative py-24 sm:py-32 lg:py-40 max-w-3xl">
-            <Badge variant="accent" className="mb-6 bg-heritage-gold/20 text-heritage-gold-light border-heritage-gold/30">
-              Gujarat, India
-            </Badge>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <Badge variant="accent" className="mb-6 bg-heritage-gold/20 text-heritage-gold-light border-heritage-gold/30">
+                Gujarat, India
+              </Badge>
+            </motion.div>
+
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight">
-              Discover the Heritage
-              <br />
-              <span className="text-heritage-gold-light">of Gujarat</span>
+              <motion.span
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="block"
+              >
+                Discover the Heritage
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="block text-heritage-gold-light"
+              >
+                of Gujarat
+              </motion.span>
             </h1>
-            <p className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed">
+
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed"
+            >
               Explore centuries of culture, architecture, traditions, and history
               through an intelligent platform powered by AI.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.65 }}
+              className="mt-8 flex flex-col sm:flex-row gap-4"
+            >
               <Link href="/explore">
                 <Button size="lg" className="bg-terracotta hover:bg-terracotta-light text-white">
                   Explore Gujarat
@@ -154,30 +194,34 @@ export default function HomePage() {
                   Explore Timeline
                 </Button>
               </Link>
-            </div>
+            </motion.div>
           </div>
         </Container>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-ivory to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ivory to-transparent" />
       </section>
 
       {/* ---- Explore Gujarat (Real API Data) ---- */}
       <section className="py-16 sm:py-20">
         <Container>
-          <SectionHeading
-            title="Explore Gujarat"
-            subtitle="Discover the districts and regions that shape Gujarat's rich cultural landscape."
-          />
+          <FadeIn>
+            <SectionHeading
+              title="Explore Gujarat"
+              subtitle="Discover the districts and regions that shape Gujarat's rich cultural landscape."
+            />
+          </FadeIn>
 
           {/* Map placeholder */}
-          <div className="rounded-xl border border-border bg-parchment p-8 mb-8 min-h-[300px] flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-10 w-10 text-terracotta mx-auto mb-3" />
-              <p className="text-sm text-muted font-medium">
-                Interactive map will be integrated here.
-              </p>
-              <Badge variant="outline" className="mt-3">Coming Soon</Badge>
+          <FadeIn delay={0.1}>
+            <div className="rounded-xl border border-border bg-parchment p-8 mb-8 min-h-[300px] flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="h-10 w-10 text-terracotta mx-auto mb-3" />
+                <p className="text-sm text-muted font-medium">
+                  Interactive map will be integrated here.
+                </p>
+                <Badge variant="outline" className="mt-3">Coming Soon</Badge>
+              </div>
             </div>
-          </div>
+          </FadeIn>
 
           {/* District cards from API */}
           {locationsLoading && <LoadingState message="Loading locations..." />}
@@ -188,49 +232,55 @@ export default function HomePage() {
             />
           )}
           {!locationsLoading && !locationsError && featuredLocations.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {featuredLocations.map((loc) => (
-                <Link key={loc.id} href={`/explore/${loc.id}`}>
-                  <Card hover>
-                    <CardContent>
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-terracotta/10 shrink-0">
-                          <MapPin className="h-4 w-4 text-terracotta" />
+                <StaggerItem key={loc.id}>
+                  <Link href={`/explore/${loc.id}`}>
+                    <Card hover>
+                      <CardContent>
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-terracotta/10 shrink-0">
+                            <MapPin className="h-4 w-4 text-terracotta" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-charcoal text-sm">{loc.name}</h3>
+                            <Badge variant="outline" className="mt-1 text-[10px]">{loc.type}</Badge>
+                            <p className="text-xs text-muted mt-1.5 line-clamp-2">{loc.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-charcoal text-sm">{loc.name}</h3>
-                          <Badge variant="outline" className="mt-1 text-[10px]">{loc.type}</Badge>
-                          <p className="text-xs text-muted mt-1.5 line-clamp-2">{loc.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
           )}
           {!locationsLoading && !locationsError && featuredLocations.length === 0 && (
             <div className="text-center py-8 text-sm text-muted">
               No locations available yet.
             </div>
           )}
-          <div className="mt-6 text-center">
-            <Link href="/explore">
-              <Button variant="ghost" className="text-terracotta">
-                View all districts <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <FadeIn delay={0.3}>
+            <div className="mt-6 text-center">
+              <Link href="/explore">
+                <Button variant="ghost" className="text-terracotta">
+                  View all districts <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
         </Container>
       </section>
 
       {/* ---- Explore Through Time (Real API Data) ---- */}
       <section className="py-16 sm:py-20 bg-parchment">
         <Container>
-          <SectionHeading
-            title="Explore Through Time"
-            subtitle="Journey through the major historical periods of Gujarat."
-          />
+          <FadeIn>
+            <SectionHeading
+              title="Explore Through Time"
+              subtitle="Journey through the major historical periods of Gujarat."
+            />
+          </FadeIn>
           {timelineLoading && <LoadingState message="Loading timeline..." />}
           {timelineError && (
             <ErrorState
@@ -242,7 +292,7 @@ export default function HomePage() {
             <div className="relative">
               {/* Timeline line */}
               <div className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-border" />
-              <div className="space-y-8">
+              <Stagger className="space-y-8" staggerDelay={0.12}>
                 {timelineData.map((item, index) => {
                   const yearRange =
                     item.start_year < 0
@@ -252,92 +302,103 @@ export default function HomePage() {
                       : `${item.start_year} – ${item.end_year} CE`;
 
                   return (
-                    <div
-                      key={item.id}
-                      className={`relative flex items-start gap-6 ${
-                        index % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
-                      }`}
-                    >
-                      {/* Dot */}
-                      <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-terracotta border-2 border-parchment z-10 mt-1" />
+                    <StaggerItem key={item.id}>
+                      <div
+                        className={`relative flex items-start gap-6 ${
+                          index % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
+                        }`}
+                      >
+                        {/* Dot */}
+                        <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-terracotta border-2 border-parchment z-10 mt-1" />
 
-                      {/* Content */}
-                      <div className={`ml-10 sm:ml-0 sm:w-1/2 ${index % 2 === 0 ? "sm:pr-12" : "sm:pl-12"}`}>
-                        <Card hover>
-                          <CardContent>
-                            <Badge variant="secondary" className="mb-2">{yearRange}</Badge>
-                            <h3 className="font-display text-xl text-charcoal">{item.name}</h3>
-                            <p className="text-sm text-muted mt-1">{item.description}</p>
-                            {item.entity_count > 0 && (
-                              <p className="text-xs text-terracotta mt-2 font-medium">
-                                {item.entity_count} heritage {item.entity_count === 1 ? "entity" : "entities"}
-                              </p>
-                            )}
-                          </CardContent>
-                        </Card>
+                        {/* Content */}
+                        <div className={`ml-10 sm:ml-0 sm:w-1/2 ${index % 2 === 0 ? "sm:pr-12" : "sm:pl-12"}`}>
+                          <Card hover>
+                            <CardContent>
+                              <Badge variant="secondary" className="mb-2">{yearRange}</Badge>
+                              <h3 className="font-display text-xl text-charcoal">{item.name}</h3>
+                              <p className="text-sm text-muted mt-1">{item.description}</p>
+                              {item.entity_count > 0 && (
+                                <p className="text-xs text-terracotta mt-2 font-medium">
+                                  {item.entity_count} heritage {item.entity_count === 1 ? "entity" : "entities"}
+                                </p>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </div>
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </Stagger>
             </div>
           )}
-          <div className="mt-10 text-center">
-            <Link href="/timeline">
-              <Button variant="outline">
-                View Full Timeline <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <FadeIn delay={0.2}>
+            <div className="mt-10 text-center">
+              <Link href="/timeline">
+                <Button variant="outline">
+                  View Full Timeline <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
         </Container>
       </section>
 
       {/* ---- Heritage Categories ---- */}
       <section className="py-16 sm:py-20">
         <Container>
-          <SectionHeading
-            title="Heritage Categories"
-            subtitle="Discover Gujarat's heritage across multiple dimensions of culture and history."
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <FadeIn>
+            <SectionHeading
+              title="Heritage Categories"
+              subtitle="Discover Gujarat's heritage across multiple dimensions of culture and history."
+            />
+          </FadeIn>
+          <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {heritageCategories.map((category) => {
               const Icon = category.icon;
               return (
-                <Link key={category.name} href="/heritage">
-                  <Card hover>
-                    <CardContent>
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo/5 shrink-0">
-                          <Icon className="h-5 w-5 text-indigo" />
+                <StaggerItem key={category.name}>
+                  <Link href="/heritage">
+                    <Card hover>
+                      <CardContent>
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo/5 shrink-0">
+                            <Icon className="h-5 w-5 text-indigo" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-charcoal">{category.name}</h3>
+                            <p className="text-sm text-muted mt-0.5">{category.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-charcoal">{category.name}</h3>
-                          <p className="text-sm text-muted mt-0.5">{category.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </StaggerItem>
               );
             })}
-          </div>
-          <div className="mt-8 text-center">
-            <Link href="/heritage">
-              <Button variant="ghost" className="text-terracotta">
-                Browse Heritage <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          </Stagger>
+          <FadeIn delay={0.2}>
+            <div className="mt-8 text-center">
+              <Link href="/heritage">
+                <Button variant="ghost" className="text-terracotta">
+                  Browse Heritage <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
         </Container>
       </section>
 
       {/* ---- Featured Heritage (Real API Data) ---- */}
       <section className="py-16 sm:py-20 bg-parchment">
         <Container>
-          <SectionHeading
-            title="Featured Heritage"
-            subtitle="Notable heritage sites and traditions of Gujarat."
-          />
+          <FadeIn>
+            <SectionHeading
+              title="Featured Heritage"
+              subtitle="Notable heritage sites and traditions of Gujarat."
+            />
+          </FadeIn>
           {heritageLoading && <LoadingState message="Loading heritage..." />}
           {heritageError && (
             <ErrorState
@@ -346,78 +407,81 @@ export default function HomePage() {
             />
           )}
           {!heritageLoading && !heritageError && featuredHeritage.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredHeritage.map((item) => {
                 const Icon = categoryIcons[item.category] || Landmark;
                 return (
-                  <Link key={item.id} href={`/heritage/${item.id}`}>
-                    <Card hover>
-                      <CardContent>
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
-                            <Icon className="h-5 w-5 text-terracotta" />
+                  <StaggerItem key={item.id}>
+                    <Link href={`/heritage/${item.id}`}>
+                      <Card hover>
+                        <CardContent>
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
+                              <Icon className="h-5 w-5 text-terracotta" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-charcoal font-serif">{item.name}</h3>
+                              <Badge variant="outline" className="mt-1 text-[10px]">{item.category}</Badge>
+                              <p className="text-sm text-muted mt-2 line-clamp-2">{item.description}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-charcoal font-serif">{item.name}</h3>
-                            <Badge variant="outline" className="mt-1 text-[10px]">{item.category}</Badge>
-                            <p className="text-sm text-muted mt-2 line-clamp-2">{item.description}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </Stagger>
           )}
-          <div className="mt-8 text-center">
-            <Link href="/heritage">
-              <Button variant="ghost" className="text-terracotta">
-                View all heritage <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <FadeIn delay={0.2}>
+            <div className="mt-8 text-center">
+              <Link href="/heritage">
+                <Button variant="ghost" className="text-terracotta">
+                  View all heritage <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
         </Container>
       </section>
 
       {/* ---- Ask Dharohar AI ---- */}
       <section className="py-16 sm:py-20">
         <Container size="narrow">
-          <div className="text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo/5 mx-auto mb-6">
-              <Sparkles className="h-7 w-7 text-indigo" />
-            </div>
-            <SectionHeading
-              title="Ask Dharohar AI"
-              subtitle="Ask questions about Gujarat's history, culture, and heritage. AI-powered insights are coming soon."
-              align="center"
-            />
-            <div className="mt-6 rounded-xl border border-border bg-white p-6">
-              <div className="rounded-lg bg-parchment border border-border px-4 py-3 text-sm text-muted text-left">
-                What would you like to discover?
+          <FadeIn>
+            <div className="text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo/5 mx-auto mb-6">
+                <Sparkles className="h-7 w-7 text-indigo" />
               </div>
-              <p className="text-xs text-warm-gray mt-4 mb-4 italic">
-                AI functionality will be connected in a later phase.
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {suggestedQuestions.map((q) => (
-                  <span
-                    key={q}
-                    className="rounded-full border border-border bg-parchment px-3 py-1.5 text-xs text-muted"
-                  >
-                    {q}
-                  </span>
-                ))}
+              <SectionHeading
+                title="Ask Dharohar AI"
+                subtitle="Ask questions about Gujarat's history, culture, and heritage."
+                align="center"
+              />
+              <div className="mt-6 rounded-xl border border-border bg-white p-6">
+                <div className="rounded-lg bg-parchment border border-border px-4 py-3 text-sm text-muted text-left">
+                  What would you like to discover?
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center mt-4">
+                  {suggestedQuestions.map((q) => (
+                    <span
+                      key={q}
+                      className="rounded-full border border-border bg-parchment px-3 py-1.5 text-xs text-muted"
+                    >
+                      {q}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-6">
+                <Link href="/ai">
+                  <Button variant="outline">
+                    Open AI Assistant <ArrowUpRight className="h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
             </div>
-            <div className="mt-6">
-              <Link href="/ai">
-                <Button variant="outline">
-                  Open AI Assistant <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
+          </FadeIn>
         </Container>
       </section>
     </>

@@ -167,7 +167,7 @@ router.get("/suggestions", requireDevelopmentApiKey, async (req, res) => {
 
     res.json({
       success: true,
-      data: suggestions.map((s) => s.text),
+      data: suggestions,
     });
   } catch (err) {
     console.error("[Suggestions] Error:", (err as Error).message);
@@ -175,10 +175,10 @@ router.get("/suggestions", requireDevelopmentApiKey, async (req, res) => {
     res.json({
       success: true,
       data: [
-        "Explore Gujarat heritage",
-        "Tell me about Rajasthan forts",
-        "gujarat na heritage places vishe janavo",
-        "What is the Golden Temple?",
+        { text: "Explore Gujarat heritage", category: "explore" },
+        { text: "Tell me about Rajasthan forts", category: "explore" },
+        { text: "gujarat na heritage places vishe janavo", category: "explore" },
+        { text: "What is the Golden Temple?", category: "heritage" },
       ],
     });
   }

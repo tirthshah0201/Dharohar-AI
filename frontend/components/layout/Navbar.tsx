@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
@@ -23,10 +24,14 @@ function Navbar() {
       <Container>
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white text-xs font-bold tracking-wider">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: -2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white text-xs font-bold tracking-wider"
+            >
               DA
-            </div>
+            </motion.div>
             <span className="font-display text-xl text-charcoal">
               Dharohar<span className="text-terracotta ml-0.5">AI</span>
             </span>
@@ -40,13 +45,20 @@ function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
-                      ? "text-terracotta bg-terracotta/5"
+                      ? "text-terracotta"
                       : "text-muted hover:text-charcoal hover:bg-cream"
                   }`}
                 >
                   {link.label}
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-indicator"
+                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-terracotta rounded-full"
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
                 </Link>
               );
             })}
@@ -54,7 +66,9 @@ function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-1.5 text-sm text-muted hover:text-charcoal transition-colors"
               aria-label="Search"
             >
@@ -63,41 +77,58 @@ function Navbar() {
               <kbd className="hidden lg:inline-flex h-5 items-center rounded border border-border bg-parchment px-1.5 text-[10px] font-mono text-muted">
                 ⌘K
               </kbd>
-            </button>
+            </motion.button>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             className="md:hidden p-2 rounded-lg text-muted hover:bg-cream transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          </motion.button>
         </div>
 
         {/* Mobile Navigation */}
-        {mobileOpen && (
-          <nav className="md:hidden border-t border-border py-4 space-y-1">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? "text-terracotta bg-terracotta/5"
-                      : "text-muted hover:text-charcoal hover:bg-cream"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-        )}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.nav
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="md:hidden border-t border-border overflow-hidden"
+            >
+              <div className="py-4 space-y-1">
+                {navLinks.map((link, i) => {
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                  return (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`block px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                          isActive
+                            ? "text-terracotta bg-terracotta/5"
+                            : "text-muted hover:text-charcoal hover:bg-cream"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </Container>
     </header>
   );
