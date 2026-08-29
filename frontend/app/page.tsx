@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { CountUp } from "@/components/motion/CountUp";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { RevealText } from "@/components/motion/Typewriter";
 import { useApi } from "@/hooks/useApi";
@@ -126,6 +127,13 @@ export default function HomePage() {
   const timelineData = timeline?.slice(0, 5) ?? [];
   const featuredHeritage = heritage?.slice(0, 6) ?? [];
 
+  const stats = [
+    { value: 12, label: "Locations", suffix: "" },
+    { value: 15, label: "Heritage Sites", suffix: "" },
+    { value: 8, label: "States", suffix: "" },
+    { value: 6, label: "Languages", suffix: "" },
+  ];
+
   return (
     <>
       {/* ---- Hero ---- */}
@@ -198,6 +206,22 @@ export default function HomePage() {
           </div>
         </Container>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-ivory to-transparent" />
+      </section>
+
+      {/* ---- Statistics ---- */}
+      <section className="py-12 bg-parchment border-y border-border">
+        <Container>
+          <Stagger className="grid grid-cols-2 sm:grid-cols-4 gap-8" staggerDelay={0.1}>
+            {stats.map((stat) => (
+              <StaggerItem key={stat.label} className="text-center">
+                <div className="font-display text-3xl sm:text-4xl text-indigo">
+                  <CountUp target={stat.value} suffix={stat.suffix} />
+                </div>
+                <p className="text-sm text-muted mt-1 font-medium">{stat.label}</p>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </Container>
       </section>
 
       {/* ---- Explore Gujarat (Real API Data) ---- */}
