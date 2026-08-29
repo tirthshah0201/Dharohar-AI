@@ -128,7 +128,7 @@ export function ChatBot() {
           {
             id: "welcome",
             role: "assistant",
-            content: "Welcome to Dharohar AI. Ask me about India's heritage.",
+            content: "Welcome to Heritage Atlas. Ask me about India's heritage.",
             intent: "greeting",
             timestamp: new Date(),
           },
@@ -262,8 +262,8 @@ export function ChatBot() {
             <Sparkles className="h-4 w-4" />
           </motion.div>
           <div>
-            <h3 className="text-sm font-semibold text-charcoal">Dharohar AI</h3>
-            <p className="text-[10px] text-muted">Heritage Assistant</p>
+            <h3 className="text-sm font-semibold text-charcoal">Heritage Atlas</h3>
+            <p className="text-[10px] text-stone">Heritage Guide</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -339,8 +339,8 @@ export function ChatBot() {
                 {msg.role === "assistant" && (
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Sparkles className="h-3 w-3 text-heritage-gold" />
-                    <span className="text-[10px] font-medium text-muted">
-                      Dharohar AI
+                    <span className="text-[10px] font-medium text-stone">
+                      Heritage Atlas
                       {msg.intent && msg.intent !== "greeting" && (
                         <Badge variant="outline" className="ml-1.5 text-[9px] py-0">
                           {msg.intent.replace(/_/g, " ")}

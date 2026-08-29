@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Search, ChevronRight } from "lucide-react";
+import { Menu, X, Search, MapPin, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 const navLinks = [
@@ -30,27 +30,27 @@ function Navbar() {
     <header
       className={`sticky top-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "bg-ivory/95 backdrop-blur-md border-b border-border shadow-xs"
+          ? "bg-ivory/95 backdrop-blur-md border-b border-cream shadow-sm"
           : "bg-ivory/80 backdrop-blur-sm border-b border-transparent"
       }`}
     >
       <Container>
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
+          {/* Logo — Heritage Atlas */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <motion.div
               whileHover={{ scale: 1.05, rotate: -3 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo text-white text-xs font-bold tracking-wider"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta text-white"
             >
-              DA
+              <MapPin className="h-4.5 w-4.5" />
             </motion.div>
             <div className="flex flex-col">
               <span className="font-display text-lg text-charcoal leading-none">
-                Dharohar<span className="text-terracotta ml-0.5">AI</span>
+                Heritage<span className="text-terracotta ml-0.5">Atlas</span>
               </span>
-              <span className="text-[9px] text-muted leading-none mt-0.5 hidden sm:block">
-                India&apos;s Heritage Platform
+              <span className="text-[9px] text-stone leading-none mt-0.5 hidden sm:block">
+                Explore India. Discover Its Stories.
               </span>
             </div>
           </Link>
@@ -66,7 +66,7 @@ function Navbar() {
                   className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
                       ? "text-terracotta bg-terracotta/5"
-                      : "text-muted hover:text-charcoal hover:bg-cream/60"
+                      : "text-stone hover:text-charcoal hover:bg-cream/60"
                   }`}
                 >
                   {link.label}
@@ -85,17 +85,17 @@ function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Actions */}
+          {/* Desktop Search */}
           <div className="hidden md:flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 rounded-lg border border-border bg-white/60 px-3 py-1.5 text-sm text-muted hover:text-charcoal hover:bg-white transition-all"
+              className="flex items-center gap-2 rounded-lg border border-cream bg-white/60 px-3 py-1.5 text-sm text-stone hover:text-charcoal hover:bg-white transition-all"
               aria-label="Search"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="text-warm-gray hidden lg:inline">Search heritage...</span>
-              <kbd className="hidden lg:inline-flex h-5 items-center rounded border border-border bg-parchment/60 px-1.5 text-[10px] font-mono text-muted">
+              <kbd className="hidden lg:inline-flex h-5 items-center rounded border border-cream bg-parchment/60 px-1.5 text-[10px] font-mono text-stone">
                 ⌘K
               </kbd>
             </motion.button>
@@ -104,7 +104,7 @@ function Navbar() {
           {/* Mobile Menu Toggle */}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className="md:hidden p-2 rounded-lg text-muted hover:bg-cream transition-colors"
+            className="md:hidden p-2 rounded-lg text-stone hover:bg-cream transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
@@ -142,7 +142,7 @@ function Navbar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              className="md:hidden border-t border-border overflow-hidden"
+              className="md:hidden border-t border-cream overflow-hidden"
             >
               <div className="py-3 space-y-0.5">
                 {navLinks.map((link, i) => {
@@ -160,7 +160,7 @@ function Navbar() {
                         className={`flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                           isActive
                             ? "text-terracotta bg-terracotta/5"
-                            : "text-muted hover:text-charcoal hover:bg-cream/60"
+                            : "text-stone hover:text-charcoal hover:bg-cream/60"
                         }`}
                       >
                         <span>{link.label}</span>

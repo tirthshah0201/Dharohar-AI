@@ -1,13 +1,17 @@
 /* ========================================
-   Dharohar AI — Application Constants
+   Heritage Atlas — Application Constants
    ======================================== */
 
-export const APP_NAME = "Dharohar AI";
+export const APP_NAME = "Heritage Atlas";
+export const APP_TAGLINE = "Explore India. Discover Its Stories.";
 export const APP_DESCRIPTION =
-  "An AI-powered platform for discovering and exploring the cultural heritage of India — monuments, crafts, festivals, traditions, and stories across every state.";
+  "Heritage Atlas is an interactive digital platform for discovering India's cultural heritage through maps, stories, history, places, culture, and AI-powered exploration.";
 
 // ---- Geographic ----
 export const PRIMARY_STATE = "India";
+
+/** Technical compatibility — internal identifier that still references original project name */
+export const _INTERNAL_COMPAT_NAME = "Dharohar AI";
 
 export const GUJARAT_DISTRICTS = [
   "Ahmedabad",

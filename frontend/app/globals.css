@@ -1,50 +1,70 @@
 @import "tailwindcss";
 
 /* ========================================
-   DHAROHAR AI — Design System
+   HERITAGE ATLAS — Design System
    "Contemporary Heritage" Direction
-   Museum + Digital Archive + Modern AI
+   Terracotta + Sandstone + Museum
    ======================================== */
 
 :root {
-  /* ---- Colors ---- */
+  /* ---- Core Orange Palette ---- */
+  --color-terracotta: #C2703E;
+  --color-terracotta-dark: #A85A2E;
+  --color-terracotta-deep: #8B4513;
+  --color-terracotta-light: #D4915E;
+  --color-terracotta-pale: #E8C4A0;
+  --color-terracotta-mist: #F5E6D3;
+
+  /* ---- Earthy Neutrals ---- */
+  --color-sandstone: #F5F0E8;
   --color-ivory: #FAF7F2;
-  --color-parchment: #F5F0E8;
+  --color-parchment: #F0E8DC;
   --color-cream: #EDE8DE;
   --color-warm-gray: #C4BCAE;
-  --color-indigo: #1E1B4B;
+  --color-stone: #8A8279;
+
+  /* ---- Deep Tones ---- */
   --color-charcoal: #2D2A26;
-  --color-terracotta: #C2703E;
-  --color-terracotta-light: #D4915E;
-  --color-terracotta-dark: #A85A2E;
+  --color-charcoal-soft: #3D3A36;
+  --color-deep-brown: #1C1915;
+  --color-indigo: #1E1B4B;
+
+  /* ---- Heritage Gold ---- */
   --color-heritage-gold: #B8963E;
   --color-heritage-gold-light: #D4B36A;
-  --color-deep-green: #2D5016;
-  --color-muted: #8A8279;
-  --color-border: #E0D8CC;
-  --color-card: #FFFFFF;
-  --color-destructive: #B91C1C;
-  --color-success: #15803D;
+
+  /* ---- Semantic ---- */
+  --color-success: #2D6A4F;
+  --color-warning: #D4915E;
+  --color-error: #B91C1C;
 
   /* ---- Background ---- */
   --background: var(--color-ivory);
   --foreground: var(--color-charcoal);
 
-  /* ---- Semantic ---- */
-  --primary: var(--color-indigo);
-  --secondary: var(--color-terracotta);
+  /* ---- Brand ---- */
+  --primary: var(--color-terracotta);
+  --primary-dark: var(--color-terracotta-dark);
+  --primary-light: var(--color-terracotta-light);
+  --secondary: var(--color-charcoal);
   --accent: var(--color-heritage-gold);
-  --muted: var(--color-muted);
-  --border: var(--color-border);
-  --card: var(--color-card);
-  --destructive: var(--color-destructive);
+  --muted: var(--color-stone);
+  --border: var(--color-cream);
+  --card: #FFFFFF;
+  --destructive: var(--color-error);
 
-  /* ---- Shadows ---- */
+  /* ---- Surface ---- */
+  --surface: var(--color-sandstone);
+  --surface-elevated: #FFFFFF;
+  --surface-warm: var(--color-parchment);
+
+  /* ---- Shadows (warm tinted) ---- */
   --shadow-xs: 0 1px 2px rgba(45, 42, 38, 0.04);
   --shadow-sm: 0 1px 3px rgba(45, 42, 38, 0.06), 0 1px 2px rgba(45, 42, 38, 0.04);
-  --shadow-md: 0 4px 12px rgba(45, 42, 38, 0.08);
-  --shadow-lg: 0 8px 30px rgba(45, 42, 38, 0.1);
-  --shadow-xl: 0 16px 50px rgba(45, 42, 38, 0.12);
+  --shadow-md: 0 4px 12px rgba(139, 69, 19, 0.08);
+  --shadow-lg: 0 8px 30px rgba(139, 69, 19, 0.1);
+  --shadow-xl: 0 16px 50px rgba(139, 69, 19, 0.12);
+  --shadow-warm: 0 4px 20px rgba(194, 112, 62, 0.12);
 
   /* ---- Animation Tokens ---- */
   --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -67,16 +87,23 @@
   --color-foreground: var(--foreground);
   --color-ivory: var(--color-ivory);
   --color-parchment: var(--color-parchment);
+  --color-sandstone: var(--color-sandstone);
   --color-cream: var(--color-cream);
   --color-warm-gray: var(--color-warm-gray);
+  --color-stone: var(--color-stone);
   --color-indigo: var(--color-indigo);
   --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --color-deep-brown: var(--color-deep-brown);
   --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
+  --color-terracotta-deep: var(--color-terracotta-deep);
   --color-terracotta-light: var(--color-terracotta-light);
+  --color-terracotta-pale: var(--color-terracotta-pale);
+  --color-terracotta-mist: var(--color-terracotta-mist);
   --color-heritage-gold: var(--color-heritage-gold);
   --color-heritage-gold-light: var(--color-heritage-gold-light);
-  --color-deep-green: var(--color-deep-green);
-  --color-muted: var(--color-muted);
+  --color-muted: var(--color-stone);
   --color-border: var(--color-border);
   --color-card: var(--color-card);
   --color-destructive: var(--color-destructive);
@@ -115,7 +142,7 @@ body {
   font-family: Georgia, "Times New Roman", serif;
 }
 
-/* Subtle Indian-inspired decorative border */
+/* Heritage decorative border */
 .border-heritage {
   border-image: linear-gradient(
     to right,
@@ -139,8 +166,8 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: var(--color-heritage-gold-light);
-  color: var(--color-indigo);
+  background-color: var(--color-terracotta-pale);
+  color: var(--color-deep-brown);
 }
 
 /* ========================================
@@ -169,17 +196,29 @@ html {
       45deg,
       transparent,
       transparent 2px,
-      rgba(255,255,255,0.03) 2px,
-      rgba(255,255,255,0.03) 4px
+      rgba(194, 112, 62, 0.04) 2px,
+      rgba(194, 112, 62, 0.04) 4px
     );
 }
 
+/* Indian-inspired mandala pattern (subtle) */
+.mandala-pattern {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(194, 112, 62, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(184, 150, 62, 0.03) 0%, transparent 50%);
+}
+
 /* Gradient text utility */
-.text-gradient-heritage {
+.text-gradient-terracotta {
   background: linear-gradient(135deg, var(--color-terracotta), var(--color-heritage-gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Warm glow effect */
+.warm-glow {
+  box-shadow: 0 0 40px rgba(194, 112, 62, 0.15), 0 0 80px rgba(194, 112, 62, 0.05);
 }
 
 /* Shimmer loading effect */
@@ -207,3 +246,41 @@ html {
 
 .typing-dot:nth-child(2) { animation-delay: 0.15s; }
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ========================================
+   Heritage Atlas Custom Components
+   ======================================== */
+
+/* Heritage card hover */
+.heritage-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.heritage-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-warm);
+}
+
+/* Orange button base */
+.btn-heritage {
+  background: var(--color-terracotta);
+  color: white;
+  transition: all 0.2s ease;
+}
+.btn-heritage:hover {
+  background: var(--color-terracotta-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-warm);
+}
+
+/* Section divider */
+.heritage-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-terracotta-pale), transparent);
+}
+
+/* Map container */
+.map-container {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-cream);
+}

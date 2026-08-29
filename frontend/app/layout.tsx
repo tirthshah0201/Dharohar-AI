@@ -16,20 +16,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dharohar AI — Discover India's Living Heritage",
-    template: "%s | Dharohar AI",
+    default: "Heritage Atlas — Explore India. Discover Its Stories.",
+    template: "%s | Heritage Atlas",
   },
   description:
-    "An AI-powered platform for discovering and exploring the cultural heritage of India — monuments, crafts, festivals, traditions, and stories across every state.",
+    "Heritage Atlas is an interactive digital platform for discovering India's cultural heritage through maps, stories, history, places, culture, and AI-powered exploration.",
   keywords: [
     "Indian heritage",
     "cultural heritage",
-    "AI heritage guide",
+    "heritage atlas",
     "Indian monuments",
     "Indian crafts",
     "Indian history",
     "heritage discovery",
-    "Dharohar AI",
+    "India interactive map",
+    "AI heritage guide",
   ],
 };
 

@@ -7,7 +7,7 @@ import { Target, Globe, Brain, Layers, BookOpen, Shield } from "lucide-react";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Dharohar AI — an AI-powered platform for discovering and exploring India's cultural heritage.",
+    "Learn about Heritage Atlas — an interactive digital platform for discovering India's cultural heritage.",
 };
 
 const goals = [
@@ -51,11 +51,11 @@ export default function AboutPage() {
         <div className="max-w-3xl mb-12">
           <Badge variant="accent" className="mb-4">About the Project</Badge>
           <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
-            Dharohar AI
+            Heritage Atlas
           </h1>
-          <p className="mt-4 text-lg text-muted leading-relaxed">
-            Dharohar AI is an AI-powered platform for discovering and exploring the cultural heritage
-            of India — from ancient monuments to living traditions. We believe heritage is best understood
+          <p className="mt-4 text-lg text-stone leading-relaxed">
+            Heritage Atlas is an interactive digital platform for discovering India&apos;s cultural heritage
+            — from ancient monuments to living traditions. We believe heritage is best understood
             not as isolated facts, but as a rich web of interconnected stories.
           </p>
         </div>

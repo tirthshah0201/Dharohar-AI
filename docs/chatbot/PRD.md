@@ -1,18 +1,18 @@
-# Dharohar AI — PRD
+# Heritage Atlas — PRD
 
 ## 1. Overview
 
-Dharohar AI is an AI-powered platform for discovering and exploring the cultural heritage of India — monuments, crafts, festivals, traditions, and stories across every state.
+Heritage Atlas is an interactive digital platform for discovering India's cultural heritage through maps, stories, history, places, culture, and AI-powered exploration.
 
 ## 2. Design Direction
 
-**"Contemporary Heritage"** — premium digital museum meets AI-powered exploration
+**"Contemporary Heritage"** — premium digital museum meets interactive atlas meets AI-powered exploration
 
 ## 3. Branding
 
-- **Name:** Dharohar AI
-- **Tagline:** Discover India's Living Heritage
-- **Positioning:** India-wide cultural heritage platform
+- **Name:** Heritage Atlas
+- **Tagline:** Explore India. Discover Its Stories.
+- **Positioning:** India-wide interactive cultural heritage platform
 
 ## 4. Supported States
 
@@ -26,8 +26,12 @@ English, Gujarati, Hindi, Marathi, Tamil, Punjabi
 
 ### Colors
 - ivory: #FAF7F2 (background)
-- indigo: #1E1B4B (primary)
-- terracotta: #C2703E (accent)
+- terracotta: #C2703E (primary)
+- terracotta-dark: #A85A2E (primary-dark)
+- terracotta-deep: #8B4513 (hero background)
+- heritage-gold: #B8963E (secondary accent)
+- charcoal: #2D2A26 (text)
+- deep-brown: #1C1915 (footer)
 - heritage-gold: #B8963E (highlight)
 
 ### Typography
