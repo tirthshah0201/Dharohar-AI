@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
@@ -21,7 +22,24 @@ import {
   Landmark,
   ChevronRight,
   Compass,
+  Bot,
 } from "lucide-react";
+
+// Dynamic import for MapLibre (no SSR)
+const IndiaHeritageMap = dynamic(
+  () => import("@/components/map/IndiaHeritageMap").then((mod) => mod.IndiaHeritageMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[500px] rounded-xl border border-border bg-parchment animate-pulse flex items-center justify-center">
+        <div className="flex items-center gap-2 text-muted">
+          <div className="h-4 w-4 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">Loading map...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 /* ========================================
    Types
@@ -113,6 +131,26 @@ export default function ExplorePage() {
             <p className="text-muted max-w-xl">
               Search and explore locations, heritage sites, and cultural landmarks across India.
             </p>
+          </div>
+        </FadeIn>
+
+        {/* Interactive Heritage Map */}
+        <FadeIn delay={0.08}>
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-charcoal">Heritage Map</h2>
+                <p className="text-sm text-muted">Interactive map of India&apos;s cultural heritage sites</p>
+              </div>
+              <a
+                href="/ai"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <Bot className="h-3.5 w-3.5" />
+                Ask AI
+              </a>
+            </div>
+            <IndiaHeritageMap height="520px" />
           </div>
         </FadeIn>
 

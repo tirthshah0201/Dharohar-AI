@@ -7,6 +7,8 @@ export interface StateData {
   highlights: string[];
   heritageCount: number;
   color: string;
+  center: [number, number]; // [longitude, latitude]
+  zoom: number;
 }
 
 export const INDIAN_STATES: StateData[] = [
@@ -19,6 +21,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Rani ki Vav", "Modhera Sun Temple", "Kutch Embroidery", "Sabarmati Ashram", "Patola Silk"],
     heritageCount: 8,
     color: "#C2703E",
+    center: [72.6, 22.3],
+    zoom: 7,
   },
   {
     code: "RJ",
@@ -29,6 +33,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Amber Fort", "Hawa Mahal", "Blue Pottery", "Mehrangarh Fort", "Pushkar Camel Fair"],
     heritageCount: 4,
     color: "#B8963E",
+    center: [74.2, 27.0],
+    zoom: 7,
   },
   {
     code: "PB",
@@ -39,6 +45,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Golden Temple", "Jallianwala Bagh", "Phulkari Embroidery", "Bhangra Dance", "Wagah Border"],
     heritageCount: 4,
     color: "#2D5016",
+    center: [75.3, 31.1],
+    zoom: 7,
   },
   {
     code: "GA",
@@ -49,6 +57,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Basilica of Bom Jesus", "Se Cathedral", "Goa Carnival", "Fontainhas Latin Quarter", "Reis Magos Fort"],
     heritageCount: 3,
     color: "#1E1B4B",
+    center: [74.0, 15.4],
+    zoom: 9,
   },
   {
     code: "TN",
@@ -59,6 +69,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Meenakshi Temple", "Bharatanatyam", "Chola Bronzes", "Mahabalipuram", "Thanjavur Brihadeeswara"],
     heritageCount: 3,
     color: "#8B2252",
+    center: [79.0, 11.1],
+    zoom: 7,
   },
   {
     code: "MH",
@@ -69,6 +81,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Ajanta & Ellora Caves", "Warli Tribal Art", "Shivaji Maharaj", "Gateway of India", "Elephanta Caves"],
     heritageCount: 3,
     color: "#B45309",
+    center: [76.5, 19.5],
+    zoom: 7,
   },
   {
     code: "MP",
@@ -79,6 +93,8 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Khajuraho Temples", "Sanchi Stupa", "Gond Tribal Art", "Bhimbetka Rock Shelters", "Orchha Heritage"],
     heritageCount: 3,
     color: "#0E7490",
+    center: [78.5, 23.3],
+    zoom: 7,
   },
   {
     code: "DL",
@@ -89,8 +105,19 @@ export const INDIAN_STATES: StateData[] = [
     highlights: ["Red Fort", "Qutub Minar", "Humayun's Tomb", "Chandni Chowk", "India Gate"],
     heritageCount: 3,
     color: "#7C3AED",
+    center: [77.2, 28.6],
+    zoom: 10,
   },
 ];
+
+/** Map from state code to INDIAN_STATES entry */
+export const STATE_MAP = Object.fromEntries(
+  INDIAN_STATES.map((s) => [s.code, s])
+) as Record<string, StateData>;
+
+/** India default view */
+export const INDIA_CENTER: [number, number] = [78.9, 22.6];
+export const INDIA_ZOOM = 5;
 
 export const REGIONS = [
   { name: "North India", states: ["PB", "DL"] },

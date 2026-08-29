@@ -258,17 +258,52 @@ Gujarat, Rajasthan, Punjab, Goa, Tamil Nadu, Maharashtra, Madhya Pradesh, Delhi
 - Reduced motion supported
 - Semantic HTML used
 
-## 20. Remaining Issues / Future Improvements
+## 20. Interactive India Heritage Map
+
+### Technology
+
+- **Library:** MapLibre GL JS (open-source, no vendor lock-in)
+- **Tiles:** OpenStreetMap raster tiles (free, no key required)
+- **Fallback:** MapTiler styled tiles when `NEXT_PUBLIC_MAPTILER_API_KEY` is configured
+
+### Components Created
+
+| Component | Purpose |
+|-----------|---------|
+| `IndiaHeritageMap` | Main map with markers, popups, state fly-to |
+| `HeritagePopup` | Heritage info popup with Ask AI button |
+| `StateSelector` | Dropdown to select and fly to a state |
+| `MapControls` | Reset, filter, and marker count controls |
+
+### Features
+
+- ✅ Interactive India map with zoom/pan
+- ✅ 22 heritage markers from Neon database
+- ✅ Color-coded markers by type (state, district, city, village, site)
+- ✅ State selector with fly-to animation (8 states)
+- ✅ Category filter
+- ✅ Heritage popup with name, description, state, type, Ask AI button
+- ✅ Responsive (520px on desktop, works on mobile)
+- ✅ Legend with type color coding
+- ✅ MapTiler key support via environment variable
+
+### Data Source
+
+- Locations API: 12 locations with latitude/longitude
+- Heritage entities joined via location_id
+- All coordinates from Neon PostgreSQL database
+
+## 21. Remaining Issues / Future Improvements
 
 | Priority | Item |
 |----------|------|
-| Medium | Add MapLibre GL JS interactive map |
 | Medium | Add heritage images/media to cards |
 | Low | Dark mode support |
 | Low | Search command palette (Cmd+K) |
 | Low | Page transition animations |
-| Low | Additional Indian states |
+| Low | Additional Indian states with coordinates |
+| Low | MapTiler key configuration for styled tiles |
 
-## 21. Status
+## 22. Status
 
 **PASS**
