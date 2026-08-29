@@ -1,6 +1,39 @@
-# Heritage Atlas — Image Asset Integration & Map Markers Report
+# Heritage Atlas — Nested Link Hydration Error Fix + Image Asset Integration
 
-## 1. Implementation Summary
+## 1. Nested Link Hydration Error Fix
+
+### Problem
+The Heritage page (`app/heritage/page.tsx`) contained `<Link href="/heritage/...">` wrapping `<Link href="/explore/...">` inside it, producing invalid HTML:
+
+```html
+<a href="/heritage/...">
+  ...
+  <a href="/explore/...">View location</a>
+</a>
+```
+
+### Root Cause
+The heritage card rendered the entire card as a single Link, while the "View location" inside was also a Link — creating a nested anchor.
+
+### Solution
+Separated the card into independent interactive elements:
+- **Image + title**: Each wrapped in its own `<Link href="/heritage/{id}">`
+- **Location**: Separate `<Link href="/explore/{location_id}">`
+- **Card container**: Plain `<motion.div>` (not a Link)
+
+No `<Link>` contains another `<Link>`.
+
+### Verification
+- DOM audit: 57 `<a>` tags, **0 nested**
+- Browser console: **no hydration errors**
+- Heritage navigation: ✅ works
+- Location navigation: ✅ works
+- TypeScript: ✅ clean
+- Build: ✅ passes
+
+---
+
+## 2. Implementation Summary
 
 This implementation integrates supplied local image assets into Heritage Atlas and adds famous heritage markers for all 8 supported states.
 

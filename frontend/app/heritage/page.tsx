@@ -271,15 +271,16 @@ export default function HeritagePage() {
                           const ItemIcon = categoryIcons[item.category] || Landmark;
                           const heritageImage = getHeritageImage(item.name, item.category);
                           return (
-                            <Link key={item.id} href={`/heritage/${item.id}`}>
-                              <motion.div
-                                whileHover={{
-                                  y: -2,
-                                  boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
-                                }}
-                                className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
-                              >
-                                {/* Image header */}
+                            <motion.div
+                              key={item.id}
+                              whileHover={{
+                                y: -2,
+                                boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
+                              }}
+                              className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
+                            >
+                              {/* Image header — linked to heritage detail */}
+                              <Link href={`/heritage/${item.id}`} className="block">
                                 <div className="relative h-24 overflow-hidden">
                                   {heritageImage ? (
                                     <img
@@ -295,34 +296,36 @@ export default function HeritagePage() {
                                   )}
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                 </div>
-                                <div className="p-4">
-                                  <div className="flex items-start gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
-                                      <ItemIcon className="h-4 w-4 text-terracotta" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                      <h3 className="font-semibold text-charcoal font-display text-sm">
+                              </Link>
+                              <div className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
+                                    <ItemIcon className="h-4 w-4 text-terracotta" />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <Link href={`/heritage/${item.id}`} className="block">
+                                      <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
                                         {item.name}
                                       </h3>
-                                      {item.location_id && (
-                                        <div className="flex items-center gap-1.5 mt-1">
-                                          <MapPin className="h-3 w-3 text-terracotta" />
-                                          <Link
-                                            href={`/explore/${item.location_id}`}
-                                            className="text-xs text-muted hover:text-terracotta transition-colors"
-                                          >
-                                            View location
-                                          </Link>
-                                        </div>
-                                      )}
-                                      <p className="text-xs text-muted mt-1.5 line-clamp-2">
-                                        {item.description}
-                                      </p>
-                                    </div>
+                                    </Link>
+                                    {item.location_id && (
+                                      <div className="flex items-center gap-1.5 mt-1">
+                                        <MapPin className="h-3 w-3 text-terracotta" />
+                                        <Link
+                                          href={`/explore/${item.location_id}`}
+                                          className="text-xs text-muted hover:text-terracotta transition-colors"
+                                        >
+                                          View location
+                                        </Link>
+                                      </div>
+                                    )}
+                                    <p className="text-xs text-muted mt-1.5 line-clamp-2">
+                                      {item.description}
+                                    </p>
                                   </div>
                                 </div>
-                              </motion.div>
-                            </Link>
+                              </div>
+                            </motion.div>
                           );
                         })}
                       </div>
@@ -340,15 +343,15 @@ export default function HeritagePage() {
                   const heritageImage = getHeritageImage(item.name, item.category);
                   return (
                     <StaggerItem key={item.id}>
-                      <Link href={`/heritage/${item.id}`}>
-                        <motion.div
-                          whileHover={{
-                            y: -2,
-                            boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
-                          }}
-                          className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
-                        >
-                          {/* Image header */}
+                      <motion.div
+                        whileHover={{
+                          y: -2,
+                          boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
+                        }}
+                        className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
+                      >
+                        {/* Image header — linked to heritage detail */}
+                        <Link href={`/heritage/${item.id}`} className="block">
                           <div className="relative h-24 overflow-hidden">
                             {heritageImage ? (
                               <img
@@ -364,37 +367,39 @@ export default function HeritagePage() {
                           )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
-                          <div className="p-4">
-                            <div className="flex items-start gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
-                                <ItemIcon className="h-4 w-4 text-terracotta" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-charcoal font-display text-sm">
+                        </Link>
+                        <div className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
+                              <ItemIcon className="h-4 w-4 text-terracotta" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <Link href={`/heritage/${item.id}`} className="block">
+                                <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
                                   {item.name}
                                 </h3>
-                                <Badge variant="outline" className="mt-1 text-[10px] capitalize">
-                                  {item.category}
-                                </Badge>
-                                {item.location_id && (
-                                  <div className="flex items-center gap-1.5 mt-1">
-                                    <MapPin className="h-3 w-3 text-terracotta" />
-                                    <Link
-                                      href={`/explore/${item.location_id}`}
-                                      className="text-xs text-muted hover:text-terracotta transition-colors"
-                                    >
-                                      View location
-                                    </Link>
-                                  </div>
-                                )}
-                                <p className="text-xs text-muted mt-1.5 line-clamp-2">
-                                  {item.description}
-                                </p>
-                              </div>
+                              </Link>
+                              <Badge variant="outline" className="mt-1 text-[10px] capitalize">
+                                {item.category}
+                              </Badge>
+                              {item.location_id && (
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <MapPin className="h-3 w-3 text-terracotta" />
+                                  <Link
+                                    href={`/explore/${item.location_id}`}
+                                    className="text-xs text-muted hover:text-terracotta transition-colors"
+                                  >
+                                    View location
+                                  </Link>
+                                </div>
+                              )}
+                              <p className="text-xs text-muted mt-1.5 line-clamp-2">
+                                {item.description}
+                              </p>
                             </div>
                           </div>
-                        </motion.div>
-                      </Link>
+                        </div>
+                      </motion.div>
                     </StaggerItem>
                   );
                 })}
