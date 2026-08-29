@@ -53,9 +53,13 @@ Used as design intelligence reference for: component patterns, animation princip
 
 ### 21st.dev CLI
 
-Status: **ATTEMPTED** — requires interactive user authentication.
+Status: **CONNECTED**
 
-CLI installed globally but `21st login` requires browser-based OAuth that cannot be completed automatically. User must complete login manually if desired.
+- Logged in as `devmavlankar2002`
+- Searched for: hero sections, card hover animations, chat interfaces, text reveal, navigation, number counters
+- Inspected components: Agent Chat (12402), Card Hover (9537), Count Up (20068), Text Reveal Mask (19257)
+- Created CountUp component inspired by 21st.dev's count-up pattern (id 20068)
+- Note: 21st.dev components use shadcn/ui + clsx/tailwind-merge — adapted patterns to fit existing Dharohar AI architecture rather than importing directly
 
 ## 4. Design Direction
 
@@ -304,6 +308,7 @@ Tested at:
 | `frontend/components/motion/Stagger.tsx` | Stagger container + item components |
 | `frontend/components/motion/HoverCard.tsx` | Card with hover/tap motion |
 | `frontend/components/motion/Typewriter.tsx` | Text reveal animations |
+| `frontend/components/motion/CountUp.tsx` | Animated number counter (inspired by 21st.dev) |
 
 ## 24. Files Modified
 
