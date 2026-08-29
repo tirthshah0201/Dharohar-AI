@@ -7,7 +7,7 @@ import { requireDevelopmentApiKey } from "../middleware/apiKey";
 import { requireDatabase } from "../database/helpers";
 import { handleChat } from "../services/chatbot";
 import { SUPPORTED_STATE_CODES, getWelcomeMessage } from "../config/languages";
-import { isValidLanguage, SUPPORTED_LANGUAGES } from "../config/languages";
+import { isValidLanguage, SUPPORTED_LANGUAGES, getSuggestionsForContext } from "../config/languages";
 import { query } from "../database";
 
 const router = Router();
@@ -18,7 +18,7 @@ const MAX_MESSAGE_LENGTH = 1000;
  * POST /api/ai/chat
  *
  * Chat endpoint — accepts a message and language,
- * returns a grounded heritage response.
+ * returns a grounded heritage response with suggestions.
  * Requires: X-API-Key header
  */
 router.post("/chat", requireDevelopmentApiKey, async (req, res) => {
@@ -109,6 +109,7 @@ router.post("/chat", requireDevelopmentApiKey, async (req, res) => {
         state: response.stateCode,
         knowledge_ids: response.knowledgeIds,
         language,
+        suggestions: response.suggestions || [],
       },
     });
   } catch (err) {
@@ -131,50 +132,53 @@ router.post("/chat", requireDevelopmentApiKey, async (req, res) => {
  */
 router.get("/welcome", requireDevelopmentApiKey, (req, res) => {
   const language = (req.query.language as string) || "en";
-  const msg = isValidLanguage(language)
-    ? getWelcomeMessage(language)
-    : getWelcomeMessage("en");
+  const lang = isValidLanguage(language) ? language : "en";
+  const msg = getWelcomeMessage(lang);
+
+  // Get initial suggestions
+  const suggestions = getSuggestionsForContext(null, null, lang);
 
   res.json({
     success: true,
-    data: { message: msg, language: isValidLanguage(language) ? language : "en" },
+    data: { message: msg, language: lang, suggestions },
   });
 });
 
 /**
  * GET /api/ai/suggestions
  *
- * Returns suggested questions for the chatbot.
+ * Returns context-aware suggested questions.
+ * Query params: language, intent, state
  * Requires: X-API-Key header
  */
-router.get("/suggestions", requireDevelopmentApiKey, async (_req, res) => {
+router.get("/suggestions", requireDevelopmentApiKey, async (req, res) => {
   if (!requireDatabase(res)) return;
 
   try {
-    const { rows } = await query(
-      `SELECT DISTINCT unnest(chatbot_question_examples) as question
-       FROM chatbot_knowledge
-       ORDER BY random()
-       LIMIT 6`
+    const language = (req.query.language as string) || "en";
+    const intent = (req.query.intent as string) || null;
+    const state = (req.query.state as string) || null;
+
+    const suggestions = getSuggestionsForContext(
+      intent,
+      state as typeof SUPPORTED_STATE_CODES[number] | null,
+      isValidLanguage(language) ? language : "en"
     );
+
     res.json({
       success: true,
-      data: rows.map((r: Record<string, unknown>) => r.question as string),
+      data: suggestions.map((s) => s.text),
     });
   } catch (err) {
     console.error("[Suggestions] Error:", (err as Error).message);
-    // Fallback suggestions with multilingual + Romanized Gujarati
+    // Fallback suggestions
     res.json({
       success: true,
       data: [
-        "Tell me about Rani ki Vav",
-        "What is the Golden Temple?",
+        "Explore Gujarat heritage",
+        "Tell me about Rajasthan forts",
         "gujarat na heritage places vishe janavo",
-        "modhera surya mandir vishe mahiti aapo",
-        "Describe Bharatanatyam dance",
-        "Tell me about Khajuraho Temples",
-        "Rajasthan ke killo ke baare mein batao",
-        "rani ki vav kya aveli chhe",
+        "What is the Golden Temple?",
       ],
     });
   }

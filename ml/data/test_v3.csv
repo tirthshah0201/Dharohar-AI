@@ -1,0 +1,131 @@
+text,language,state,intent
+gujarat ma kai iron pillar chhe,gu,Gujarat,heritage_information
+rani ki vav kya aveli chhe,gu,Gujarat,location_information
+Describe the Dholavira archaeological site,en,Gujarat,heritage_information
+What is a good recipe for dinner,en,,unknown
+Tell me about the Mehrangarh Fort in Jodhpur,en,Rajasthan,heritage_information
+gujarat ni sanskrutik virasat shu chhe,gu,Gujarat,state_exploration
+Tell me about the stock market,en,,unknown
+Hello how are you,en,,greeting
+Tell me about artificial intelligence,en,,unknown
+amreli ma kai jova lakhay chhe,gu,Gujarat,state_exploration
+gandhi ashram kya avelu chhe,gu,Gujarat,location_information
+jubilee garden rajkot ma shu chhe,gu,Gujarat,heritage_information
+Describe the traditional Mewari painting style,en,Rajasthan,craft_information
+What is the Mehrangarh Fort Museum heritage,en,Rajasthan,heritage_information
+What is the significance of Pratapgad Fort,en,Maharashtra,heritage_information
+Can you recommend a movie,en,,unknown
+Tell me about the tribal heritage of Gujarat,en,Gujarat,heritage_information
+What is Rabari embroidery,en,Gujarat,craft_information
+patola silk weaving kai rite thay chhe,gu,Gujarat,craft_information
+भारत की सांस्कृतिक विरासत के बारे में बताओ,hi,,heritage_information
+Tell me about the Kutch embroidery tradition,en,Gujarat,craft_information
+ahmedabad ni heritage sites batavo,gu,Gujarat,state_exploration
+Describe the Sarson ka Saag culinary tradition,en,Punjab,craft_information
+Describe the Kutch desert culture,en,Gujarat,heritage_information
+What crafts are famous in Kutch,en,Gujarat,craft_information
+What historical periods are covered,en,,historical_period
+Describe Chandni Chowk market,en,Delhi,heritage_information
+What movies are playing,en,,unknown
+Describe the Mughal period in Delhi,en,Delhi,historical_period
+Tell me about the Indus Valley Civilization at Dholavira,en,Gujarat,historical_period
+Where is Rani ki Vav located,en,Gujarat,location_information
+Who was Jhaverchand Kalidas,en,Gujarat,person_information
+What is the history of textile arts in Gujarat,en,Gujarat,craft_information
+Ellora Caves baddal mahiti dya,mr,Maharashtra,heritage_information
+Describe the traditional Goan Catholic architecture,en,Goa,craft_information
+Tell me about the Ranthambore Fort and tiger heritage,en,Rajasthan,heritage_information
+Describe the traditional Rajasthani bandhani tie-dye,en,Rajasthan,craft_information
+What is Bharatanatyam dance,en,Tamil Nadu,heritage_information
+What time is it,en,,unknown
+Tell me about the Hutheesing Jain Temple,en,Gujarat,heritage_information
+Tell me about the Satpura Range heritage,en,Madhya Pradesh,heritage_information
+gandhinagar ma gift city chhe kya,gu,Gujarat,location_information
+gandhi jayanti par kya karvama aave,gu,Gujarat,festival_information
+patan ma kai jova lakhay chhe,gu,Gujarat,state_exploration
+नमस्ते कैसे हैं,hi,,greeting
+gujarat na silk weaving vishe batavo,gu,Gujarat,craft_information
+Tell me about the Palani Murugan Temple,en,Tamil Nadu,heritage_information
+Punjab ki virasat ke baare mein batao,hi,Punjab,state_exploration
+What can you tell me about Punjab history,en,Punjab,historical_period
+gujarat na master craftsmen kai chhe,gu,Gujarat,person_information
+Who built Rani ki Vav in Patan,en,Gujarat,person_information
+What is the Kumbhalgarh Great Wall of India,en,Rajasthan,heritage_information
+What is the history of Humayun Tomb,en,Delhi,heritage_information
+What is the history of Dhar and Mandu,en,Madhya Pradesh,historical_period
+gujarat ma kai dharohar chhe,gu,Gujarat,heritage_information
+Tell me about world war 2,en,,unknown
+What is the Khajuraho Dance Festival,en,Madhya Pradesh,festival_information
+Explain the significance of Dholavira,en,Gujarat,heritage_information
+What is the Mughal connection to Rajasthan,en,Rajasthan,historical_period
+Can you translate this to French,en,,unknown
+somnath thi dwarka ketla km che,gu,Gujarat,location_information
+What is the Agrasen Ki Baoli stepwell,en,Delhi,heritage_information
+Namaste,en,,greeting
+Who built the Qutub Minar,en,Delhi,person_information
+Tell me about Indian classical dance,en,,festival_information
+Tell me about the Chola period,en,Tamil Nadu,historical_period
+How do I explore Maharashtra,en,Maharashtra,state_exploration
+Describe the Lodi Garden heritage,en,Delhi,heritage_information
+gujarat na banyan tree vishe batavo,gu,Gujarat,heritage_information
+Which place has Khajuraho Temples,en,Madhya Pradesh,location_information
+What is the history of Bharuch as an ancient port,en,Gujarat,historical_period
+What is Garba dance,en,Gujarat,festival_information
+Tell me about Mahatma Gandhi,en,Gujarat,person_information
+Rajasthan mein kya dekhna chahiye,hi,Rajasthan,state_exploration
+What is the significance of Sanchi Stupa for Buddhism,en,Madhya Pradesh,heritage_information
+What is the heritage of Fontainhas Latin Quarter,en,Goa,heritage_information
+Tamil Nadu odu panpaadu sollunga,ta,Tamil Nadu,craft_information
+What is the Qutub Minar and its history,en,Delhi,heritage_information
+Describe the Kunbi community weaving in Goa,en,Goa,craft_information
+Describe the Lippan art tradition of Kutch,en,Gujarat,craft_information
+What are the UNESCO sites in India,en,,heritage_information
+Tell me about Meenakshi Temple,en,Tamil Nadu,heritage_information
+Describe the Bhangra and Giddha dances,en,Punjab,festival_information
+What is cryptocurrency,en,,unknown
+What is the heritage of Surat,en,Gujarat,heritage_information
+Tell me about Delhi heritage,en,Delhi,state_exploration
+What is the traditional Ghodi dance of Gujarat,en,Gujarat,festival_information
+Who built the Sidi Saiyyed Mosque,en,Gujarat,person_information
+Tell me about Mahabalipuram shore temple,en,Tamil Nadu,heritage_information
+Tell me about Basilica of Bom Jesus,en,Goa,heritage_information
+Who won the cricket match,en,,unknown
+Tell me about the Tughlaqabad Fort,en,Delhi,heritage_information
+What is Hawa Mahal,en,Rajasthan,heritage_information
+patan ni adalaj vav vishe janavo,gu,Gujarat,heritage_information
+I want to learn about heritage,en,,state_exploration
+What crafts are famous in Bhuj,en,Gujarat,craft_information
+Tell me about heritage places in India,en,,state_exploration
+gujarat na jetta temples chhe,gu,Gujarat,heritage_information
+Describe the cultural impact of Mahatma Gandhi,en,Gujarat,person_information
+kutch ma kai kila chhe,gu,Gujarat,heritage_information
+Punjab mein kya dekhna chahiye,hi,Punjab,state_exploration
+Tell me about the Elephanta Caves,en,Maharashtra,heritage_information
+What is the history of Junagadh Fort,en,Gujarat,historical_period
+Tell me about the Golden Temple history and architecture,en,Punjab,heritage_information
+Tell me about the architecture of Modhera Sun Temple,en,Gujarat,heritage_information
+rajkot ma watson museum chhe kya,gu,Gujarat,location_information
+Describe the Ran Utsav festival,en,Gujarat,festival_information
+Who was Tilak and what is his connection to Maharashtra,en,Maharashtra,person_information
+jamnagar ni maharaja palace vishe janavo,gu,Gujarat,heritage_information
+What makes Patola weaving unique,en,Gujarat,craft_information
+Bhangra nritya bare daso,pa,Punjab,festival_information
+vastral ma kai chhe,gu,Gujarat,craft_information
+Tell me about the ancient ports of Gujarat,en,Gujarat,historical_period
+ਪੰਜਾਬ ਦੀ ਵਿਰਾਸਤ ਬਾਰੇ ਦੱਸੋ,pa,Punjab,heritage_information
+diu ni heritage vishe janavo,gu,Gujarat,heritage_information
+Tell me about history,en,,historical_period
+नमस्कार,hi,,greeting
+rajkot no darbargadh vishe janavo,gu,Gujarat,heritage_information
+mehsana ma kai chhe,gu,Gujarat,state_exploration
+What is Patola silk weaving,en,Gujarat,craft_information
+Hey how are you doing,en,,greeting
+sabarmati ashram kya avelu che,gu,Gujarat,location_information
+gujarat ma kai beaches chhe,gu,Gujarat,state_exploration
+Shivaji Maharaj baddal mahiti dya,mr,Maharashtra,person_information
+Tell me about Jaipur pink city heritage,en,Rajasthan,heritage_information
+What is the significance of Ranakpur Jain Temple,en,Rajasthan,heritage_information
+Punjab vich ki vekhna chahida,pa,Punjab,state_exploration
+Describe Rajasthani miniature painting,en,Rajasthan,craft_information
+Maharashtra chya killya baddal sang,mr,Maharashtra,heritage_information
+Who was Shah Jahan and Delhi's heritage,en,Delhi,person_information

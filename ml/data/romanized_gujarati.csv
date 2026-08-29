@@ -17,11 +17,11 @@ dwarka mandir vishe mahiti aapo,gu,roman,Gujarat,heritage_information,દ્વ�
 kutch na hathkala vishe janavo,gu,roman,Gujarat,craft_information,કચ્છના હસ્તકલા વિશે જાણવો
 gandhi ji nu jivan vishe batavo,gu,roman,Gujarat,person_information,ગાંધીજીનું જીવન વિશે બતાવો
 rajkot ma kai heritage places chhe,gu,roman,Gujarat,state_exploration,રાજકોટ માં કઈ હેરિટેજ પ્લેસેસ છે
-modhera surya mandir kya chhe,gu,roman,Gujarat,location_information,મોઢેરા સૂર્ય �મંદિર ક્યાં છે
+modhera surya mandir kya chhe,gu,roman,Gujarat,location_information,મોઢેરા સૂર્ય મંદિર ક્યાં છે
 gujarat ni famous crafts kai chhe,gu,roman,Gujarat,craft_information,ગુજરાતની ફેમસ ક્રાફ્ટ્સ કઈ છે
 jalaram bapa vishe janavo,gu,roman,Gujarat,person_information,જલારામ બાપા વિશે જાણવો
 savaji bholanath vishe mahiti aapo,gu,roman,Gujarat,person_information,સાવજી ભોલાનાથ વિશે માહિતી આપો
-adhmedabad ni old city vishe janavo,gu,roman,Gujarat,heritage_information,અમદાવાદની ઓલ્ડ સિટી વિશે જાણવો
+ahmedabad ni old city vishe janavo,gu,roman,Gujarat,heritage_information,અમદાવાદની ઓલ્ડ સિટી વિશે જાણવો
 gujarat ma kaya festivals manavama aave chhe,gu,roman,Gujarat,festival_information,ગુજરાત માં કયા ફેસ્ટિવલ્સ મનાવવામાં આવે છે
 uttarayan kya kyare ujavama aave chhe,gu,roman,Gujarat,festival_information,ઉત્તરાયણ ક્યાં ક્યારે ઉજવામાં આવે છે
 gujarat na famous temples kai chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના ફેમસ મંદિરો કયા છે
@@ -34,16 +34,133 @@ gujarat na stepwells vishe janavo,gu,roman,Gujarat,heritage_information,ગુ�
 rajkot nu khojvato chhe,gu,roman,Gujarat,state_exploration,રાજકોટનું ખોજવું છે
 kutch ma kai kila chhe,gu,roman,Gujarat,heritage_information,કચ્છ માં કઈ કિલ્લા છે
 amdavad nu traditional food shu chhe,gu,roman,Gujarat,craft_information,અમદાવાદનું ટ્રેડિશનલ ફૂડ શું છે
+champaner pavagadh no itihas janavo,gu,roman,Gujarat,historical_period,ચંપાનેર પાવાગઢનો ઇતિહાસ જાણવો
+jama masjid ahmedabad vishe janavo,gu,roman,Gujarat,heritage_information,જામા મસ્જિદ અમદાવાદ વિશે જાણવો
+kutch ni bandhani vishe batavo,gu,roman,Gujarat,craft_information,કચ્છની બાંધણી વિશે બતાવો
+navratri ma garba kai rite khelay chhe,gu,roman,Gujarat,festival_information,નવરાત્રી માં ગરબા કઈ રીતે ખેલાય છે
+jubilee garden rajkot ma shu chhe,gu,roman,Gujarat,heritage_information,જુબિલી ગાર્ડન રાજકોટ માં શું છે
+dwarka kya chhe gujarat ma,gu,roman,Gujarat,location_information,દ્વારકા ક્યાં છે ગુજરાત માં
+lothal archaeological site vishe mahiti aapo,gu,roman,Gujarat,heritage_information,લોથલ આર્કિયોલોજિકલ સાઇટ વિશે માહિતી આપો
+gujarat na tribal heritage vishe janavo,gu,roman,Gujarat,heritage_information,ગુજરાતના ટ્રાઇબલ હેરિટેજ વિશે જાણવો
+gandhinagar ma kaya heritage places chhe,gu,roman,Gujarat,state_exploration,ગાંધીનગર માં કઈ હેરિટેજ પ્લેસેસ છે
+somnath mandir kya avelu chhe,gu,roman,Gujarat,location_information,સોમનાથ મંદિર ક્યાં આવેલું છે
+adlaj ni vav kya chhe,gu,roman,Gujarat,location_information,અડાલજની વાવ ક્યાં છે
+gujarat na jetta temples chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના જેટલા મંદિરો છે
+gujarat ma kai cultural heritage chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ સાંસ્કૃતિક વિરાસત છે
+mahatma gandhi ni jivan leela janavo,gu,roman,Gujarat,person_information,મહાત્મા ગાંધીજીની જીવન લીલા જાણવો
+patan ni patola silk vishe janavo,gu,roman,Gujarat,craft_information,પાટણની પટોળા સિલ્ક વિશે જાણવો
+rajkot ma jyotirlinga chhe kya,gu,roman,Gujarat,location_information,રાજકોટ માં જ્યોતિર્લિંગ છે ક્યાં
+gujarat ma kai pilgrimage places chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ પાલિગ્રીમેજ પ્લેસેસ છે
+dwarkadhish mandir no itihas janavo,gu,roman,Gujarat,heritage_information,દ્વારકાધીશ મંદિરનો ઇતિહાસ જાણવો
+rani ki vav vishe mahiti aapo,gu,roman,Gujarat,heritage_information,રાણી કી વાવ વિશે માહિતી આપો
+dholavira kya chhe,gu,roman,Gujarat,location_information,ધોળાવીરા ક્યાં છે
+gujarat ma kai archaeological sites chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ આર્કિયોલોજિકલ સાઇટ્સ છે
+modhera ni vav vishe janavo,gu,roman,Gujarat,heritage_information,મોઢેરાની વાવ વિશે જાણવો
+sardar patel no itihas janavo,gu,roman,Gujarat,person_information,સરદાર પટેલનો ઇતિહાસ જાણવો
+ahmedabad ma kai old buildings chhe,gu,roman,Gujarat,heritage_information,અમદાવાદ માં કઈ ઓલ્ડ બિલ્ડિંગ્સ છે
+gujarat ma monsoon ma kya jova lakhay,gu,roman,Gujarat,state_exploration,ગુજરાત માં મોન્સુન માં ક્યાં જોવા લાયક
+sabarmati ashram vishe janavo,gu,roman,Gujarat,heritage_information,સાબરમતી આશ્રમ વિશે જાણવો
+gujarat na silk weaving vishe batavo,gu,roman,Gujarat,craft_information,ગુજરાતની સિલ્ક વીવિંગ વિશે બતાવો
+nadiad ma kai chhe jova lakhay,gu,roman,Gujarat,state_exploration,નડિયાદ માં કઈ છે જોવા લાયક
+jitodia ni khodiyar mata ni temple vishe janavo,gu,roman,Gujarat,heritage_information,જીતોડિયાની ખોડિયાર માતાની મંદિર વિશે જાણવો
 hello kem cho,gu,roman,None,greeting,હેલો કેમ છો
 namaste bhai,gu,roman,None,greeting,નમસ્તે ભાઈ
-su chhe latest news,gu,roman,None,unknown,શું છે લેટેસ્ટ ન્યૂઝ
-gujarat ma weather kya chhe,gu,roman,None,unknown,ગુજરાત માં વેધર ક્યાં છે
-kai restaurant achi chhe,gu,roman,None,unknown,કઈ રેસ્ટોરન્ટ આવી છે
-show me heritage sites in rajasthan,en,roman,Rajasthan,state_exploration,Show me heritage sites in Rajasthan
-tell me about punjab heritage,en,roman,Punjab,state_exploration,Tell me about Punjab heritage
-what is bhangra dance,en,roman,Punjab,festival_information,What is Bhangra dance
-describe ajanta caves,mr,roman,Maharashtra,heritage_information,Describe Ajanta Caves
-maharashtra chi killa kuthhe ahet,mr,roman,Maharashtra,heritage_information,महाराष्ट्रातील किल्ले कुठे आहेत
-tamil nadu koilgalai patri sollunga,ta,roman,Tamil Nadu,heritage_information,தமிழ்நாட்டின் கோவில்களைப் பற்றி சொல்லுங்கள்
-golden temple da itihas daso,pa,roman,Punjab,heritage_information,Golden Temple da itihas daso
-rajasthan ke killo ke baare mein batao,hi,roman,Rajasthan,heritage_information,राजस्थान के किल्लों के बारे में बताओ
+kem cho majama,gu,roman,None,greeting,કેમ છો મજામાં
+su chhe majama,gu,roman,None,greeting,શું છે મજામાં
+tu kya chhe,gu,roman,None,greeting,તું ક્યાં છે
+aaje kem chho,gu,roman,None,greeting,આજે કેમ છો
+bhai su chhe,gu,roman,None,greeting,ભાઈ શું છે
+su recent news chhe,gu,roman,None,unknown,શું રીસેન્ટ ન્યૂઝ છે
+gujarat ma weather shu chhe,gu,roman,None,unknown,ગુજરાત માં વેધર શું છે
+kai movie aavi chhe,gu,roman,None,unknown,કઈ મૂવી આવી છે
+aapde ketla vadya chhe,gu,roman,None,unknown,આપણે કેટલા વાજા છીએ
+su karo chhe tare,gu,roman,None,unknown,શું કરો છો તારે
+rain time ma kya jaiye,gu,roman,None,unknown,રેઇન ટાઇમ માં ક્યાં જઈએ
+me tamare sathe vartalaap karu chhu,gu,roman,None,greeting,હું તમારે સાથે વાર્તાલાપ કરું છું
+su tamari help chhe,gu,roman,None,greeting,શું તમારી હેલ્પ છે
+ok su karo abhi,gu,roman,None,greeting,ઓકે શું કરો અભી
+gujarat na heritage batavo,gu,roman,Gujarat,state_exploration,ગુજરાતના હેરિટેજ બતાવો
+gujarat ma kai jova lakhay chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ જોવા લાયક છે
+ahmedabad nu jovanu shu chhe,gu,roman,Gujarat,state_exploration,અમદાવાદનું જોવાનું શું છે
+rajkot ni heritage sites daso,gu,roman,Gujarat,state_exploration,રાજકોટની હેરિટેજ સાઇટ્સ દસો
+gujarat ma kya famous chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં ક્યાં ફેમસ છે
+surat ma kai heritage chhe,gu,roman,Gujarat,state_exploration,સુરત માં કઈ હેરિટેજ છે
+jamnagar ni maharaja palace vishe janavo,gu,roman,Gujarat,heritage_information,જામનગરની મહારાજા પેલેસ વિશે જાણવો
+bhuj ma kai jova lakhay chhe,gu,roman,Gujarat,state_exploration,ભુજ માં કઈ જોવા લાયક છે
+gujarat na historical places kai kai chhe,gu,roman,Gujarat,state_exploration,ગુજરાતના હિસ્ટોરિકલ પ્લેસેસ કયા કયા છે
+junagadh ma kai chhe,gu,roman,Gujarat,state_exploration,જૂનાગઢ માં કઈ છે
+vastral ma kai chhe,gu,roman,Gujarat,craft_information,વસ્ત્રાલ માં કઈ છે
+gandhinagar ma swaminarayan mandir chhe kya,gu,roman,Gujarat,location_information,ગાંધીનગર માં સ્વામિનારાયણ મંદિર છે ક્યાં
+gujarat ma kai UNESCO sites chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ UNESCO સાઇટ્સ છે
+patan ni adalaj vav vishe janavo,gu,roman,Gujarat,heritage_information,પાટણની અડાલજ વાવ વિશે જાણવો
+gujarat ma kaya temples farva laayak chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કયા મંદિરો ફરવા લાયક છે
+modhera ma shu chhe,gu,roman,Gujarat,heritage_information,મોઢેરા માં શું છે
+kutch ma kai crafts chhe,gu,roman,Gujarat,craft_information,કચ્છ માં કઈ ક્રાફ્ટ્સ છે
+amreli ma kai jova lakhay chhe,gu,roman,Gujarat,state_exploration,અમરેલી માં કઈ જોવા લાયક છે
+gujarat na stepwells ni history janavo,gu,roman,Gujarat,historical_period,ગુજરાતના સ્ટેપવેલ્સની હિસ્ટોરી જાણવો
+palitana ni temples vishe janavo,gu,roman,Gujarat,heritage_information,પાલીતાણાની મંદિરો વિશે જાણવો
+mehsana ma kai chhe,gu,roman,Gujarat,state_exploration,મહેસાણા માં કઈ છે
+gujarat ma kai durg chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ દુર્ગ છે
+who built somnath mandir,gu,roman,Gujarat,person_information,સોમનાથ મંદિર કોણે બનાવ્યું
+gandhi ashram kya avelu chhe,gu,roman,Gujarat,location_information,ગાંધી આશ્રમ ક્યાં આવેલું છે
+jamnagar ma kai heritage chhe,gu,roman,Gujarat,state_exploration,જામનગર માં કઈ હેરિટેજ છે
+rajkot no darbargadh vishe janavo,gu,roman,Gujarat,heritage_information,રાજકોટનો દરબારગઢ વિશે જાણવો
+gujarat na kai jyotirlinga chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના કઈ જ્યોતિર્લિંગ છે
+bhuj ma bhujia kai rite banay chhe,gu,roman,Gujarat,craft_information,ભુજ માં ભુજીયા કઈ રીતે બનાય છે
+gandhi jayanti par kya karvama aave,gu,roman,Gujarat,festival_information,ગાંધી જયંતિ પર ક્યાં કરવામાં આવે
+kishangadh ma kai chhe,gu,roman,Gujarat,heritage_information,કિશનગઢ માં કઈ છે
+dhrangadhra heritage vishe janavo,gu,roman,Gujarat,heritage_information,ધ્રાંગઢ્રા હેરિટેજ વિશે જાણવો
+gujarat ma kai wildlife sanctuaries chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ વાઇલ્ડલાઇફ સેન્ચ્યુરીઝ છે
+porbandar ni heritage vishe janavo,gu,roman,Gujarat,heritage_information,પોરબંદરની હેરિટેજ વિશે જાણવો
+gujarat ma kai beaches chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ બીચેસ છે
+vadodara ma lakshmi vilas palace chhe kya,gu,roman,Gujarat,location_information,વડોદરા માં લક્ષ્મી વિલાસ પેલેસ છે ક્યાં
+mahatma gandhi ne kya janavu chhe,gu,roman,Gujarat,person_information,મહાત્મા ગાંધીને ક્યાં જાણવા છે
+rajkot ma kai temples chhe,gu,roman,Gujarat,heritage_information,રાજકોટ માં કઈ મંદિરો છે
+gujarat no warli art vishe batavo,gu,roman,Gujarat,craft_information,ગુજરાતનો વારલી આર્ટ વિશે બતાવો
+somanath thi dwarka ketla km chhe,gu,roman,Gujarat,location_information,સોમનાથ થી દ્વારકા કેટલા કિમી છે
+ahmedabad ma heritage walk chhe kya,gu,roman,Gujarat,location_information,અમદાવાદ માં હેરિટેજ વોક છે ક્યાં
+gujarat ma kai riverfront chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ રિવરફ્રન્ટ છે
+rajkot ma watson museum chhe kya,gu,roman,Gujarat,location_information,રાજકોટ માં વોટ્સન મ્યુઝિયમ છે ક્યાં
+gujarat na famous persons kai chhe,gu,roman,Gujarat,person_information,ગુજરાતના ફેમસ પર્સન્સ કયા છે
+vallabhbhai patel ni jivan vishe janavo,gu,roman,Gujarat,person_information,વલ્લભભાઈ પટેલની જીવન વિશે જાણવો
+gujarat ma kai dharohar chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ ધરોહર છે
+sabarmati riverfront vishe janavo,gu,roman,Gujarat,heritage_information,સાબરમતી રિવરફ્રન્ટ વિશે જાણવો
+gujarat ma kai museum chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ મ્યુઝિયમ છે
+diu ni heritage vishe janavo,gu,roman,Gujarat,heritage_information,દીવની હેરિટેજ વિશે જાણવો
+nargund mandir kya chhe,gu,roman,Gujarat,location_information,નારગુંડ મંદિર ક્યાં છે
+gujarat ma kai songs chhe,gu,roman,Gujarat,craft_information,ગુજરાત માં કઈ songs છે
+who is jhaverchand kalidas,gu,roman,Gujarat,person_information,જ્હાવેરચંદ કલિદાસ કોણ છે
+rajkot ma darbargadh kya chhe,gu,roman,Gujarat,location_information,રાજકોટ માં દરબારગઢ ક્યાં છે
+gujarat ma kai bird sanctuaries chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ બર્ડ સેન્ચ્યુરીઝ છે
+dholavira no itihas janavo,gu,roman,Gujarat,historical_period,ધોળાવીરાનો ઇતિહાસ જાણવો
+gujarat na kai forts chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના કઈ ફોર્ટ્સ છે
+amdavad na navrangpura ma kai chhe,gu,roman,Gujarat,state_exploration,અમદાવાદના નવરંગપુરા માં કઈ છે
+gandhinagar ma gift city chhe kya,gu,roman,Gujarat,location_information,ગાંધીનગર માં ગિફ્ટ સિટી છે ક્યાં
+gujarat na kai museums chhe je aavani jaruri chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના કઈ મ્યુઝિયમ્સ છે જે આવવા જરૂરી છે
+patan ma kai jova lakhay chhe,gu,roman,Gujarat,state_exploration,પાટણ માં કઈ જોવા લાયક છે
+champaner ma kai chhe,gu,roman,Gujarat,heritage_information,ચંપાનેર માં કઈ છે
+who was sardar patel,gu,roman,Gujarat,person_information,સરદાર પટેલ કોણ હતા
+somnath mandir kya chhe,gu,roman,Gujarat,location_information,સોમનાથ મંદિર ક્યાં છે
+gujarat ma kai iron pillar chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ આયર્ન પિલર છે
+lothal na archaeological ruins vishe janavo,gu,roman,Gujarat,heritage_information,લોથલના આર્કિયોલોજિકલ ruins વિશે જાણવો
+gujarat ma kai ashram chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ આશ્રમ છે
+kutch ni bandhani vishe janavo,gu,roman,Gujarat,craft_information,કચ્છની બાંધણી વિશે જાણવો
+somnath thi dwarka ketla km che,gu,roman,Gujarat,location_information,સોમનાથ થી દ્વારકા કેટલા કિમી છે
+gujarat ma kai hindu temples chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ હિન્દુ મંદિરો છે
+gujarat na banyan tree vishe batavo,gu,roman,Gujarat,heritage_information,ગુજરાતના banyan tree વિશે બતાવો
+rajkot ma watson museum vishe janavo,gu,roman,Gujarat,heritage_information,રાજકોટ માં વોટ્સન મ્યુઝિયમ વિશે જાણવો
+gujarat ma kai ancient sites chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ ancient sites છે
+surat ma castle chhe kya,gu,roman,Gujarat,location_information,સુરત માં કાસલ છે ક્યાં
+gujarat ma kai stepwells farva layak chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ સ્ટેપવેલ્સ ફરવા લાયક છે
+rajkot nu science museum chhe kya,gu,roman,Gujarat,location_information,રાજકોટ નું science museum છે ક્યાં
+ahmedabad ni heritage walk kya thi aarambhe chhe,gu,roman,Gujarat,location_information,અમદાવાદની હેરિટેજ વોક ક્યાં થી આરંભે છે
+gujarat ma kai kites festival chhe,gu,roman,Gujarat,festival_information,ગુજરાત માં કઈ kites festival છે
+gandhinagar ma swaminarayan temple vishe janavo,gu,roman,Gujarat,heritage_information,ગાંધીનગર માં સ્વામિનારાયણ મંદિર વિશે જાણવો
+gujarat na master craftsmen kai chhe,gu,roman,Gujarat,person_information,ગુજરાતના master craftsmen કયા છે
+rajkot ma kai jova lakhay chhe,gu,roman,Gujarat,state_exploration,રાજકોટ માં કઈ જોવા લાયક છે
+gujarat ma kai religious places chhe,gu,roman,Gujarat,heritage_information,ગુજરાત માં કઈ religious places છે
+sabarmati ashram kya avelu che,gu,roman,Gujarat,location_information,સાબરમતી આશ્રમ ક્યાં આવેલું છે
+gujarat ma kai national parks chhe,gu,roman,Gujarat,state_exploration,ગુજરાત માં કઈ national parks છે
+rajkot ma ye chhe,gu,roman,Gujarat,state_exploration,રાજકોટ માં ye છે
+kutch ma ran utsav vishe janavo,gu,roman,Gujarat,festival_information,કચ્છ માં ran utsav વિશે જાણવો
+gujarat na kai literary heritage chhe,gu,roman,Gujarat,heritage_information,ગુજરાતના કઈ literary heritage છે

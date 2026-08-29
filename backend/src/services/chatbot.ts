@@ -2,7 +2,8 @@
    Dharohar AI — Chatbot Service
    ========================================
    Project-grounded response pipeline with
-   Romanized Gujarati support and geocoding.
+   Romanized Gujarati support, geocoding,
+   context-aware suggestions, and RG response mode.
    ======================================== */
 
 import { query } from "../database";
@@ -10,6 +11,7 @@ import {
   isValidLanguage,
   getGreetingResponse,
   getUnknownResponse,
+  getSuggestionsForContext,
   SUPPORTED_STATE_CODES,
   type SupportedStateCode,
 } from "../config/languages";
@@ -18,30 +20,31 @@ import {
 
 const ROMANIZED_GUJARATI_INDICATORS = [
   "chhe", "che", "shu", "su", "kai", "kaya", "kya", "kyare",
-  "kem", "ketla", "ketli", "vishe", "mahiti", "janavo", "aapo",
+  "kem", "ketla", "ketli", "vishe", "vise", "mahiti", "janavo", "aapo",
   "batavo", "baro", "barsa", "varsa", "itihas", "virasat",
   "jagya", "sthal", "mandir", "kila", "durg", "halo",
-  "karo", "karo", "jano", "jano", "sheno", "kay",
-  "ma", "na", "ni", "no", "ne", "te", "e", "o",
+  "karo", "jano", "sheno", "kay",
   "farva", "jeva", "jevi", "evu", "evi", "hato", "hati",
   "aavi", "aave", "aavelo", "aavti", "kevi", "karto",
   "vishay", "sthiti", "paristhiti", "samay", "yug",
+  "lakhay", "chahiye", "bani", "daso",
 ];
 
 const ROMANIZED_GUJARATI_PATTERN =
-  /\b(chhe|che|shu|su|kai|kaya|kya|kyare|kem|ketla|ketli|vishe|mahiti|janavo|aapo|batavo|baro|barsa|varsa|itihas|virasat|jagya|sthal|mandir|kila|durg|halo|karo|jano|sheno|farva|jeva|jevi|evu|evi|hato|hati|aavi|aave|aavelo|aavti|kevi|karto|vishay|sthiti|samay|yug)\b/i;
+  /\b(chhe|che|shu|su|kai|kaya|kya|kyare|kem|ketla|ketli|vishe|vise|mahiti|janavo|aapo|batavo|baro|barsa|varsa|itihas|virasat|jagya|sthal|mandir|kila|durg|halo|karo|jano|sheno|farva|jeva|jevi|evu|evi|hato|hati|aavi|aave|aavelo|aavti|kevi|karto|vishay|sthiti|samay|yug|lakhay|bani|daso)\b/i;
 
 function isRomanizedGujarati(message: string): boolean {
   const lower = message.toLowerCase();
-  // Check for Romanized Gujarati indicator words
   const hasIndicator = ROMANIZED_GUJARATI_PATTERN.test(lower);
-  // Check for Gujarati state context
-  const hasGujaratContext = /\b(gujarat|ahmedabad|patan|somnath|modhera|dwarka|rajkot|bhuj|kutch|junagadh|vadodara|surat|gandhinagar)\b/i.test(lower);
-  // Check for Romanized Hindi indicators (to distinguish)
-  const hasHindiIndicators = /\b(batao|bolo|bataiye|kaise|kya|hai|mein|ka|ki|ke|ko|se|ne|aur|ya)\b/i.test(lower);
-  
-  // If has Romanized Gujarati indicators OR (Gujarat context + no Hindi indicators)
+  const hasGujaratContext = /\b(gujarat|ahmedabad|patan|somnath|modhera|dwarka|rajkot|bhuj|kutch|junagadh|vadodara|surat|gandhinagar|diu|palitana|champaner|lothal|statue of unity|gandhi)\b/i.test(lower);
+  const hasHindiIndicators = /\b(batao|bolo|bataiye|kaise|bataiye|hai|mein|ka|ki|ke|ko|se|ne|aur|ya)\b/i.test(lower);
   return hasIndicator || (hasGujaratContext && !hasHindiIndicators);
+}
+
+/* ---- Romanized Gujarati Response Mode Detection ---- */
+
+function wantsRomanizedResponse(message: string): boolean {
+  return /\b(roman|roman gujarati|english letters|english ma|roman ma|romanized)\b/i.test(message);
 }
 
 /* ---- Intent Detection ---- */
@@ -58,7 +61,7 @@ type Intent =
   | "unknown";
 
 const GREETING_PATTERNS =
-  /^(hi|hello|hey|namaste|namaskar|vanakkam|sat sri akal|halo|kem cho|kaise ho|nomoshkar)/i;
+  /^(hi|hello|hey|namaste|namaskar|vanakkam|sat sri akal|halo|kem cho|kaise ho|nomoshkar|good morning|good afternoon|good evening)/i;
 const GREETING_PATTERNS_UNICODE =
   /નમસ્તે|નમસ્કાર|કેમ છો|नमस्ते|नमस्कार|வணக்கம்|ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ|ਨਮਸਤੇ/;
 
@@ -70,25 +73,26 @@ const STATE_KEYWORDS: Record<string, SupportedStateCode> = {
   madurai: "TN", mumbai: "MH", bhopal: "MP",
   somnath: "GJ", dwarka: "GJ", patan: "GJ", rajkot: "GJ",
   bhuj: "GJ", kutch: "GJ", junagadh: "GJ", vadodara: "GJ",
-  surat: "GJ", gandhinagar: "GJ", modhera: "GJ",
+  surat: "GJ", gandhinagar: "GJ", modhera: "GJ", diu: "GJ",
+  palitana: "GJ", champaner: "GJ", lothal: "GJ",
 };
 
 function detectIntent(message: string): Intent {
   const lower = message.toLowerCase().trim();
   if (GREETING_PATTERNS.test(lower) || GREETING_PATTERNS_UNICODE.test(message)) return "greeting";
-  if (/temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|મંદિર|किल्ला|मंदिर|கோவில்|ਮੰਦਿਰ|mandir|kila|durg|surya mandir/i.test(lower))
+  if (/temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|મંદિર|किल्ला|मंदिर|கோவில்|ਮੰਦਿર|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog/i.test(lower))
     return "heritage_information";
-  if (/craft|weaving|embroidery|art|pottery|silk|textile|bronze|painting|kalaa|હસ્તકલા|शिल्प|கைவினை|ਹੁਣਰ|hathkala/i.test(lower))
+  if (/craft|weaving|embroidery|art|pottery|silk|textile|bronze|painting|kalaa|હસ્તકલા|शिल्प|கைவினை|ਹੁਣਰ|hathkala|bandhani|patola/i.test(lower))
     return "craft_information";
-  if (/person|king|queen|leader|gandhi|emperor|saint|poet|warrior|maharaja|rani|મહારાજા|रानी|மகாராஜா|ਮਹਾਰਾਜਾ/i.test(lower))
+  if (/person|king|queen|leader|gandhi|emperor|saint|poet|warrior|maharaja|rani|મહારાજા|रानी|மகாராஜா|ਮਹਾਰਾਜਾ|guru|who was|who built/i.test(lower))
     return "person_information";
-  if (/festival|celebration|dance|garba|bhangra|carnival|navratri|nritya|નૃત્ય|नृत्य|நடனம்|ਨੱਚ/i.test(lower))
+  if (/festival|celebration|dance|garba|bhangra|carnival|navratri|nritya|નૃત્ય|नृत्य|நடனம்|ਨੱਚ|utsav/i.test(lower))
     return "festival_information";
-  if (/period|era|dynasty|century|ancient|medieval|colonial|modern|itihas|ઇતિહાસ|इतिहास|varalaru|ਇਤਿਹਾਸ|samay|yug/i.test(lower))
+  if (/period|era|dynasty|century|ancient|medieval|colonial|modern|itihas|ઇતિહાસ|इतिहાસ|varalaru|ਇਤਿਹਾਸ|samay|yug|history|historical/i.test(lower))
     return "historical_period";
-  if (/explore|what can|what is|tell me about|virasat|varshe|વારસો|विरासत|પਾਸੇ|vishay|baddal|patri|sollunga|daso|kive|bare|mahiti|janavo|vishe|batavo|kaya|jeva|farva/i.test(lower))
+  if (/explore|what can|what is|tell me about|virasat|varshe|વારસો|विरासत|પਾਸੇ|vishay|baddal|patri|sollunga|daso|kive|bare|mahiti|janavo|vishe|vise|batavo|kaya|jeva|farva|farva jeva|places|sites|what to see/i.test(lower))
     return "state_exploration";
-  if (/location|city|where|place|district|kuthhe|kahaan|sthalo|ਸਥਾਨ|located|kya aveli|kya che|kya chhe/i.test(lower))
+  if (/location|city|where|place|district|kuthhe|kahaan|sthalo|ਸਥਾਨ|located|kya aveli|kya che|kya chhe|kya thi|kya aavelu/i.test(lower))
     return "location_information";
   return "unknown";
 }
@@ -104,7 +108,7 @@ function detectState(message: string): SupportedStateCode | null {
 function extractKeywords(message: string): string[] {
   const words = message
     .toLowerCase()
-    .replace(/[^\w\s\u0A80-\u0AFF\u0900-\u097F\u0B80-\u0BFF]/g, "")
+    .replace(/[^\w\s\u0900-\u097F\u0A80-\u0AFF\u0B80-\u0BFF]/g, "")
     .split(/\s+/)
     .filter((w) => w.length > 1);
   const stopWords = new Set([
@@ -113,9 +117,9 @@ function extractKeywords(message: string): string[] {
     "new", "now", "old", "see", "way", "who", "did", "get", "let", "say",
     "she", "too", "use", "tell", "about", "me", "what", "some", "them",
     "than", "this", "that", "with", "have", "from", "they", "been", "said",
-    "each", "make", "like", "your", "will", "there", "their",
+    "each", "make", "like", "your", "will", "there", "their", "show",
     "ke", "ka", "ki", "ko", "hai", "se", "me", "ne", "aur", "ya",
-    "ma", "na", "ni", "no", "ne", "e", "o",
+    "ma", "na", "ni", "no", "e", "o",
     "chhe", "che", "shu", "su", "kai", "kem", "halo",
   ]);
   return words.filter((w) => !stopWords.has(w));
@@ -213,6 +217,16 @@ async function getStateOverview(stateCode: string): Promise<KnowledgeResult[]> {
 
 /* ---- Response Generation ---- */
 
+const STATE_NAMES: Record<string, string> = {
+  GJ: "Gujarat", RJ: "Rajasthan", PB: "Punjab", GA: "Goa",
+  TN: "Tamil Nadu", MH: "Maharashtra", MP: "Madhya Pradesh", DL: "Delhi",
+};
+
+const STATE_NAMES_GU: Record<string, string> = {
+  GJ: "ગુજરાત", RJ: "રાજસ્થાન", PB: "પંજાબ", GA: "ગોવા",
+  TN: "તમિલનાડુ", MH: "મહારાષ્ટ્ર", MP: "મધ્ય પ્રદેશ", DL: "દિલ્હી",
+};
+
 function formatHeritageResponse(results: KnowledgeResult[], language: string): string {
   if (results.length === 0) return "";
   const parts: string[] = [];
@@ -228,7 +242,7 @@ function formatHeritageResponse(results: KnowledgeResult[], language: string): s
   return parts.join("\n\n");
 }
 
-function formatGeoResponse(geoResults: GeoResult[], language: string): string {
+function formatGeoResponse(geoResults: GeoResult[], _language: string): string {
   if (geoResults.length === 0) return "";
   const parts: string[] = ["Location found:"];
   for (const g of geoResults.slice(0, 2)) {
@@ -239,6 +253,30 @@ function formatGeoResponse(geoResults: GeoResult[], language: string): string {
   return parts.join("\n");
 }
 
+function formatStateOverview(results: KnowledgeResult[], language: string): string {
+  if (results.length === 0) return "";
+  const list = results.map((r) =>
+    `- **${r.heritage_name}** (${r.heritage_type}): ${r.description?.substring(0, 120)}...`
+  ).join("\n");
+  return list;
+}
+
+function getSupportedStatesList(language: string): string {
+  const names = language === "gu" ? STATE_NAMES_GU : STATE_NAMES;
+  return SUPPORTED_STATE_CODES.map((c) => `- ${names[c]}`).join("\n");
+}
+
+/* ---- Context-Aware Suggestions ---- */
+
+export interface ChatSuggestion {
+  text: string;
+  category: string;
+}
+
+function getContextSuggestions(lastIntent: string | null, lastState: SupportedStateCode | null, language: string): ChatSuggestion[] {
+  return getSuggestionsForContext(lastIntent, lastState, language);
+}
+
 /* ---- Main Chat Function ---- */
 
 export interface ChatRequest {
@@ -247,11 +285,13 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   reply: string; intent: string; stateCode: string | null; knowledgeIds: string[];
+  suggestions: ChatSuggestion[];
 }
 
 export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   const { message, language } = req;
   const isRG = isRomanizedGujarati(message);
+  const wantsRoman = wantsRomanizedResponse(message);
   const langCode = (isValidLanguage(language) ? language : (isRG ? "gu" : "en"));
   const intent = detectIntent(message);
   const stateCode = detectState(message);
@@ -275,8 +315,7 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
         knowledgeIds = results.map((r) => r.id);
         reply = formatHeritageResponse(results, langCode);
       } else {
-        // Try geocoding for location queries
-        if (intent === "location_information" || /where|kya|kya aveli|kya chhe/i.test(message)) {
+        if (intent === "location_information" || /where|kya|kya aveli|kya chhe|kya aavelu/i.test(message)) {
           const geoResults = await geocodeLocation(message);
           if (geoResults.length > 0) {
             reply = formatGeoResponse(geoResults, langCode);
@@ -294,19 +333,14 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
         const results = await getStateOverview(stateCode);
         if (results.length > 0) {
           knowledgeIds = results.map((r) => r.id);
-          const list = results.map((r) =>
-            `- **${r.heritage_name}** (${r.heritage_type}): ${r.description?.substring(0, 100)}...`
-          ).join("\n");
-          reply = list;
+          reply = formatStateOverview(results, langCode);
         } else {
           reply = getUnknownResponse(langCode);
         }
       } else {
-        const stateNames: Record<string, string> = {
-          GJ: "Gujarat", RJ: "Rajasthan", PB: "Punjab", GA: "Goa",
-          TN: "Tamil Nadu", MH: "Maharashtra", MP: "Madhya Pradesh", DL: "Delhi",
-        };
-        reply = `I can help you explore heritage from these supported states:\n\n${SUPPORTED_STATE_CODES.map((c) => `- ${stateNames[c]}`).join("\n")}\n\nAsk me about any of these states!`;
+        reply = langCode === "gu"
+          ? `હું આ સપોર્ટેડ રાજ્યોના વારસાને શોધવામાં તમારી મદદ કરી શકું છું:\n\n${getSupportedStatesList(langCode)}\n\nકોઈ પણ રાજ્ય વિશે પૂછો!`
+          : `I can help you explore heritage from these supported states:\n\n${getSupportedStatesList(langCode)}\n\nAsk me about any of these states!`;
       }
       break;
     }
@@ -322,7 +356,9 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
     }
   }
 
-  return { reply, intent, stateCode, knowledgeIds };
+  const suggestions = getContextSuggestions(intent, stateCode, langCode);
+
+  return { reply, intent, stateCode, knowledgeIds, suggestions };
 }
 
-export { detectIntent, detectState, isRomanizedGujarati };
+export { detectIntent, detectState, isRomanizedGujarati, wantsRomanizedResponse };

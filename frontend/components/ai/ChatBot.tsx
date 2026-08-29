@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useApi } from "@/hooks/useApi";
 import { api } from "@/services/api";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +11,7 @@ import {
   Trash2,
   Loader2,
   ChevronDown,
+  MessageSquare,
 } from "lucide-react";
 
 /* ---- Types ---- */
@@ -30,7 +30,7 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-interface ChatResponse {
+interface ChatResponseData {
   success: boolean;
   data: {
     reply: string;
@@ -38,12 +38,13 @@ interface ChatResponse {
     state: string | null;
     knowledge_ids: string[];
     language: string;
+    suggestions: string[];
   };
 }
 
 interface WelcomeResponse {
   success: boolean;
-  data: { message: string; language: string };
+  data: { message: string; language: string; suggestions: string[] };
 }
 
 /* ---- Supported languages for display ---- */
@@ -66,6 +67,9 @@ export function ChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [sessionId] = useState(() => `session-${Math.random().toString(36).slice(2, 10)}`);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [lastIntent, setLastIntent] = useState<string | null>(null);
+  const [lastState, setLastState] = useState<string | null>(null);
   const idCounter = useRef(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -87,6 +91,9 @@ export function ChatBot() {
               timestamp: new Date(),
             },
           ]);
+          if (res.data.suggestions) {
+            setSuggestions(res.data.suggestions);
+          }
         }
       } catch {
         setMessages([
@@ -104,9 +111,6 @@ export function ChatBot() {
       fetchWelcome();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Fetch suggestions
-  const { data: suggestions } = useApi<string[]>("/ai/suggestions");
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -130,7 +134,7 @@ export function ChatBot() {
     setIsLoading(true);
 
     try {
-      const res = await api.post<ChatResponse>("/ai/chat", {
+      const res = await api.post<ChatResponseData>("/ai/chat", {
         message: messageText,
         language,
         session_id: sessionId,
@@ -145,6 +149,13 @@ export function ChatBot() {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
+      setLastIntent(res.data.intent);
+      setLastState(res.data.state);
+
+      // Update context-aware suggestions
+      if (res.data.suggestions && res.data.suggestions.length > 0) {
+        setSuggestions(res.data.suggestions);
+      }
     } catch (err) {
       const errorMsg: ChatMessage = {
         id: `error-${++idCounter.current}`,
@@ -165,7 +176,8 @@ export function ChatBot() {
   // Clear conversation
   const handleClear = () => {
     setMessages([]);
-    // Re-fetch welcome
+    setLastIntent(null);
+    setLastState(null);
     api.get<WelcomeResponse>(`/ai/welcome?language=${language}`).then((res) => {
       if (res.success) {
         setMessages([
@@ -177,6 +189,9 @@ export function ChatBot() {
             timestamp: new Date(),
           },
         ]);
+        if (res.data.suggestions) {
+          setSuggestions(res.data.suggestions);
+        }
       }
     }).catch(() => {});
   };
@@ -302,12 +317,17 @@ export function ChatBot() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested questions */}
-      {suggestions && suggestions.length > 0 && messages.length <= 2 && (
+      {/* Context-Aware Suggestions */}
+      {suggestions.length > 0 && !isLoading && (
         <div className="px-4 py-2 border-t border-border bg-parchment">
-          <p className="text-[10px] text-muted mb-1.5">Suggested questions:</p>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <MessageSquare className="h-3 w-3 text-muted" />
+            <p className="text-[10px] text-muted">
+              {lastIntent ? "Try asking:" : "Suggested questions:"}
+            </p>
+          </div>
           <div className="flex flex-wrap gap-1.5">
-            {suggestions.slice(0, 4).map((q) => (
+            {suggestions.map((q) => (
               <button
                 key={q}
                 onClick={() => handleSend(q)}

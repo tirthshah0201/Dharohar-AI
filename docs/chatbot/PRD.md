@@ -30,13 +30,28 @@ Dharohar AI's chatbot provides a multilingual, project-grounded heritage discove
 
 ## 4. Romanized Gujarati
 
+### Detection
+
 Users can type Gujarati using English/Roman characters. The system detects common patterns:
 
-- **Questions:** vishe, janavo, mahiti, aapo, batavo
-- **State:** chhe, che, shu, su, kai, kaya, kya
-- **Context:** Gujarat, Ahmedabad, Patan, Somnath, etc.
+- **Questions:** vishe, vise, janavo, mahiti, aapo, batavo, daso
+- **State:** chhe, che, shu, su, kai, kaya, kya, kyare, kem
+- **Context:** Gujarat, Ahmedabad, Patan, Somnath, Modhera, Dwarka, etc.
+- **Verbs:** farva, jeva, aave, lakhay, bani
 
-Romanized Gujarati is routed as Gujarati (`gu`) and responses are in Gujarati script.
+### Response Mode
+
+**Default:** Romanized Gujarati input → Gujarati-script response.
+
+**Explicit Roman:** If user writes "roman gujarati ma jawab aapo" or "English letters ma Gujarati ma answer aapo", respond in Romanized Gujarati.
+
+### Examples
+
+| Input | Detected | Intent | Response Script |
+|-------|----------|--------|-----------------|
+| gujarat na heritage places vishe janavo | Romanized Gujarati → gu | state_exploration | Gujarati script |
+| modhera surya mandir vishe mahiti aapo | Romanized Gujarati → gu | heritage_information | Gujarati script |
+| rani ki vav kya aveli chhe | Romanized Gujarati → gu | location_information | Gujarati script |
 
 ## 5. Chat API
 
@@ -46,7 +61,7 @@ Romanized Gujarati is routed as Gujarati (`gu`) and responses are in Gujarati sc
 ```json
 {
   "message": "gujarat na heritage places vishe janavo",
-  "language": "en",
+  "language": "gu",
   "session_id": "optional-session-id"
 }
 ```
@@ -60,30 +75,59 @@ Romanized Gujarati is routed as Gujarati (`gu`) and responses are in Gujarati sc
     "intent": "state_exploration",
     "state": "GJ",
     "knowledge_ids": ["uuid1", "uuid2"],
-    "language": "gu"
+    "language": "gu",
+    "suggestions": [
+      "modhera surya mandir vishe mahiti aapo",
+      "gujarat na kila vishe janavo"
+    ]
   }
 }
 ```
 
 ### GET /api/ai/welcome?language=gu
+
+Returns welcome message and initial suggestions.
+
+### GET /api/ai/suggestions?language=gu&intent=state_exploration&state=GJ
+
+Returns context-aware suggested questions based on language, last intent, and state.
+
 ### GET /api/ai/languages
-### GET /api/ai/suggestions
+
+Returns supported languages.
 
 ## 6. Intent Classification
 
 | Intent | Description |
 |--------|-------------|
 | greeting | Hello, namaste, etc. |
-| heritage_information | Temples, forts, monuments |
-| craft_information | Weaving, pottery, art |
-| person_information | Kings, leaders, saints |
-| festival_information | Garba, bhangra, etc. |
-| historical_period | Dynasties, eras |
-| state_exploration | What to visit, explore |
-| location_information | Where is X located |
+| heritage_information | Temples, forts, monuments, ashrams |
+| craft_information | Weaving, pottery, art, textiles |
+| person_information | Kings, leaders, saints, gurus |
+| festival_information | Garba, bhangra, carnival, utsav |
+| historical_period | Dynasties, eras, history |
+| state_exploration | What to visit, explore, famous |
+| location_information | Where is X located, city, district |
 | unknown | Off-topic queries |
 
-## 7. External APIs
+## 7. Context-Aware Suggestions
+
+Suggestions are context-aware and change based on:
+
+1. **Current language** — suggestions in the active language
+2. **Last intent** — follow-up questions related to the previous query type
+3. **Last state** — state-specific suggestions after state exploration
+
+### Suggestion Categories
+
+- `explore` — state exploration prompts
+- `heritage` — heritage site queries
+- `craft` — craft/art queries
+- `history` — historical period/person queries
+- `culture` — cultural traditions/festivals
+- `follow-up` — context-dependent follow-ups
+
+## 8. External APIs
 
 ### OpenStreetMap Nominatim (Free)
 
@@ -95,7 +139,7 @@ Romanized Gujarati is routed as Gujarati (`gu`) and responses are in Gujarati sc
 
 Used for location queries when internal knowledge base has no results.
 
-## 8. Internal vs External Data
+## 9. Internal vs External Data
 
 | Source | Type | Trust Level |
 |--------|------|-------------|
@@ -104,17 +148,79 @@ Used for location queries when internal knowledge base has no results.
 
 External API data never becomes historical truth. Only coordinates and addresses from external APIs.
 
-## 9. ML Model
+## 10. ML Model
 
-- **Type:** TF-IDF + Logistic Regression
+- **Type:** TF-IDF + Logistic Regression (v3)
 - **Purpose:** Intent classification
 - **Languages:** English, Gujarati (script + Romanized), Hindi, Marathi, Tamil, Punjabi
-- **Accuracy:** 67% (v2, combined dataset)
+- **Training samples:** 648
+- **Accuracy:** 74%
+- **F1 (macro):** 77%
 
-## 10. Security
+## 11. Training Dataset
+
+| Metric | Value |
+|--------|-------|
+| Total samples | 648 |
+| Training | 518 (80%) |
+| Testing | 130 (20%) |
+| Languages | 6 |
+| States | 8 |
+| Intents | 9 |
+| RG entries | 165 |
+
+### Class Distribution
+
+| Intent | Count |
+|--------|-------|
+| heritage_information | 228 |
+| craft_information | 89 |
+| state_exploration | 69 |
+| historical_period | 56 |
+| person_information | 52 |
+| unknown | 51 |
+| festival_information | 39 |
+| location_information | 38 |
+| greeting | 26 |
+
+## 12. Security
 
 - API key required for all chat endpoints
 - User input validated (length, language, state)
 - External API errors handled gracefully
 - No secrets in responses
 - Database queries parameterized
+- .env gitignored
+- No API keys in frontend
+
+## 13. Architecture
+
+```
+User
+  ↓
+Chatbot UI (React)
+  ↓
+Backend Chat API (Express/TypeScript)
+  ↓
+Language Detection (Romanized Gujarati / Unicode)
+  ↓
+Intent Classification (Regex-based)
+  ↓
+Heritage Knowledge Retrieval (Neon PostgreSQL)
+  ↓
+Optional: External Geocoding (Nominatim)
+  ↓
+Response Generation + Context-Aware Suggestions
+  ↓
+User
+```
+
+## 14. Future
+
+- [ ] ML-based intent classification in production (currently regex-based)
+- [ ] Conversation context/history awareness
+- [ ] RAG/semantic search
+- [ ] Knowledge graph visualization
+- [ ] Additional Indian states
+- [ ] Additional languages
+- [ ] LLM integration for response generation
