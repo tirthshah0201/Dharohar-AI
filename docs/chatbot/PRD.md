@@ -49,178 +49,147 @@ Users can type Gujarati using English/Roman characters. The system detects commo
 
 | Input | Detected | Intent | Response Script |
 |-------|----------|--------|-----------------|
-| gujarat na heritage places vishe janavo | Romanized Gujarati → gu | state_exploration | Gujarati script |
-| modhera surya mandir vishe mahiti aapo | Romanized Gujarati → gu | heritage_information | Gujarati script |
-| rani ki vav kya aveli chhe | Romanized Gujarati → gu | location_information | Gujarati script |
+| modhera surya mandir vishe mahiti aapo | Gujarati (RG) | heritage_information | Gujarati |
+| gujarat na heritage places vishe janavo | Gujarati (RG) | state_exploration | Gujarati |
+| somnath mandir no itihas janavo | Gujarati (RG) | heritage_information | Gujarati |
 
-## 5. Chat API
+## 5. Intent Classification
 
-### POST /api/ai/chat
+| Intent | Description | Examples |
+|--------|-------------|----------|
+| greeting | Hello, namaste, kem cho | "Hello", "नमस्ते", "kem cho" |
+| heritage_information | Specific heritage sites | "What is Rani ki Vav", "modhera surya mandir vishe mahiti aapo" |
+| location_information | Where is X located | "Where is Somnath Temple", "rani ki vav kya aveli chhe" |
+| state_exploration | Explore state heritage | "Tell me about Gujarat heritage", "gujarat na heritage places vishe janavo" |
+| historical_period | History, dynasty, era | "Tell me about the Maratha era", "gujarat no itihas janavo" |
+| craft_information | Crafts, weaving, art | "What traditional crafts does Kutch produce" |
+| person_information | Historical figures | "Who built Red Fort", "Who was Sardar Vallabhbhai Patel" |
+| festival_information | Festivals, dance, culture | "How is Navratri celebrated in Gujarat" |
+| unknown | Unrecognized queries | "What is the weather today" |
 
-**Request:**
-```json
-{
-  "message": "gujarat na heritage places vishe janavo",
-  "language": "gu",
-  "session_id": "optional-session-id"
-}
-```
+### Intent Detection Features
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "reply": "Heritage response with sources...",
-    "intent": "state_exploration",
-    "state": "GJ",
-    "knowledge_ids": ["uuid1", "uuid2"],
-    "language": "gu",
-    "suggestions": [
-      "modhera surya mandir vishe mahiti aapo",
-      "gujarat na kila vishe janavo"
-    ]
-  }
-}
-```
+- **English patterns** with word boundary matching
+- **Non-Latin script patterns** for Hindi, Gujarati, Tamil, Marathi, Punjabi heritage keywords
+- **Romanized Gujarati detection** via 40+ indicator words
+- **Person intent filtering** to avoid false positives (e.g., "rani ki vav" is a place, not a person)
+- **Overly broad patterns removed** (e.g., "what is" no longer matches all queries)
 
-### GET /api/ai/welcome?language=gu
+## 6. State Detection
 
-Returns welcome message and initial suggestions.
+State detection supports keywords in:
 
-### GET /api/ai/suggestions?language=gu&intent=state_exploration&state=GJ
+- **English:** State names and cities
+- **Hindi:** राजस्थान, गुजरात, पंजाब, गोवा, महाराष्ट्र, मध्य प्रदेश, दिल्ली + cities
+- **Marathi:** महाराष्ट्र + regional names
+- **Gujarati:** ગુજરાત, રાજસ્થાન, પંજાબ, ગોવા, etc.
 
-Returns context-aware suggested questions based on language, last intent, and state.
+Longest keyword matching prevents partial match errors.
 
-### GET /api/ai/languages
+## 7. Knowledge Retrieval
 
-Returns supported languages.
+Three-tier search strategy:
 
-## 6. Intent Classification
+1. **Exact name match** — Heritage name ILIKE keyword (highest relevance)
+2. **Full-text search** — PostgreSQL tsvector/tsquery with name boost
+3. **ILIKE fallback** — Pattern matching on name, description, significance, person fields
 
-| Intent | Description |
-|--------|-------------|
-| greeting | Hello, namaste, etc. |
-| heritage_information | Temples, forts, monuments, ashrams |
-| craft_information | Weaving, pottery, art, textiles |
-| person_information | Kings, leaders, saints, gurus |
-| festival_information | Garba, bhangra, carnival, utsav |
-| historical_period | Dynasties, eras, history |
-| state_exploration | What to visit, explore, famous |
-| location_information | Where is X located, city, district |
-| unknown | Off-topic queries |
-
-## 7. Context-Aware Suggestions
-
-Suggestions are context-aware and change based on:
-
-1. **Current language** — suggestions in the active language
-2. **Last intent** — follow-up questions related to the previous query type
-3. **Last state** — state-specific suggestions after state exploration
-
-### Suggestion Categories
-
-- `explore` — state exploration prompts
-- `heritage` — heritage site queries
-- `craft` — craft/art queries
-- `history` — historical period/person queries
-- `culture` — cultural traditions/festivals
-- `follow-up` — context-dependent follow-ups
+Results limited to 3-5 per query, prioritized by relevance.
 
 ## 8. External APIs
 
-### OpenStreetMap Nominatim (Free)
+### OpenStreetMap Nominatim
 
-- **Provider:** OpenStreetMap Foundation
-- **Purpose:** Geocoding, location lookup
-- **Endpoint:** `https://nominatim.openstreetmap.org/search`
-- **Authentication:** None (free, rate-limited 1 req/sec)
-- **User-Agent:** `DharoharAI/1.0 (heritage-platform)`
+- **Purpose:** Geocoding / location lookup
+- **Rate limit:** 1 request/second (built-in User-Agent compliance)
+- **Timeout:** 5 seconds
+- **Error handling:** Graceful fallback — returns empty results on failure
+- **No API key required**
 
-Used for location queries when internal knowledge base has no results.
+## 9. Context-Aware Suggestions
 
-## 9. Internal vs External Data
+Suggestions change based on conversation context:
 
-| Source | Type | Trust Level |
-|--------|------|-------------|
-| Neon PostgreSQL | Heritage knowledge | High (curated) |
-| Nominatim | Geographic coordinates | Medium (location only) |
+- **After state exploration:** State-specific heritage, craft, history suggestions
+- **After heritage query:** Follow-up questions (location, history, significance)
+- **After greeting:** Random exploration prompts
+- **On unknown query:** Heritage exploration prompts
+- **Language-specific:** Suggestions in the selected language
 
-External API data never becomes historical truth. Only coordinates and addresses from external APIs.
+## 10. API Endpoints
 
-## 10. ML Model
+| Endpoint | Method | Description | Auth |
+|----------|--------|-------------|------|
+| /api/ai/chat | POST | Send message, get response | API Key |
+| /api/ai/welcome | GET | Welcome message + suggestions | API Key |
+| /api/ai/suggestions | GET | Context-aware suggestions | API Key |
+| /api/ai/languages | GET | Supported languages list | API Key |
+
+## 11. Security
+
+- API key authentication on all endpoints
+- Server-side only external API calls (Nominatim)
+- No secrets in frontend code
+- No secrets in Git
+- Input validation (message length, language code, state code)
+- Parameterized SQL queries
+- Error messages sanitized (no stack traces)
+
+## 12. Database
+
+### Tables
+
+- `supported_states` — 8 states with metadata
+- `chatbot_knowledge` — Heritage knowledge entries (31+)
+- `conversations` — Session tracking
+- `conversation_messages` — Message history with intent/state
+
+### Provider
+
+Neon PostgreSQL (cloud-hosted, connection via DATABASE_URL)
+
+## 13. ML Pipeline
+
+### Model
 
 - **Type:** TF-IDF + Logistic Regression (v3)
-- **Purpose:** Intent classification
-- **Languages:** English, Gujarati (script + Romanized), Hindi, Marathi, Tamil, Punjabi
-- **Training samples:** 648
-- **Accuracy:** 74%
-- **F1 (macro):** 77%
+- **Input:** Query text
+- **Output:** Intent classification
+- **Accuracy:** ~74%
+- **F1 (macro):** ~77%
 
-## 11. Training Dataset
+### Dataset
 
-| Metric | Value |
-|--------|-------|
-| Total samples | 648 |
-| Training | 518 (80%) |
-| Testing | 130 (20%) |
-| Languages | 6 |
-| States | 8 |
-| Intents | 9 |
-| RG entries | 165 |
+- **Base training data:** 437+ samples (English + multi-state)
+- **Romanized Gujarati:** 165+ samples
+- **Languages:** 6 (EN, GU, HI, MR, TA, PA)
+- **States:** 8 (GJ, RJ, PB, GA, TN, MH, MP, DL)
+- **Intents:** 9 categories
 
-### Class Distribution
+### Note
 
-| Intent | Count |
-|--------|-------|
-| heritage_information | 228 |
-| craft_information | 89 |
-| state_exploration | 69 |
-| historical_period | 56 |
-| person_information | 52 |
-| unknown | 51 |
-| festival_information | 39 |
-| location_information | 38 |
-| greeting | 26 |
+The ML model is used as a supplementary intent classifier. The primary intent detection uses rule-based pattern matching in the chatbot service. This provides more reliable results for production use.
 
-## 12. Security
-
-- API key required for all chat endpoints
-- User input validated (length, language, state)
-- External API errors handled gracefully
-- No secrets in responses
-- Database queries parameterized
-- .env gitignored
-- No API keys in frontend
-
-## 13. Architecture
+## 14. Architecture
 
 ```
-User
-  ↓
-Chatbot UI (React)
-  ↓
-Backend Chat API (Express/TypeScript)
-  ↓
-Language Detection (Romanized Gujarati / Unicode)
-  ↓
-Intent Classification (Regex-based)
-  ↓
-Heritage Knowledge Retrieval (Neon PostgreSQL)
-  ↓
-Optional: External Geocoding (Nominatim)
-  ↓
-Response Generation + Context-Aware Suggestions
-  ↓
-User
+User → Frontend (Next.js) → Backend API (Express/TS) → Chatbot Service → Neon DB
+                                                                   ↘ Nominatim (geocoding)
 ```
 
-## 14. Future
+## 15. Known Limitations
 
-- [ ] ML-based intent classification in production (currently regex-based)
-- [ ] Conversation context/history awareness
-- [ ] RAG/semantic search
-- [ ] Knowledge graph visualization
-- [ ] Additional Indian states
-- [ ] Additional languages
-- [ ] LLM integration for response generation
+- Response text is in English (database content is English)
+- ML model accuracy ~74% (improvable with more data)
+- Geocoding rate-limited to 1 req/sec
+- No conversation context across messages
+- No image/media support in heritage responses
+
+## 16. Future Enhancements
+
+- Multilingual response generation (translations)
+- Conversation context awareness
+- Semantic search / RAG integration
+- Knowledge graph visualization
+- Additional Indian states
+- LLM integration for natural responses

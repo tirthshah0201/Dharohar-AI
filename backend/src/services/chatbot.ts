@@ -66,6 +66,7 @@ const GREETING_PATTERNS_UNICODE =
   /નમસ્તે|નમસ્કાર|કેમ છો|नमस्ते|नमस्कार|வணக்கம்|ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ|ਨਮਸਤੇ/;
 
 const STATE_KEYWORDS: Record<string, SupportedStateCode> = {
+  // English
   gujarat: "GJ", rajasthan: "RJ", punjab: "PB", goa: "GA",
   "tamil nadu": "TN", tamil: "TN", maharashtra: "MH",
   "madhya pradesh": "MP", delhi: "DL", "new delhi": "DL",
@@ -75,31 +76,100 @@ const STATE_KEYWORDS: Record<string, SupportedStateCode> = {
   bhuj: "GJ", kutch: "GJ", junagadh: "GJ", vadodara: "GJ",
   surat: "GJ", gandhinagar: "GJ", modhera: "GJ", diu: "GJ",
   palitana: "GJ", champaner: "GJ", lothal: "GJ",
+  // Hindi state names
+  "\u0930\u093E\u091C\u0938\u094D\u0925\u093E\u0928": "RJ",  // राजस्थान
+  "\u092A\u0902\u091C\u093E\u092C": "PB",  // पंजाब
+  "\u0917\u094B\u0935\u093E": "GA",  // गोवा
+  "\u0924\u092E\u093F\u0932": "TN",  // तमिल
+  "\u092E\u0939\u093E\u0930\u093E\u0937\u094D\u091F\u094D\u0930": "MH",  // महाराष्ट्र
+  "\u092E\u0927\u094D\u092F \u092A\u094D\u0930\u0926\u0947\u0936": "MP",  // मध्य प्रदेश
+  "\u0926\u093F\u0932\u094D\u0939\u0940": "DL",  // दिल्ली
+  "\u0917\u0941\u091C\u0930\u093E\u0924": "GJ",  // गुजरात
+  "\u0927\u094B\u0935\u091C\u093E": "GJ",  // धोजा (dwarka)
+  "\u0938\u094B\u092E\u0928\u093E\u0925": "GJ",  // सोमनाथ
+  "\u092E\u094B\u0921\u094D\u0939\u0947\u0930\u093E": "GJ",  // मोढेरा
+  // Hindi cities
+  "\u0905\u092E\u094D\u0930\u093F\u0924\u0938\u0930": "PB",  // अमृतसर
+  "\u091C\u092F\u092A\u0941\u0930": "RJ",  // जयपुर
+  "\u092E\u0941\u0902\u092C\u0907": "MH",  // मुंबई
+  "\u092D\u094B\u092A\u093E\u0932": "MP",  // भोपाल
+  // Marathi state/city names
+  // (Maharashtra in Marathi uses the same Unicode as Hindi महाराष्ट्र, already listed above)
+  // Gujarati state names
+  "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4": "GJ",  // ગુજરાત
+  "\u0AB0\u0ABE\u0A9C\u0AB8\u0ACD\u0AA5\u0ABE\u0A82": "RJ",  // રાજસ્થાન
+  "\u0AAA\u0A82\u0A9C\u0ABE\u0AAC": "PB",  // પંજાબ
+  "\u0A97\u0acb\u0AB5\u0ABE": "GA",  // ગોવા
+  "\u0A9F\u0ABF\u0A9C\u0ABF\u0AA4 \u0A9F\u0AC1": "TN",  // ટિજિટ ટુ
+  "\u0AAE\u0AB9\u0ABE\u0AB0\u0ABE\u0AB7\u0ACD\u0A9F\u0ACD\u0AB0": "MH",  // મહારાષ્ટ્ર
+  "\u0A2E\u0A27\u0acd\u0AAF \u0AAA\u0acd\u0AB0\u0A26\u0AC7\u0AB6": "MP",  // મધ્ય પ્રદેશ
+  "\u0A26\u0ABF\u0AB2\u0acd\u0AB9\u0AC0": "DL",  // દિલ્હી
 };
 
 function detectIntent(message: string): Intent {
   const lower = message.toLowerCase().trim();
   if (GREETING_PATTERNS.test(lower) || GREETING_PATTERNS_UNICODE.test(message)) return "greeting";
-  if (/temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|મંદિર|किल्ला|मंदिर|கோவில்|ਮੰਦਿર|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog/i.test(lower))
+
+  // Heritage sites: temples, forts, monuments, etc.
+  if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog)\b/i.test(lower))
     return "heritage_information";
-  if (/craft|weaving|embroidery|art|pottery|silk|textile|bronze|painting|kalaa|હસ્તકલા|शिल्प|கைவினை|ਹੁਣਰ|hathkala|bandhani|patola/i.test(lower))
+  // Non-Latin heritage keywords by script
+  if (/મંદિર|કિલ્લો|મસ્જિદ|દુર્ગ|ગુંફ|ભવન/i.test(message)) return "heritage_information";  // Gujarati
+  if (/मंदिर|किल्ला|मस्जिद|किला|गुंफा|मंदिरे|किल्ल्य|स्थळ/i.test(message)) return "heritage_information";  // Hindi+Marathi
+  if (/கோவில்|கோட்டை|மசூதி|குகை|தூபி/i.test(message)) return "heritage_information";  // Tamil
+  if (/ਮੰਦਿਰ|ਕਿੱਲਾ|ਮਸਜਿਦ|ਗੁੰਫਾ|ਕਿੱਲੇ/i.test(message)) return "heritage_information";  // Punjabi
+
+  // Crafts and arts
+  if (/\b(crafts?|weaving|embroidery|art|pottery|silk|textile|bronze|painting|kalaa|hathkala|bandhani|patola)\b/i.test(lower) ||
+      /હસ્તકલા|શિલ્પ|કલા|બાંધણી|પટોળા|शिल्प|कला|शिल्पकला|कौशल|कारीगरी|கைவினை|நெசவு|ਹੁਣਰ|ਕਲਾ|ਫੁਲਕਾਰੀ|ਬੁਣਾਈ|ਮਾਹਿਰ/i.test(message))
     return "craft_information";
-  if (/person|king|queen|leader|gandhi|emperor|saint|poet|warrior|maharaja|rani|મહારાજા|रानी|மகாராஜா|ਮਹਾਰਾਜਾ|guru|who was|who built/i.test(lower))
+
+  // Person information: be specific to avoid false positives (e.g. "rani ki vav" is a place, not a person)
+  if (/\b(king|queen|leader|emperor|saint|poet|warrior|maharaja|guru|who was|who built|who is)\b/i.test(lower))
     return "person_information";
-  if (/festival|celebration|dance|garba|bhangra|carnival|navratri|nritya|નૃત્ય|नृत्य|நடனம்|ਨੱਚ|utsav/i.test(lower))
+  if (/\b(gandhi|sardar patel|vallabhbhai|shivaji|maharana pratap|ranjit singh)\b/i.test(lower) &&
+      !/\b(ki vav|ni vav|vav|stepwell|temple|fort|palace|mandir)\b/i.test(lower))
+    return "person_information";
+  if (/\b(rani)\b/i.test(lower) &&
+      /\b(padmini|durgavati|lakshmi|velu nachiyar|sati|lakshmibai)\b/i.test(lower))
+    return "person_information";
+
+  // Festival and cultural events
+  if (/\b(festival|celebration|dance|garba|bhangra|carnival|navratri|nritya|utsav)\b/i.test(lower))
     return "festival_information";
-  if (/period|era|dynasty|century|ancient|medieval|colonial|modern|itihas|ઇતિહાસ|इतिहાસ|varalaru|ਇਤਿਹਾਸ|samay|yug|history|historical/i.test(lower))
+  // Non-Latin festival keywords
+  if (/ઉત્સવ|ગરબા|નૃત્ય|नृत्य|उत्सव|नाच|நடனம்|விழா|ਨੱਚ|ਉੱਚ|ઉત્સવ/i.test(message))
+    return "festival_information";
+
+  // Historical period
+  if (/\b(period|era|dynasty|century|ancient|medieval|colonial|modern|history|historical|samay|yug)\b/i.test(lower))
     return "historical_period";
-  if (/explore|what can|what is|tell me about|virasat|varshe|વારસો|विरासत|પਾਸੇ|vishay|baddal|patri|sollunga|daso|kive|bare|mahiti|janavo|vishe|vise|batavo|kaya|jeva|farva|farva jeva|places|sites|what to see/i.test(lower))
+  // Non-Latin history keywords (Hindi: इतिहास, Gujarati: ઇતિહાસ, Tamil: வரலாறு, Punjabi: ਇਤਿਹਾਸ)
+  if (/ઇતિહાસ|ઇતિહાસ|વારસો|વર્ષ|इतिहास|ઇतिहास|वंश|वरलारू|ਇਤਿਹਾਸ|ਵਰਲਾਰੂ|varalaru|itihas/i.test(message))
+    return "historical_period";
+
+  // State exploration: match specific heritage/state keywords
+  if (/\b(explore|what can|tell me about|places|sites|what to see)\b/i.test(lower))
     return "state_exploration";
-  if (/location|city|where|place|district|kuthhe|kahaan|sthalo|ਸਥਾਨ|located|kya aveli|kya che|kya chhe|kya thi|kya aavelu/i.test(lower))
+  // Romanized Gujarati exploration keywords
+  if (/\b(virasat|varshe|janavo|vishe|vise|batavo|daso|kive|bare|mahiti|farva|jeva|farva jeva)\b/i.test(lower))
+    return "state_exploration";
+  // Non-Latin exploration keywords (Hindi: बताओ, Gujarati: વારસો, Tamil: சொல்லுங்கள், Punjabi: ਦੱਸੋ)
+  if (/વારસો|વિરાસત|પાસે|બતાવો|વિશે|માહિતી|जानवो|बताओ|विरासत|विशे|சொல்லுங்கள்|பற்றி|ஆராய|ਦੱਸੋ|ਵਿਰਾਸਤ|ਬਾਰੇ|ਖੋਜੋ/i.test(message))
+    return "state_exploration";
+
+  // Location information
+  if (/\b(location|city|where|place|district|kuthhe|kahaan|sthalo|located|kya aveli|kya che|kya chhe|kya thi|kya aavelu)\b/i.test(lower))
     return "location_information";
+
   return "unknown";
 }
 
 function detectState(message: string): SupportedStateCode | null {
   const lower = message.toLowerCase();
-  for (const [keyword, code] of Object.entries(STATE_KEYWORDS)) {
+  // Try longest keywords first to avoid partial matches
+  const sorted = Object.entries(STATE_KEYWORDS).sort((a, b) => b[0].length - a[0].length);
+  for (const [keyword, code] of sorted) {
     if (lower.includes(keyword)) return code;
   }
   return null;
@@ -172,6 +242,19 @@ async function searchKnowledge(message: string, stateCode: string | null): Promi
   const keywords = extractKeywords(message);
   if (keywords.length === 0) return [];
 
+  // Step 1: Try exact heritage name match first (highest relevance)
+  const nameConditions = keywords.map((k, i) => `heritage_name ILIKE $${i + 1}`).join(" OR ");
+  const nameParams: unknown[] = keywords.map((k) => `%${k}%`);
+  const nameSql = `SELECT id, heritage_name, heritage_type, city, historical_period,
+    description, significance, related_event, related_person,
+    related_craft, source, state_code
+  FROM chatbot_knowledge WHERE ${nameConditions} LIMIT 3`;
+  const nameResult = await query(nameSql, nameParams);
+  const nameResults = nameResult.rows as unknown as KnowledgeResult[];
+  if (nameResults.length > 0) return nameResults;
+
+  // Step 2: Full-text search with ranking boost for name matches
+  const searchQuery = keywords.join(" ");
   let sql = `
     SELECT id, heritage_name, heritage_type, city, historical_period,
       description, significance, related_event, related_person,
@@ -184,13 +267,17 @@ async function searchKnowledge(message: string, stateCode: string | null): Promi
       COALESCE(array_to_string(keywords, ' '), '')
     ) @@ plainto_tsquery('english', $1)
   `;
-  const params: unknown[] = [keywords.join(" ")];
+  const params: unknown[] = [searchQuery];
   if (stateCode) { sql += " AND state_code = $2"; params.push(stateCode); }
-  sql += ` ORDER BY ts_rank(to_tsvector('english', heritage_name || ' ' || COALESCE(description, '')), plainto_tsquery('english', $1)) DESC LIMIT 5`;
+  sql += ` ORDER BY ts_rank(
+    to_tsvector('english', heritage_name || ' ' || COALESCE(description, '')),
+    plainto_tsquery('english', $1)
+  ) DESC LIMIT 5`;
 
   let { rows } = await query(sql, params);
   let results = rows as unknown as KnowledgeResult[];
 
+  // Step 3: Fallback to ILIKE search if full-text returns nothing
   if (results.length === 0) {
     const likeConditions = keywords.map((_, i) =>
       `(heritage_name ILIKE $${i + 1} OR description ILIKE $${i + 1} OR COALESCE(significance, '') ILIKE $${i + 1} OR COALESCE(related_person, '') ILIKE $${i + 1})`
@@ -223,8 +310,8 @@ const STATE_NAMES: Record<string, string> = {
 };
 
 const STATE_NAMES_GU: Record<string, string> = {
-  GJ: "ગુજરાત", RJ: "રાજસ્થાન", PB: "પંજાબ", GA: "ગોવા",
-  TN: "તમિલનાડુ", MH: "મહારાષ્ટ્ર", MP: "મધ્ય પ્રદેશ", DL: "દિલ્હી",
+  GJ: "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4", RJ: "\u0AB0\u0ABE\u0A9C\u0AB8\u0ACD\u0AA5\u0ABE\u0A82", PB: "\u0AAA\u0A82\u0A9C\u0ABE\u0AAC", GA: "\u0A97\u0acb\u0AB5\u0ABE",
+  TN: "\u0A9F\u0ABF\u0A9C\u0ABF\u0AA4 \u0A9F\u0AC1", MH: "\u0AAE\u0AB9\u0ABE\u0AB0\u0ABE\u0AB7\u0ACD\u0A9F\u0ACD\u0AB0", MP: "\u0AAE\u0A27\u0acd\u0AAF \u0AAA\u0acd\u0AB0\u0A26\u0AC7\u0AB6", DL: "\u0A26\u0ABF\u0AB2\u0acd\u0AB9\u0AC0",
 };
 
 function formatHeritageResponse(results: KnowledgeResult[], language: string): string {
@@ -246,7 +333,7 @@ function formatGeoResponse(geoResults: GeoResult[], _language: string): string {
   if (geoResults.length === 0) return "";
   const parts: string[] = ["Location found:"];
   for (const g of geoResults.slice(0, 2)) {
-    parts.push(`📍 **${g.name}** (${g.lat.toFixed(4)}, ${g.lon.toFixed(4)})`);
+    parts.push(`\uD83D\uDCCD **${g.name}** (${g.lat.toFixed(4)}, ${g.lon.toFixed(4)})`);
     parts.push(`   ${g.displayName}`);
   }
   parts.push("\n_source: OpenStreetMap_");
@@ -292,6 +379,7 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   const { message, language } = req;
   const isRG = isRomanizedGujarati(message);
   const wantsRoman = wantsRomanizedResponse(message);
+  // Determine response language: RG input -> Gujarati, unless user wants Romanized
   const langCode = (isValidLanguage(language) ? language : (isRG ? "gu" : "en"));
   const intent = detectIntent(message);
   const stateCode = detectState(message);
@@ -339,7 +427,7 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
         }
       } else {
         reply = langCode === "gu"
-          ? `હું આ સપોર્ટેડ રાજ્યોના વારસાને શોધવામાં તમારી મદદ કરી શકું છું:\n\n${getSupportedStatesList(langCode)}\n\nકોઈ પણ રાજ્ય વિશે પૂછો!`
+          ? `\u0AB9\u0AC1\u0A82 \u0A86 \u0AB8\u0ABE\u0AAA\u0acb\u0AB0\u0ACD\u0A9F\u0AC7\u0AB2 \u0AB0\u0ABE\u0A9C\u0acd\u0AAF\u0acb\u0A82\u0A9A\u0ABE \u0AB5\u0ABE\u0AB0\u0AB8\u0ABE\u0A82\u0A9A\u0AAE\u0ABE\u0A82\u0A9D \u0AB6\u0acb\u0A9C\u0AB5\u0ABE\u0A2E\u0ABE\u0A82 \u0A9A \u0AB6\u0A15\u0AC1\u0ABE \u0AB6\u0A15\u0AC1\u0AB8 \u0A9B\u0AC1\u0AB8:\n\n${getSupportedStatesList(langCode)}\n\n\u0A95\u0acb\u0A88 \u0AAA\u0ABE\u0AB8 \u0AB0\u0ABE\u0A9C\u0acd\u0AAF \u0AB5\u0ABF\u0AB6\u0ABE \u0AAA\u0AC2\u0A9B\u0acb!`
           : `I can help you explore heritage from these supported states:\n\n${getSupportedStatesList(langCode)}\n\nAsk me about any of these states!`;
       }
       break;
