@@ -88,12 +88,23 @@ Scalable `StateData` interface in `constants/india.ts` — add new states by ext
 - 22 heritage markers from Neon PostgreSQL
 - State selector with fly-to animation
 - Category filter
+- Hover tooltips showing name, state, type
 - Heritage popups with Ask Atlas integration
+- Coordinate validation (lat/lng bounds checking)
+- Invalid coordinates logged and skipped
 - Responsive design
 
-## 13. Future
+## 13. Image System
 
-- Heritage images/media
+- Per-heritage unique Unsplash photos via `getHeritageImage()`
+- Category fallback images (distinct per category)
+- State representative photos
+- Lazy loading on all images
+- No duplicate photos across heritage entries
+
+## 14. Future
+
+- Heritage images stored in database
 - Dark mode
 - Additional Indian states
 - RAG/semantic search

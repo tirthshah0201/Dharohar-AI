@@ -31,13 +31,34 @@ function buildStyle(): string | maplibregl.StyleSpecification {
     layers: [{ id: "osm", type: "raster", source: "osm" }],
   };
 }
-const COLORS: Record<string, string> = { state: "#1E1B4B", district: "#C2703E", city: "#B8963E", village: "#2D5016", site: "#B45309" };
+
+const COLORS: Record<string, string> = {
+  state: "#1E1B4B",
+  district: "#C2703E",
+  city: "#B8963E",
+  village: "#2D5016",
+  site: "#B45309",
+};
+
+/**
+ * Validate a coordinate value.
+ * Returns null if invalid, the numeric value if valid.
+ */
+function validateCoord(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || isNaN(value)) return null;
+  return value;
+}
+
+function isValidLatLng(lat: number, lng: number): boolean {
+  return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+}
 
 export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
   const boxRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const popupRef = useRef<maplibregl.Popup | null>(null);
+  const tooltipsRef = useRef<HTMLDivElement[]>([]);
 
   const [selState, setSelState] = useState<string | null>(null);
   const [catFilter, setCatFilter] = useState("all");
@@ -53,12 +74,12 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
       try {
         const headers: Record<string, string> = {};
         if (DEMO_API_KEY) headers["X-API-Key"] = DEMO_API_KEY;
-        
+
         const [locRes, herRes] = await Promise.all([
           fetch(`${API_BASE_URL}/locations`, { headers }).then(r => r.json()),
           fetch(`${API_BASE_URL}/heritage`, { headers }).then(r => r.json()),
         ]);
-        
+
         if (!cancelled) {
           setLocations(locRes.data ?? []);
           setHeritage(herRes.data ?? []);
@@ -73,80 +94,189 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
     return () => { cancelled = true; };
   }, []);
 
-  // Derived data
-  const mappable = useMemo(() =>
-    locations.map(l => ({ ...l, latitude: l.latitude ? +l.latitude : null, longitude: l.longitude ? +l.longitude : null }))
-      .filter(l => l.latitude && l.longitude),
-    [locations]
-  );
+  // Derived data with validation
+  const mappable = useMemo(() => {
+    const validated: (Location & { latitude: number; longitude: number })[] = [];
+    for (const l of locations) {
+      const lat = validateCoord(l.latitude ? +l.latitude : null);
+      const lng = validateCoord(l.longitude ? +l.longitude : null);
+      if (!lat || !lng) continue;
+      if (!isValidLatLng(lat, lng)) {
+        console.warn(`[Map] Invalid coordinates for "${l.name}": lat=${lat}, lng=${lng}`);
+        continue;
+      }
+      validated.push({ ...l, latitude: lat, longitude: lng });
+    }
+    return validated;
+  }, [locations]);
 
   const herWithCoords = useMemo(() => {
-    return heritage.map(h => {
-      const loc = locations.find(l => l.id === h.location_id);
-      return loc?.latitude && loc?.longitude
-        ? { ...h, latitude: +loc.latitude, longitude: +loc.longitude, state: loc.state }
-        : null;
-    }).filter(Boolean) as (HeritageEntity & { latitude: number; longitude: number; state: string })[];
+    return heritage
+      .map(h => {
+        const loc = locations.find(l => l.id === h.location_id);
+        if (!loc) return null;
+        const lat = validateCoord(loc.latitude ? +loc.latitude : null);
+        const lng = validateCoord(loc.longitude ? +loc.longitude : null);
+        if (!lat || !lng || !isValidLatLng(lat, lng)) {
+          console.warn(`[Map] Invalid heritage coords for "${h.name}": lat=${lat}, lng=${lng}`);
+          return null;
+        }
+        return { ...h, latitude: lat, longitude: lng, state: loc.state };
+      })
+      .filter(Boolean) as (HeritageEntity & { latitude: number; longitude: number; state: string })[];
   }, [heritage, locations]);
 
   const categories = useMemo(() => [...new Set(herWithCoords.map(h => h.category))].sort(), [herWithCoords]);
 
+  // ---- Create tooltip element ----
+  const createTooltip = useCallback((text: string) => {
+    const el = document.createElement("div");
+    el.style.cssText = `
+      position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+      background:#1C1915; color:white; padding:6px 10px; border-radius:6px;
+      font-size:11px; font-weight:500; white-space:nowrap; pointer-events:none;
+      box-shadow:0 2px 8px rgba(0,0,0,.3); z-index:1000; margin-bottom:8px;
+      font-family:system-ui,sans-serif; line-height:1.4;
+    `;
+    el.textContent = text;
+    el.style.opacity = "0";
+    el.style.transition = "opacity 0.15s";
+    return el;
+  }, []);
+
   // ---- Create markers function ----
   const renderMarkers = useCallback((map: maplibregl.Map, locs: typeof mappable, her: typeof herWithCoords, state: string | null, cat: string) => {
+    // Clean up existing
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
+    tooltipsRef.current.forEach(el => el.remove());
+    tooltipsRef.current = [];
     popupRef.current?.remove();
 
     const fLocs = state ? locs.filter(l => l.state === state) : locs;
     let fHer = state ? her.filter(h => h.state === state) : her;
     if (cat !== "all") fHer = fHer.filter(h => h.category === cat);
 
+    // Location markers (circles)
     fLocs.forEach(loc => {
+      if (!loc.latitude || !loc.longitude) return;
+
+      const markerWrap = document.createElement("div");
+      markerWrap.style.cssText = "position:relative;";
+
       const el = document.createElement("div");
-      el.style.cssText = `width:28px;height:28px;border-radius:50%;background:${COLORS[loc.type]||"#C2703E"};border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer;transition:transform .15s;`;
-      el.onmouseenter = () => { el.style.transform = "scale(1.2)"; };
-      el.onmouseleave = () => { el.style.transform = "scale(1)"; };
-      const m = new maplibregl.Marker({ element: el }).setLngLat([loc.longitude!, loc.latitude!]).addTo(map);
+      el.style.cssText = `
+        width:28px; height:28px; border-radius:50%;
+        background:${COLORS[loc.type] || "#C2703E"};
+        border:3px solid white; box-shadow:0 2px 8px rgba(0,0,0,.25);
+        cursor:pointer; transition:transform .15s;
+      `;
+      markerWrap.appendChild(el);
+
+      // Hover tooltip
+      const tooltipText = `${loc.name}\n${loc.state} · ${loc.type}`;
+      const tooltip = createTooltip(tooltipText);
+      markerWrap.appendChild(tooltip);
+      tooltipsRef.current.push(tooltip);
+
+      el.onmouseenter = () => {
+        el.style.transform = "scale(1.25)";
+        tooltip.style.opacity = "1";
+      };
+      el.onmouseleave = () => {
+        el.style.transform = "scale(1)";
+        tooltip.style.opacity = "0";
+      };
+
+      const m = new maplibregl.Marker({ element: markerWrap, anchor: "center" })
+        .setLngLat([loc.longitude as number, loc.latitude as number])
+        .addTo(map);
+
       el.onclick = (e) => {
         e.stopPropagation();
         popupRef.current?.remove();
-        const p = new maplibregl.Popup({ offset: 20, closeButton: true, maxWidth: "320px" })
-          .setLngLat([loc.longitude!, loc.latitude!])
+        const p = new maplibregl.Popup({ offset: 25, closeButton: true, maxWidth: "320px" })
+          .setLngLat([loc.longitude as number, loc.latitude as number])
           .setHTML(`<div id="p-${loc.id}" style="font-family:system-ui,sans-serif"></div>`)
           .addTo(map);
         popupRef.current = p;
         requestAnimationFrame(() => {
           const c = document.getElementById(`p-${loc.id}`);
-          if (c) createRoot(c).render(<HeritagePopup name={loc.name} type={loc.type} description={loc.description} state={loc.state} category={loc.type} onAskAI={onAskAI} />);
+          if (c) createRoot(c).render(
+            <HeritagePopup
+              name={loc.name}
+              type={loc.type}
+              description={loc.description}
+              state={loc.state}
+              category={loc.type}
+              onAskAI={onAskAI}
+            />
+          );
         });
       };
       markersRef.current.push(m);
     });
 
+    // Heritage markers (diamonds)
     fHer.forEach(h => {
+      const markerWrap = document.createElement("div");
+      markerWrap.style.cssText = "position:relative;";
+
       const el = document.createElement("div");
-      el.style.cssText = `width:22px;height:22px;border-radius:4px;background:#B8963E;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.2);cursor:pointer;transition:transform .15s;transform:rotate(45deg);`;
-      el.onmouseenter = () => { el.style.transform = "rotate(45deg) scale(1.2)"; };
-      el.onmouseleave = () => { el.style.transform = "rotate(45deg)"; };
-      const m = new maplibregl.Marker({ element: el }).setLngLat([h.longitude, h.latitude]).addTo(map);
+      el.style.cssText = `
+        width:22px; height:22px; border-radius:4px;
+        background:#B8963E; border:2px solid white;
+        box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer;
+        transition:transform .15s; transform:rotate(45deg);
+      `;
+      markerWrap.appendChild(el);
+
+      // Hover tooltip
+      const tooltipText = `${h.name}\n${h.state} · ${h.category}`;
+      const tooltip = createTooltip(tooltipText);
+      markerWrap.appendChild(tooltip);
+      tooltipsRef.current.push(tooltip);
+
+      el.onmouseenter = () => {
+        el.style.transform = "rotate(45deg) scale(1.3)";
+        tooltip.style.opacity = "1";
+      };
+      el.onmouseleave = () => {
+        el.style.transform = "rotate(45deg)";
+        tooltip.style.opacity = "0";
+      };
+
+      const m = new maplibregl.Marker({ element: markerWrap, anchor: "center" })
+        .setLngLat([h.longitude, h.latitude])
+        .addTo(map);
+
       el.onclick = (e) => {
         e.stopPropagation();
         popupRef.current?.remove();
-        const p = new maplibregl.Popup({ offset: 20, closeButton: true, maxWidth: "320px" })
+        const p = new maplibregl.Popup({ offset: 25, closeButton: true, maxWidth: "320px" })
           .setLngLat([h.longitude, h.latitude])
           .setHTML(`<div id="ph-${h.id}" style="font-family:system-ui,sans-serif"></div>`)
           .addTo(map);
         popupRef.current = p;
         requestAnimationFrame(() => {
           const c = document.getElementById(`ph-${h.id}`);
-          if (c) createRoot(c).render(<HeritagePopup name={h.name} type={h.category} description={h.description} state={h.state} category={h.category} onAskAI={onAskAI} />);
+          if (c) createRoot(c).render(
+            <HeritagePopup
+              name={h.name}
+              type={h.category}
+              description={h.description}
+              state={h.state}
+              category={h.category}
+              onAskAI={onAskAI}
+            />
+          );
         });
       };
       markersRef.current.push(m);
     });
 
     setMarkerCount(markersRef.current.length);
-  }, [onAskAI]);
+  }, [onAskAI, createTooltip]);
 
   // ---- Init map ----
   useEffect(() => {
@@ -162,11 +292,19 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: true, showZoom: true }), "top-right");
+
+    // Close popup on map click
+    map.on("click", () => {
+      popupRef.current?.remove();
+    });
+
     mapRef.current = map;
 
     return () => {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
+      tooltipsRef.current.forEach(el => el.remove());
+      tooltipsRef.current = [];
       popupRef.current?.remove();
       map.remove();
       mapRef.current = null;

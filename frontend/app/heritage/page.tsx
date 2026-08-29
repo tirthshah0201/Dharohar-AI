@@ -24,7 +24,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { CATEGORY_IMAGES } from "@/constants/images";
+import { CATEGORY_IMAGES, getHeritageImage } from "@/constants/images";
 
 /* ========================================
    Types
@@ -269,7 +269,7 @@ export default function HeritagePage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {items.map((item) => {
                           const ItemIcon = categoryIcons[item.category] || Landmark;
-                          const catImage = CATEGORY_IMAGES[item.category];
+                          const heritageImage = getHeritageImage(item.name, item.category);
                           return (
                             <Link key={item.id} href={`/heritage/${item.id}`}>
                               <motion.div
@@ -281,10 +281,10 @@ export default function HeritagePage() {
                               >
                                 {/* Image header */}
                                 <div className="relative h-24 overflow-hidden">
-                                  {catImage ? (
+                                  {heritageImage ? (
                                     <img
-                                      src={catImage.src}
-                                      alt={catImage.alt}
+                                      src={heritageImage.src}
+                                      alt={heritageImage.alt}
                                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                       loading="lazy"
                                     />
@@ -337,7 +337,7 @@ export default function HeritagePage() {
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {filteredHeritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
-                  const catImage = CATEGORY_IMAGES[item.category];
+                  const heritageImage = getHeritageImage(item.name, item.category);
                   return (
                     <StaggerItem key={item.id}>
                       <Link href={`/heritage/${item.id}`}>
@@ -350,18 +350,18 @@ export default function HeritagePage() {
                         >
                           {/* Image header */}
                           <div className="relative h-24 overflow-hidden">
-                            {catImage ? (
+                            {heritageImage ? (
                               <img
-                                src={catImage.src}
-                                alt={catImage.alt}
+                                src={heritageImage.src}
+                                alt={heritageImage.alt}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 loading="lazy"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment flex items-center justify-center">
-                                <ItemIcon className="h-8 w-8 text-terracotta/20" />
-                              </div>
-                            )}
+                              <ItemIcon className="h-8 w-8 text-terracotta/20" />
+                            </div>
+                          )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
                           <div className="p-4">

@@ -13,7 +13,7 @@ import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { CountUp } from "@/components/motion/CountUp";
 import { useApi } from "@/hooks/useApi";
 import { INDIAN_STATES, type StateData } from "@/constants/india";
-import { STATE_IMAGES, CATEGORY_IMAGES } from "@/constants/images";
+import { STATE_IMAGES, CATEGORY_IMAGES, getHeritageImage } from "@/constants/images";
 import {
   MapPin,
   Clock,
@@ -257,7 +257,8 @@ export default function HomePage() {
               <Link href="/explore">
                 <Button
                   size="lg"
-                  className="bg-white text-terracotta-deep hover:bg-white/90 shadow-lg shadow-black/10 font-semibold"
+                  variant="secondary"
+                  className="border-white text-white hover:bg-white/15 font-semibold"
                 >
                   <Compass className="h-4 w-4" />
                   Explore Heritage
@@ -267,7 +268,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="border-white/30 text-white hover:bg-white/10"
                 >
                   <Sparkles className="h-4 w-4" />
                   Ask Heritage Atlas
@@ -586,7 +587,7 @@ export default function HomePage() {
             <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredHeritage.map((item) => {
                 const Icon = categoryIcons[item.category] || Landmark;
-                const catImage = CATEGORY_IMAGES[item.category];
+                const heritageImage = getHeritageImage(item.name, item.category);
                 return (
                   <StaggerItem key={item.id}>
                     <Link href={`/heritage/${item.id}`}>
@@ -597,10 +598,10 @@ export default function HomePage() {
                       >
                         {/* Image header */}
                         <div className="relative h-36 overflow-hidden">
-                          {catImage ? (
+                          {heritageImage ? (
                             <img
-                              src={catImage.src}
-                              alt={catImage.alt}
+                              src={heritageImage.src}
+                              alt={heritageImage.alt}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                               loading="lazy"
                             />
