@@ -257,8 +257,7 @@ export default function HomePage() {
               <Link href="/explore">
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="border-white text-white hover:bg-white/15 font-semibold"
+                  className="!bg-white !text-terracotta-deep hover:!bg-white/90 !border-0 shadow-lg shadow-black/10 font-semibold"
                 >
                   <Compass className="h-4 w-4" />
                   Explore Heritage
