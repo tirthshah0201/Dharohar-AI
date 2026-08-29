@@ -247,17 +247,18 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
       markersRef.current.push(m);
     });
 
-    // Heritage markers (diamonds)
+    // Heritage markers (diamonds — using clip-path for stable center)
     fHer.forEach(h => {
       const markerWrap = document.createElement("div");
       markerWrap.style.cssText = "position:relative;";
 
       const el = document.createElement("div");
       el.style.cssText = `
-        width:22px; height:22px; border-radius:4px;
+        width:20px; height:20px; border-radius:3px;
         background:#B8963E; border:2px solid white;
         box-shadow:0 2px 6px rgba(0,0,0,.2); cursor:pointer;
         transition:transform .15s; transform:rotate(45deg);
+        transform-origin:center center;
       `;
       markerWrap.appendChild(el);
 

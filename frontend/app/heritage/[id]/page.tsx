@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Sparkles,
 } from "lucide-react";
+import { getHeritageImage } from "@/constants/images";
 
 /* ========================================
    Types
@@ -120,25 +121,52 @@ export default function HeritageDetailPage({
         {/* Heritage Detail */}
         {!loading && !error && heritage && (
           <>
-            {/* Hero */}
-            <div className="mb-8">
-              <div className="flex items-start gap-4">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl shrink-0 ${colorClass}`}>
-                  <Icon className="h-7 w-7" />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-3 mb-1">
-                    <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
+            {/* Hero Image */}
+            {(() => {
+              const heroImage = getHeritageImage(heritage.name, heritage.category);
+              return heroImage ? (
+                <div className="relative rounded-2xl overflow-hidden mb-8 h-64 sm:h-80">
+                  <img
+                    src={heroImage.src}
+                    alt={heroImage.alt}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <Badge variant="secondary" className="bg-white/90 text-charcoal backdrop-blur-sm">
+                        {heritage.category}
+                      </Badge>
+                    </div>
+                    <h1 className="font-display text-3xl sm:text-4xl text-white drop-shadow-md">
                       {heritage.name}
                     </h1>
-                    <Badge variant="secondary">{heritage.category}</Badge>
+                    <p className="text-sm text-white/80 mt-2 max-w-xl">
+                      {heritage.description.substring(0, 120)}...
+                    </p>
                   </div>
-                  <p className="text-sm text-muted">
-                    {heritage.description.substring(0, 100)}...
-                  </p>
                 </div>
-              </div>
-            </div>
+              ) : (
+                <div className="mb-8">
+                  <div className="flex items-start gap-4">
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl shrink-0 ${colorClass}`}>
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3 mb-1">
+                        <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
+                          {heritage.name}
+                        </h1>
+                        <Badge variant="secondary">{heritage.category}</Badge>
+                      </div>
+                      <p className="text-sm text-muted">
+                        {heritage.description.substring(0, 100)}...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Description Card */}
             <Card className="mb-8">
