@@ -13,6 +13,7 @@ import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { CountUp } from "@/components/motion/CountUp";
 import { useApi } from "@/hooks/useApi";
 import { INDIAN_STATES, type StateData } from "@/constants/india";
+import { STATE_IMAGES, CATEGORY_IMAGES } from "@/constants/images";
 import {
   MapPin,
   Clock,
@@ -69,12 +70,12 @@ const categoryIcons: Record<string, typeof Landmark> = {
 };
 
 const heritageCategories = [
-  { name: "Monuments", icon: Landmark, count: "3,000+", color: "terracotta" },
-  { name: "Crafts", icon: Palette, count: "500+", color: "heritage-gold" },
-  { name: "People", icon: Users, count: "1,000+", color: "stone" },
-  { name: "Festivals", icon: Calendar, count: "200+", color: "terracotta-light" },
-  { name: "Food", icon: Users, count: "100+", color: "heritage-gold" },
-  { name: "Events", icon: Clock, count: "500+", color: "stone" },
+  { name: "Monuments", slug: "monument", icon: Landmark, description: "Architectural landmarks and structures" },
+  { name: "Crafts", slug: "craft", icon: Palette, description: "Traditional arts and crafts" },
+  { name: "People", slug: "person", icon: Users, description: "Historical figures and communities" },
+  { name: "Festivals", slug: "festival", icon: Calendar, description: "Cultural celebrations and events" },
+  { name: "Food", slug: "food", icon: Landmark, description: "Culinary heritage and traditions" },
+  { name: "Traditions", slug: "tradition", icon: BookOpen, description: "Cultural practices and traditions" },
 ];
 
 const suggestedQuestions = [
@@ -89,6 +90,7 @@ const suggestedQuestions = [
    ======================================== */
 
 function StateCard({ state }: { state: StateData }) {
+  const stateImage = STATE_IMAGES[state.code];
   return (
     <StaggerItem>
       <Link href={`/explore`}>
@@ -97,20 +99,29 @@ function StateCard({ state }: { state: StateData }) {
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
           className="relative rounded-xl border border-cream bg-white overflow-hidden cursor-pointer group"
         >
-          {/* Color accent bar */}
-          <div className="h-1 w-full" style={{ backgroundColor: state.color }} />
-
-          <div className="p-5">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="font-semibold text-charcoal text-lg">{state.name}</h3>
-                <p className="text-xs text-stone mt-0.5">{state.region}</p>
-              </div>
-              <Badge variant="outline" className="text-[10px] shrink-0 border-cream text-stone">
-                {state.heritageCount} sites
-              </Badge>
+          {/* Image header */}
+          <div className="relative h-32 overflow-hidden">
+            {stateImage ? (
+              <img
+                src={stateImage.src}
+                alt={stateImage.alt}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute bottom-3 left-4 right-4">
+              <h3 className="font-display text-lg text-white drop-shadow-md">{state.name}</h3>
+              <p className="text-xs text-white/70 mt-0.5">{state.region}</p>
             </div>
+            <Badge variant="outline" className="absolute top-3 right-3 text-[10px] bg-white/90 border-white/50 text-charcoal backdrop-blur-sm">
+              {state.heritageCount} sites
+            </Badge>
+          </div>
 
+          <div className="p-4">
             <p className="text-sm text-stone mb-3 line-clamp-2">{state.tagline}</p>
 
             <div className="flex flex-wrap gap-1.5 mb-3">
@@ -488,22 +499,44 @@ export default function HomePage() {
             </div>
           </FadeIn>
 
-          <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4" staggerDelay={0.06}>
             {heritageCategories.map((category) => {
               const Icon = category.icon;
+              const catImage = CATEGORY_IMAGES[category.slug];
               return (
                 <StaggerItem key={category.name}>
                   <Link href="/heritage">
                     <motion.div
-                      whileHover={{ y: -3, boxShadow: "0 8px 25px rgba(139,69,19,0.08)" }}
+                      whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(139,69,19,0.1)" }}
                       whileTap={{ scale: 0.98 }}
-                      className="rounded-xl border border-cream bg-white p-5 text-center cursor-pointer transition-colors hover:border-terracotta-pale"
+                      className="rounded-xl border border-cream bg-white overflow-hidden cursor-pointer group"
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl mx-auto mb-3 bg-terracotta-mist">
-                        <Icon className="h-5 w-5 text-terracotta" />
+                      {/* Category image */}
+                      <div className="relative h-28 overflow-hidden">
+                        {catImage ? (
+                          <img
+                            src={catImage.src}
+                            alt={catImage.alt}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/90 backdrop-blur-sm">
+                            <Icon className="h-4 w-4 text-terracotta" />
+                          </div>
+                          <h3 className="font-display text-base text-white drop-shadow-md">{category.name}</h3>
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-charcoal text-sm">{category.name}</h3>
-                      <p className="text-xs text-stone mt-0.5">{category.count}</p>
+                      <div className="p-3">
+                        <p className="text-xs text-stone line-clamp-1">{category.description}</p>
+                        <div className="flex items-center gap-1 text-[11px] font-medium text-terracotta mt-2 group-hover:gap-1.5 transition-all">
+                          Explore <ChevronRight className="h-3 w-3" />
+                        </div>
+                      </div>
                     </motion.div>
                   </Link>
                 </StaggerItem>
@@ -553,23 +586,37 @@ export default function HomePage() {
             <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredHeritage.map((item) => {
                 const Icon = categoryIcons[item.category] || Landmark;
+                const catImage = CATEGORY_IMAGES[item.category];
                 return (
                   <StaggerItem key={item.id}>
                     <Link href={`/heritage/${item.id}`}>
                       <motion.div
                         whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(139,69,19,0.08)" }}
                         whileTap={{ scale: 0.985 }}
-                        className="rounded-xl border border-cream bg-white p-5 shadow-sm cursor-pointer"
+                        className="rounded-xl border border-cream bg-white shadow-sm cursor-pointer overflow-hidden group"
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta-mist shrink-0">
-                            <Icon className="h-5 w-5 text-terracotta" />
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-charcoal font-serif">{item.name}</h3>
-                            <Badge variant="outline" className="mt-1 text-[10px] border-cream text-stone">{item.category}</Badge>
-                            <p className="text-sm text-stone mt-2 line-clamp-2">{item.description}</p>
-                          </div>
+                        {/* Image header */}
+                        <div className="relative h-36 overflow-hidden">
+                          {catImage ? (
+                            <img
+                              src={catImage.src}
+                              alt={catImage.alt}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment flex items-center justify-center">
+                              <Icon className="h-10 w-10 text-terracotta/30" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                          <Badge variant="outline" className="absolute top-3 left-3 text-[10px] bg-white/90 border-white/50 text-charcoal backdrop-blur-sm capitalize">
+                            {item.category}
+                          </Badge>
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-charcoal font-display text-base">{item.name}</h3>
+                          <p className="text-sm text-stone mt-1.5 line-clamp-2">{item.description}</p>
                         </div>
                       </motion.div>
                     </Link>

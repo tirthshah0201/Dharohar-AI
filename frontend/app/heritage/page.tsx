@@ -21,7 +21,9 @@ import {
   MapPin,
   BookOpen,
   Theater,
+  ChevronRight,
 } from "lucide-react";
+import { CATEGORY_IMAGES, type HeritageImage } from "@/constants/images";
 
 /* ========================================
    Types
@@ -180,30 +182,49 @@ export default function HeritagePage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {items.map((item) => {
                           const ItemIcon = categoryIcons[item.category] || Landmark;
+                          const catImage = CATEGORY_IMAGES[item.category];
                           return (
                             <Link key={item.id} href={`/heritage/${item.id}`}>
                               <motion.div
-                                whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
-                                className="rounded-xl border border-border bg-card p-4 cursor-pointer"
+                                whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(139,69,19,0.08)" }}
+                                className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
                               >
-                                <div className="flex items-start gap-3">
-                                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta/8 shrink-0">
-                                    <ItemIcon className="h-4 w-4 text-terracotta" />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <h3 className="font-semibold text-charcoal font-serif text-sm">{item.name}</h3>
-                                    {item.location_id && (
-                                      <div className="flex items-center gap-1.5 mt-1">
-                                        <MapPin className="h-3 w-3 text-terracotta" />
-                                        <Link
-                                          href={`/explore/${item.location_id}`}
-                                          className="text-xs text-muted hover:text-terracotta transition-colors"
-                                        >
-                                          View location
-                                        </Link>
-                                      </div>
-                                    )}
-                                    <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                                {/* Image header */}
+                                <div className="relative h-24 overflow-hidden">
+                                  {catImage ? (
+                                    <img
+                                      src={catImage.src}
+                                      alt={catImage.alt}
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment flex items-center justify-center">
+                                      <ItemIcon className="h-8 w-8 text-terracotta/20" />
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                </div>
+                                <div className="p-4">
+                                  <div className="flex items-start gap-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
+                                      <ItemIcon className="h-4 w-4 text-terracotta" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <h3 className="font-semibold text-charcoal font-display text-sm">{item.name}</h3>
+                                      {item.location_id && (
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                          <MapPin className="h-3 w-3 text-terracotta" />
+                                          <Link
+                                            href={`/explore/${item.location_id}`}
+                                            className="text-xs text-muted hover:text-terracotta transition-colors"
+                                          >
+                                            View location
+                                          </Link>
+                                        </div>
+                                      )}
+                                      <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                                    </div>
                                   </div>
                                 </div>
                               </motion.div>
@@ -222,31 +243,50 @@ export default function HeritagePage() {
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {heritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
+                  const catImage = CATEGORY_IMAGES[item.category];
                   return (
                     <StaggerItem key={item.id}>
                       <Link href={`/heritage/${item.id}`}>
                         <motion.div
-                          whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
-                          className="rounded-xl border border-border bg-card p-4 cursor-pointer"
+                          whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(139,69,19,0.08)" }}
+                          className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta/8 shrink-0">
-                              <ItemIcon className="h-4 w-4 text-terracotta" />
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="font-semibold text-charcoal font-serif text-sm">{item.name}</h3>
-                              {item.location_id && (
-                                <div className="flex items-center gap-1.5 mt-1">
-                                  <MapPin className="h-3 w-3 text-terracotta" />
-                                  <Link
-                                    href={`/explore/${item.location_id}`}
-                                    className="text-xs text-muted hover:text-terracotta transition-colors"
-                                  >
-                                    View location
-                                  </Link>
-                                </div>
-                              )}
-                              <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                          {/* Image header */}
+                          <div className="relative h-24 overflow-hidden">
+                            {catImage ? (
+                              <img
+                                src={catImage.src}
+                                alt={catImage.alt}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment flex items-center justify-center">
+                                <ItemIcon className="h-8 w-8 text-terracotta/20" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/8 shrink-0">
+                                <ItemIcon className="h-4 w-4 text-terracotta" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-charcoal font-display text-sm">{item.name}</h3>
+                                {item.location_id && (
+                                  <div className="flex items-center gap-1.5 mt-1">
+                                    <MapPin className="h-3 w-3 text-terracotta" />
+                                    <Link
+                                      href={`/explore/${item.location_id}`}
+                                      className="text-xs text-muted hover:text-terracotta transition-colors"
+                                    >
+                                      View location
+                                    </Link>
+                                  </div>
+                                )}
+                                <p className="text-xs text-muted mt-1.5 line-clamp-2">{item.description}</p>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
