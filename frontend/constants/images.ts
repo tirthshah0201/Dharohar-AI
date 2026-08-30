@@ -112,6 +112,11 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Patola silk weaving from Patan, Gujarat",
     credit: "Astrova",
   },
+  "patola weaving": {
+    src: "/assets/heritage/patola_weaving.webp",
+    alt: "Patola Weaving — double ikat silk weaving tradition from Patan, Gujarat",
+    credit: "Astrova",
+  },
   "adalaj stepwell": {
     src: "/assets/heritage/adalaj_stepwell.jpg",
     alt: "Adalaj Stepwell near Ahmedabad, Gujarat",
