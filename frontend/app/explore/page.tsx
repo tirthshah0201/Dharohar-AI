@@ -28,9 +28,9 @@ import {
   X,
 } from "lucide-react";
 
-// Dynamic import for MapLibre (no SSR)
-const IndiaHeritageMap = dynamic(
-  () => import("@/components/map/IndiaHeritageMap").then((mod) => mod.IndiaHeritageMap),
+// Dynamic import for Leaflet map (no SSR)
+const AstrovaMap = dynamic(
+  () => import("@/components/map/AstrovaMap").then((mod) => mod.AstrovaMap),
   {
     ssr: false,
     loading: () => (
@@ -194,7 +194,7 @@ function ExploreContent() {
                 Ask AI
               </a>
             </div>
-            <IndiaHeritageMap
+            <AstrovaMap
               height="520px"
               onAskAI={(ctx) => {
                 window.location.href = `/ai?question=Tell me about ${encodeURIComponent(ctx.name)} in ${ctx.state}`;

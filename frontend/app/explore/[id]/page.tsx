@@ -12,9 +12,9 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { useApi } from "@/hooks/useApi";
 import { MapPin, ArrowLeft, Landmark, Clock, ExternalLink } from "lucide-react";
 
-// Dynamic import for MapLibre (no SSR)
-const IndiaHeritageMap = dynamic(
-  () => import("@/components/map/IndiaHeritageMap").then((mod) => mod.IndiaHeritageMap),
+// Dynamic import for Leaflet map (no SSR)
+const AstrovaMap = dynamic(
+  () => import("@/components/map/AstrovaMap").then((mod) => mod.AstrovaMap),
   {
     ssr: false,
     loading: () => (
@@ -118,7 +118,7 @@ export default function LocationDetailPage({
             <div className="mb-8">
               {location.latitude && location.longitude ? (
                 <div className="rounded-xl overflow-hidden border border-border">
-                  <IndiaHeritageMap height="350px" />
+                  <AstrovaMap height="350px" />
                 </div>
               ) : (
                 <div className="rounded-xl border border-border bg-parchment min-h-[250px] flex items-center justify-center">

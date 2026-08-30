@@ -290,28 +290,24 @@ html {
   border: 1px solid var(--color-cream);
 }
 
-/* MapLibre popup panel styling */
-.maplibregl-popup {
-  z-index: 10 !important;
-}
-.maplibregl-popup-content {
+/* Leaflet popup panel styling */
+.leaflet-popup-content-wrapper {
   padding: 0 !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid var(--color-cream, #f0ebe3) !important;
   overflow: hidden !important;
-  max-width: 300px !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
   min-width: 220px !important;
+  max-width: 320px !important;
 }
-.maplibregl-popup-tip {
-  border-top-color: white !important;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
-}
-.maplibregl-popup-close-button {
+.leaflet-popup-close-button {
   position: absolute !important;
   top: 6px !important;
   right: 8px !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   color: #999 !important;
   cursor: pointer !important;
   z-index: 10 !important;
@@ -323,7 +319,21 @@ html {
   border-radius: 50% !important;
   background: rgba(0, 0, 0, 0.05) !important;
 }
-.maplibregl-popup-close-button:hover {
+.leaflet-popup-close-button:hover {
   background: rgba(0, 0, 0, 0.1) !important;
   color: #333 !important;
+}
+.leaflet-popup-tip {
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Astrova map marker hover */
+.astrova-marker div {
+  transition: transform 0.15s ease;
+}
+.astrova-marker:hover div {
+  transform: scale(1.2);
+}
+.astrova-marker:hover div[style*="rotate(45deg)"] {
+  transform: rotate(45deg) scale(1.2);
 }

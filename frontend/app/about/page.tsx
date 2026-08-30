@@ -123,7 +123,7 @@ export default function AboutPage() {
               "Next.js", "TypeScript", "React", "Tailwind CSS",
               "Node.js", "Express.js", "PostgreSQL",
               "Python", "scikit-learn", "AI/ML",
-              "Motion", "MapLibre GL", "OpenStreetMap",
+              "Motion", "Leaflet", "React-Leaflet", "OpenStreetMap",
             ].map((tech) => (
               <Badge key={tech} variant="secondary">{tech}</Badge>
             ))}
