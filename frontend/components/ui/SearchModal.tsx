@@ -25,6 +25,7 @@ interface SearchResult {
   description: string;
   location_id: string | null;
   period_id: string | null;
+  source: "heritage" | "location";
 }
 
 interface SearchResponse {
@@ -89,12 +90,13 @@ export function SearchModal() {
         );
         if (res.data && Array.isArray(res.data)) {
           res.data.forEach((item) => {
+            const isLocation = item.source === "location";
             apiResults.push({
-              type: "heritage",
+              type: isLocation ? "state" : "heritage",
               id: item.id,
               name: item.name,
               subtitle: `${item.category.charAt(0).toUpperCase() + item.category.slice(1)}`,
-              href: `/heritage/${item.id}`,
+              href: isLocation ? `/explore/${item.id}` : `/heritage/${item.id}`,
             });
           });
         }
@@ -397,12 +399,13 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
         );
         if (res.data && Array.isArray(res.data)) {
           res.data.forEach((item) => {
+            const isLocation = item.source === "location";
             apiResults.push({
-              type: "heritage",
+              type: isLocation ? "state" : "heritage",
               id: item.id,
               name: item.name,
               subtitle: item.category.charAt(0).toUpperCase() + item.category.slice(1),
-              href: `/heritage/${item.id}`,
+              href: isLocation ? `/explore/${item.id}` : `/heritage/${item.id}`,
             });
           });
         }

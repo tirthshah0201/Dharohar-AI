@@ -73,6 +73,7 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
           he.description,
           he.location_id,
           he.period_id,
+          'heritage' AS source,
           CASE
             WHEN he.name ILIKE $1 THEN 1.0
             WHEN he.name ILIKE $2 THEN 0.8
@@ -91,6 +92,7 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
           l.description,
           l.parent_id AS location_id,
           NULL::uuid AS period_id,
+          'location' AS source,
           CASE
             WHEN l.name ILIKE $1 THEN 1.0
             WHEN l.name ILIKE $2 THEN 0.8

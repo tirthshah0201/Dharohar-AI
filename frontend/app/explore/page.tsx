@@ -66,6 +66,7 @@ interface SearchResult {
   description: string;
   location_id: string | null;
   period_id: string | null;
+  source: "heritage" | "location";
 }
 
 /* ========================================
@@ -280,7 +281,7 @@ function ExploreContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {isSearching
                 ? (displayResults as SearchResult[]).map((result) => (
-                    <Link key={result.id} href={`/heritage/${result.id}`}>
+                    <Link key={result.id} href={result.source === "location" ? `/explore/${result.id}` : `/heritage/${result.id}`}>
                       <motion.div
                         whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
                         className="rounded-xl border border-border bg-card p-4 cursor-pointer"
