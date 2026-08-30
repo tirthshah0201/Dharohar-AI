@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, MapPin, Sparkles, ExternalLink, Navigation } from "lucide-react";
 import type { MapFeature } from "@/services/map/map-data";
+import { getLocationImage } from "@/constants/images";
 
 /* ========================================
    Types
@@ -93,24 +94,55 @@ export function MapDetailPanel({
             <X className="h-4 w-4" />
           </button>
 
-          {/* Header with colored accent */}
-          <div className="relative px-5 pt-5 pb-4">
-            {/* Color accent bar */}
-            <div
-              className="absolute top-0 left-0 right-0 h-1"
-              style={{ backgroundColor: typeColor }}
-            />
+          {/* Image */}
+          {(() => {
+            const img = getLocationImage(feature.name, typeKey);
+            if (!img) return null;
+            return (
+              <div className="relative w-full h-40 sm:h-48 overflow-hidden">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                {/* Type badge overlay */}
+                <div className="absolute bottom-3 left-4">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold text-white shadow-md"
+                    style={{ backgroundColor: typeColor }}
+                  >
+                    <Navigation className="h-3 w-3" />
+                    {typeLabel}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
-            {/* Type badge */}
-            <div className="flex items-center gap-2 mb-3">
-              <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+          {/* Header (no image fallback) */}
+          <div className="relative px-5 pt-4 pb-4">
+            {/* Color accent bar (only if no image) */}
+            {!getLocationImage(feature.name, typeKey) && (
+              <div
+                className="absolute top-0 left-0 right-0 h-1"
                 style={{ backgroundColor: typeColor }}
-              >
-                <Navigation className="h-3 w-3" />
-                {typeLabel}
-              </span>
-            </div>
+              />
+            )}
+
+            {/* Type badge (only if no image — otherwise shown on image) */}
+            {!getLocationImage(feature.name, typeKey) && (
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold text-white"
+                  style={{ backgroundColor: typeColor }}
+                >
+                  <Navigation className="h-3 w-3" />
+                  {typeLabel}
+                </span>
+              </div>
+            )}
 
             {/* Name */}
             <h2 className="font-display text-xl sm:text-2xl text-charcoal leading-tight mb-1">

@@ -207,6 +207,93 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
 
+  // ---- Kerala / North Malabar ----
+  "north malabar": {
+    src: "/assets/heritage/north_malabar.jpg",
+    alt: "North Malabar — Theyyam, waterfalls, and Kerala's northern coast",
+    credit: "Astrova",
+  },
+  "theyyam": {
+    src: "/assets/heritage/theyyam.jpg",
+    alt: "Theyyam — ritual dance form of North Malabar, Kerala",
+    credit: "Astrova",
+  },
+
+  // ---- Tamil Nadu / Chettinad ----
+  "chettinad": {
+    src: "/assets/heritage/chettinad.jpg",
+    alt: "Chettinad — region famous for mansions and cuisine in Tamil Nadu",
+    credit: "Astrova",
+  },
+  "chettinad cuisine": {
+    src: "/assets/heritage/chettinad_cuisine.jpg",
+    alt: "Chettinad cuisine — spicy and aromatic culinary tradition",
+    credit: "Astrova",
+  },
+  "athangudi tiles": {
+    src: "/assets/heritage/athangudi_tiles.jpg",
+    alt: "Athangudi tiles — handmade floor tiles from Chettinad",
+    credit: "Astrova",
+  },
+
+  // ---- Jammu & Kashmir / Gurez Valley ----
+  "gurez valley": {
+    src: "/assets/heritage/guraz_valley.jpg",
+    alt: "Gurez Valley — pristine Himalayan valley in Jammu & Kashmir",
+    credit: "Astrova",
+  },
+  "habba khatoon peak": {
+    src: "/assets/heritage/habba_khatoon.jpg",
+    alt: "Habba Khatoon Peak — iconic pyramid-shaped peak in Gurez",
+    credit: "Astrova",
+  },
+  "kishanganga river": {
+    src: "/assets/heritage/kishanganga.jpg",
+    alt: "Kishanganga River — crystal-clear river in Gurez Valley",
+    credit: "Astrova",
+  },
+
+  // ---- Odisha / Satkosia Gorge ----
+  "satkosia gorge": {
+    src: "/assets/heritage/satkosia_gorge.jpg",
+    alt: "Satkosia Gorge — 22-km gorge formed by Mahanadi River in Odisha",
+    credit: "Astrova",
+  },
+  "mahanadi river": {
+    src: "/assets/heritage/mahanadi.jpg",
+    alt: "Mahanadi River — major river forming Satkosia Gorge",
+    credit: "Astrova",
+  },
+
+  // ---- Maharashtra / Amboli ----
+  "amboli": {
+    src: "/assets/heritage/amboli.jpg",
+    alt: "Amboli — hill station on Western Ghats with monsoon waterfalls",
+    credit: "Astrova",
+  },
+  "amboli falls": {
+    src: "/assets/heritage/amboli.jpg",
+    alt: "Amboli Waterfalls — cascading down Western Ghats during monsoon",
+    credit: "Astrova",
+  },
+
+  // ---- Assam / Majuli ----
+  "majuli": {
+    src: "/assets/heritage/majuli.jpg",
+    alt: "Majuli — world's largest inhabited river island on Brahmaputra",
+    credit: "Astrova",
+  },
+  "sattriya": {
+    src: "/assets/heritage/sattriya.jpg",
+    alt: "Sattriya — classical dance form from Assam",
+    credit: "Astrova",
+  },
+  "samaguri satra": {
+    src: "/assets/heritage/majuli.jpg",
+    alt: "Samaguri Satra — famous Satra in Majuli for mask-making",
+    credit: "Astrova",
+  },
+
   // ---- Maharashtra ----
   "ajanta caves": {
     src: "/assets/heritage/ajanta_caves.jpg",
@@ -333,4 +420,112 @@ export function getHeritageImage(
  */
 export function getStateImage(stateCode: string): HeritageImage | null {
   return STATE_IMAGES[stateCode] || null;
+}
+
+/* ==============================================
+   LOCATION IMAGES
+   Maps location names (from locations table) to images.
+   Used by MapDetailPanel when focusing on a map location.
+   ============================================== */
+
+export const LOCATION_IMAGES: Record<string, HeritageImage> = {
+  // ---- Gujarat locations ----
+  ahmedabad: {
+    src: "/assets/heritage/sabarmati_ashram.jpg",
+    alt: "Ahmedabad — historic city on the banks of the Sabarmati",
+    credit: "Astrova",
+  },
+  patan: {
+    src: "/assets/heritage/rani_ki_vav.jpg",
+    alt: "Patan — historical city known for Rani ki Vav and Patola weaving",
+    credit: "Astrova",
+  },
+  rajkot: {
+    src: "/assets/heritage/kite_festival.jpg",
+    alt: "Rajkot — cultural capital of Saurashtra",
+    credit: "Astrova",
+  },
+  surat: {
+    src: "/assets/heritage/gujarati_thali.jpg",
+    alt: "Surat — historic port city and diamond trade center",
+    credit: "Astrova",
+  },
+  vadodara: {
+    src: "/assets/heritage/khajuraho_temples.jpg",
+    alt: "Vadodara — cultural center of Gujarat",
+    credit: "Astrova",
+  },
+  junagadh: {
+    src: "/assets/heritage/dholavira.jpg",
+    alt: "Junagadh — ancient city at the foot of Girnar",
+    credit: "Astrova",
+  },
+  // ---- Kerala locations ----
+  kannur: {
+    src: "/assets/heritage/theyyam.jpg",
+    alt: "Kannur — coastal district known for Theyyam",
+    credit: "Astrova",
+  },
+  wayanad: {
+    src: "/assets/heritage/north_malabar.jpg",
+    alt: "Wayanad — hill district in North Malabar",
+    credit: "Astrova",
+  },
+  // ---- Tamil Nadu locations ----
+  karaikudi: {
+    src: "/assets/heritage/chettinad.jpg",
+    alt: "Karaikudi — main town of Chettinad",
+    credit: "Astrova",
+  },
+  kanadukathan: {
+    src: "/assets/heritage/chettinad.jpg",
+    alt: "Kanadukathan — heritage town in Chettinad",
+    credit: "Astrova",
+  },
+  // ---- Maharashtra locations ----
+  // Amboli is handled by heritage images
+  // ---- Assam locations ----
+  // Majuli is handled by heritage images
+  // ---- Odisha locations ----
+  // Satkosia Gorge is handled by heritage images
+  // ---- Jammu & Kashmir locations ----
+  // Gurez Valley is handled by heritage images
+};
+
+/**
+ * Get an image for any map location by matching name against heritage/location images.
+ * Used by the MapDetailPanel to show a relevant image.
+ */
+export function getLocationImage(
+  name: string,
+  type: string
+): HeritageImage | null {
+  const lowerName = name.toLowerCase();
+
+  // 1. Try location-specific image
+  if (LOCATION_IMAGES[lowerName]) return LOCATION_IMAGES[lowerName];
+
+  // 2. Try heritage image lookup
+  const heritageImg = getHeritageImage(name, type);
+  if (heritageImg) return heritageImg;
+
+  // 3. For state locations, try state image by matching state name
+  const stateNameToCode: Record<string, string> = {
+    gujarat: "GJ",
+    rajasthan: "RJ",
+    punjab: "PB",
+    goa: "GA",
+    "tamil nadu": "TN",
+    maharashtra: "MH",
+    "madhya pradesh": "MP",
+    delhi: "DL",
+    kerala: "KL",
+    "jammu & kashmir": "JK",
+    assam: "AS",
+    odisha: "OD",
+  };
+  const code = stateNameToCode[lowerName];
+  if (code) return STATE_IMAGES[code] || null;
+
+  return null;
 }
