@@ -150,6 +150,7 @@ function StateCard({ state }: { state: StateData }) {
 
 export default function HomePage() {
   const [showAllStates, setShowAllStates] = useState(false);
+  const statesGridRef = useRef<HTMLDivElement>(null);
 
   const { data: timeline, loading: timelineLoading, error: timelineError } =
     useApi<TimelinePeriod[]>("/timeline");
@@ -355,16 +356,27 @@ export default function HomePage() {
             </div>
           </FadeIn>
 
-          <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {displayedStates.map((state) => (
-              <StateCard key={state.code} state={state} />
-            ))}
-          </Stagger>
+          <div ref={statesGridRef}>
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {displayedStates.map((state) => (
+                <StateCard key={state.code} state={state} />
+              ))}
+            </Stagger>
+          </div>
 
           {!showAllStates && INDIAN_STATES.length > 4 && (
             <FadeIn delay={0.2}>
               <div className="mt-6 text-center">
-                <Button variant="ghost" className="text-terracotta" onClick={() => setShowAllStates(true)}>
+                <Button
+                  variant="ghost"
+                  className="text-terracotta font-semibold text-base px-6 py-3 border border-terracotta/20 hover:bg-terracotta/5"
+                  onClick={() => {
+                    setShowAllStates(true);
+                    setTimeout(() => {
+                      statesGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 100);
+                  }}
+                >
                   Show all {INDIAN_STATES.length} states <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
