@@ -20,12 +20,10 @@ function Footer() {
         <div className="py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-3">
-              <img
-                src="/assets/brand/astrova-wordmark.jpg"
-                alt="Astrova"
-                className="h-8 w-auto object-contain brightness-0 invert opacity-90"
-              />
+            <Link href="/" className="flex items-center gap-2.5 mb-3 group">
+              <span className="font-display text-xl text-white group-hover:text-terracotta-light transition-colors">
+                Astrova
+              </span>
             </Link>
             <p className="text-sm text-white/50 max-w-sm leading-relaxed">
               Discover India. Experience Heritage — from ancient monuments to living traditions, culture, nature, and stories.
