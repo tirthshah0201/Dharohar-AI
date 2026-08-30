@@ -236,7 +236,7 @@ export function SearchModal() {
                           );
 
                         return (
-                          <li key={`${item.type}-${item.name}`}>
+                          <li key={`${item.type}-${item.name}-${item.href}`}>
                             <Link
                               href={item.href}
                               onClick={() => setOpen(false)}
@@ -528,7 +528,7 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
                       {results.map((item, index) => {
                         const isActive = index === activeIndex;
                         return (
-                          <li key={`${item.type}-${item.name}`}>
+                          <li key={`${item.type}-${item.name}-${item.href}`}>
                             <Link
                               href={item.href}
                               onClick={() => setOpen(false)}
