@@ -357,7 +357,7 @@ export default function HomePage() {
           </FadeIn>
 
           <div ref={statesGridRef}>
-            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Stagger key={showAllStates ? "all" : "initial"} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {displayedStates.map((state) => (
                 <StateCard key={state.code} state={state} />
               ))}
