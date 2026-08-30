@@ -26,45 +26,54 @@ export function StateSelector({ states, selectedState, onSelect }: StateSelector
 
   return (
     <div className="relative">
-      {/* Toggle button */}
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-border text-sm font-medium text-charcoal hover:bg-white transition-colors cursor-pointer"
-      >
-        <MapPin className="h-4 w-4 text-terracotta" />
-        <span className="max-w-[120px] truncate">
-          {selected ? selected.name : "All States"}
-        </span>
+      {/* Selector row: toggle + clear as siblings */}
+      <div className="flex items-center gap-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-border overflow-hidden">
+        {/* Toggle button */}
+        <motion.button
+          type="button"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-charcoal hover:bg-white/50 transition-colors cursor-pointer"
+        >
+          <MapPin className="h-4 w-4 text-terracotta" />
+          <span className="max-w-[120px] truncate">
+            {selected ? selected.name : "All States"}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
+        </motion.button>
+
+        {/* Clear button — sibling, not nested */}
         {selected && (
           <button
-            onClick={(e) => {
-              e.stopPropagation();
+            type="button"
+            aria-label={`Clear ${selected.name} filter`}
+            onClick={() => {
               onSelect(null);
               setIsOpen(false);
             }}
-            className="ml-1 p-0.5 rounded-full hover:bg-gray-100"
+            className="px-2 py-2 text-muted hover:text-charcoal hover:bg-gray-100 transition-colors cursor-pointer border-l border-border"
           >
-            <X className="h-3 w-3 text-muted" />
+            <X className="h-3 w-3" />
           </button>
         )}
-        <ChevronDown
-          className={`h-4 w-4 text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
+      </div>
+
+      {/* Backdrop — outside AnimatePresence so it always unmounts cleanly */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
         />
-      </motion.button>
+      )}
 
       {/* Dropdown */}
       <AnimatePresence>
         {isOpen && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Menu */}
             <motion.div
               initial={{ opacity: 0, y: -4, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -118,7 +127,6 @@ export function StateSelector({ states, selectedState, onSelect }: StateSelector
                 ))}
               </div>
             </motion.div>
-          </>
         )}
       </AnimatePresence>
     </div>
