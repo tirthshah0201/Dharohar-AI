@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
 import { Container } from "@/components/ui/Container";
@@ -93,7 +94,7 @@ function StateCard({ state }: { state: StateData }) {
   const stateImage = STATE_IMAGES[state.code];
   return (
     <StaggerItem>
-      <Link href={`/explore`}>
+      <Link href={`/explore?state=${encodeURIComponent(state.name)}`}>
         <motion.div
           whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(139,69,19,0.12)" }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
@@ -169,10 +170,10 @@ export default function HomePage() {
   const displayedStates = showAllStates ? INDIAN_STATES : INDIAN_STATES.slice(0, 4);
 
   const stats = [
-    { value: 8, label: "States Covered", suffix: "+" },
-    { value: 31, label: "Heritage Records", suffix: "+" },
-    { value: 6, label: "Languages", suffix: "" },
-    { value: 9, label: "Heritage Categories", suffix: "" },
+    { value: 8, label: "States Covered", suffix: "+", href: "/explore" },
+    { value: 31, label: "Heritage Records", suffix: "+", href: "/heritage" },
+    { value: 6, label: "Languages", suffix: "", href: null },
+    { value: 9, label: "Heritage Categories", suffix: "", href: "/heritage" },
   ];
 
   return (
@@ -310,10 +311,21 @@ export default function HomePage() {
           <Stagger className="grid grid-cols-2 sm:grid-cols-4 gap-6" staggerDelay={0.08}>
             {stats.map((stat) => (
               <StaggerItem key={stat.label} className="text-center">
-                <div className="font-display text-3xl sm:text-4xl text-terracotta">
-                  <CountUp target={stat.value} suffix={stat.suffix} />
-                </div>
-                <p className="text-xs text-stone mt-1 font-medium uppercase tracking-wider">{stat.label}</p>
+                {stat.href ? (
+                  <Link href={stat.href} className="block group">
+                    <div className="font-display text-3xl sm:text-4xl text-terracotta group-hover:text-terracotta-dark transition-colors">
+                      <CountUp target={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <p className="text-xs text-stone mt-1 font-medium uppercase tracking-wider group-hover:text-charcoal transition-colors">{stat.label}</p>
+                  </Link>
+                ) : (
+                  <>
+                    <div className="font-display text-3xl sm:text-4xl text-terracotta">
+                      <CountUp target={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <p className="text-xs text-stone mt-1 font-medium uppercase tracking-wider">{stat.label}</p>
+                  </>
+                )}
               </StaggerItem>
             ))}
           </Stagger>
@@ -449,19 +461,21 @@ export default function HomePage() {
                       >
                         <div className="absolute left-4 sm:left-1/2 -translate-x-1/2 h-3 w-3 rounded-full bg-terracotta border-2 border-ivory z-10 mt-2" />
                         <div className={`ml-10 sm:ml-0 sm:w-1/2 ${index % 2 === 0 ? "sm:pr-10" : "sm:pl-10"}`}>
-                          <motion.div
-                            whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(139,69,19,0.08)" }}
-                            className="rounded-xl border border-cream bg-white p-5 shadow-sm cursor-pointer"
-                          >
-                            <Badge variant="secondary" className="mb-2 text-[11px] bg-terracotta-mist text-stone border-cream">{yearRange}</Badge>
-                            <h3 className="font-display text-lg text-charcoal">{item.name}</h3>
-                            <p className="text-sm text-stone mt-1 line-clamp-2">{item.description}</p>
-                            {item.entity_count > 0 && (
-                              <p className="text-xs text-terracotta mt-2 font-medium">
-                                {item.entity_count} heritage {item.entity_count === 1 ? "entity" : "entities"}
-                              </p>
-                            )}
-                          </motion.div>
+                          <Link href={`/timeline?period=${encodeURIComponent(item.id)}`}>          
+                            <motion.div
+                              whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(139,69,19,0.08)" }}
+                              className="rounded-xl border border-cream bg-white p-5 shadow-sm cursor-pointer"
+                            >
+                              <Badge variant="secondary" className="mb-2 text-[11px] bg-terracotta-mist text-stone border-cream">{yearRange}</Badge>
+                              <h3 className="font-display text-lg text-charcoal">{item.name}</h3>
+                              <p className="text-sm text-stone mt-1 line-clamp-2">{item.description}</p>
+                              {item.entity_count > 0 && (
+                                <p className="text-xs text-terracotta mt-2 font-medium">
+                                  {item.entity_count} heritage {item.entity_count === 1 ? "entity" : "entities"}
+                                </p>
+                              )}
+                            </motion.div>
+                          </Link>
                         </div>
                       </div>
                     </StaggerItem>
@@ -505,7 +519,7 @@ export default function HomePage() {
               const catImage = CATEGORY_IMAGES[category.slug];
               return (
                 <StaggerItem key={category.name}>
-                  <Link href="/heritage">
+                  <Link href={`/heritage?category=${encodeURIComponent(category.slug)}`}>
                     <motion.div
                       whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(139,69,19,0.1)" }}
                       whileTap={{ scale: 0.98 }}
@@ -665,12 +679,13 @@ export default function HomePage() {
                   </div>
                   <div className="flex flex-wrap gap-1.5 justify-center">
                     {suggestedQuestions.slice(0, 3).map((q) => (
-                      <span
+                      <Link
                         key={q}
-                        className="rounded-full border border-cream bg-white px-2.5 py-1 text-[11px] text-stone"
+                        href={`/ai?question=${encodeURIComponent(q)}`}
+                        className="rounded-full border border-cream bg-white px-2.5 py-1 text-[11px] text-stone hover:bg-terracotta/5 hover:border-terracotta/30 hover:text-charcoal transition-colors"
                       >
                         {q}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 </div>

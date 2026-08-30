@@ -1,12 +1,17 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ChatBot } from "@/components/ai/ChatBot";
 import { Sparkles, Globe, Database, MapPin, MessageCircle } from "lucide-react";
 
-export default function AIPage() {
+function AIPageContent() {
+  const searchParams = useSearchParams();
+  const initialQuestion = searchParams.get("question") || undefined;
+
   return (
     <div className="py-8 sm:py-12">
       <Container>
@@ -38,7 +43,7 @@ export default function AIPage() {
         <div className="max-w-3xl mx-auto">
           <Card className="overflow-hidden border-cream shadow-lg shadow-terracotta/5">
             <CardContent className="p-0">
-              <ChatBot />
+              <ChatBot initialQuestion={initialQuestion} />
             </CardContent>
           </Card>
         </div>
@@ -60,5 +65,22 @@ export default function AIPage() {
         </div>
       </Container>
     </div>
+  );
+}
+
+export default function AIPage() {
+  return (
+    <Suspense fallback={
+      <div className="py-8 sm:py-12">
+        <Container>
+          <div className="text-center py-20">
+            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted mt-3">Loading...</p>
+          </div>
+        </Container>
+      </div>
+    }>
+      <AIPageContent />
+    </Suspense>
   );
 }

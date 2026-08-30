@@ -115,6 +115,27 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Sabarmati Ashram in Ahmedabad, Gujarat",
     credit: "Heritage Atlas",
   },
+  "gujarati thali": {
+    src: "/assets/heritage/gujarati_thali.jpg",
+    alt: "Gujarati Thali — traditional Gujarati meal with dal, rice, rotli, vegetables, and sweets",
+    credit: "Heritage Atlas",
+  },
+
+  "narsinh mehta": {
+    src: "/assets/heritage/narsinh_mehta.jpg",
+    alt: "Narsinh Mehta — premier poet-saint of Gujarat",
+    credit: "Heritage Atlas",
+  },
+  "kite festival (uttarayan)": {
+    src: "/assets/heritage/kite_festival.jpg",
+    alt: "Kite Festival (Uttarayan) — international kite festival in Gujarat",
+    credit: "Heritage Atlas",
+  },
+  "bandhani": {
+    src: "/assets/heritage/bandhani.jpg",
+    alt: "Bandhani — traditional tie-dye textile technique of Gujarat",
+    credit: "Heritage Atlas",
+  },
 
   // ---- Rajasthan ----
   "amber fort": {

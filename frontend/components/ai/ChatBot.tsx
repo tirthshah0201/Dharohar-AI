@@ -88,7 +88,7 @@ function TypingIndicator() {
 
 /* ---- ChatBot Component ---- */
 
-export function ChatBot() {
+export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [language, setLanguage] = useState("en");
@@ -139,6 +139,19 @@ export function ChatBot() {
       fetchWelcome();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-send initial question from URL param
+  const hasSentInitial = useRef(false);
+  useEffect(() => {
+    if (initialQuestion && !hasSentInitial.current && messages.length > 0) {
+      hasSentInitial.current = true;
+      // Small delay so welcome message renders first
+      const timer = setTimeout(() => {
+        handleSend(initialQuestion);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [initialQuestion, messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-scroll to bottom
   useEffect(() => {

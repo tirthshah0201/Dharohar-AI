@@ -10,12 +10,12 @@ const footerLinks = {
     { href: "/ai", label: "Ask Heritage Atlas" },
   ],
   regions: [
-    { href: "/explore", label: "Gujarat" },
-    { href: "/explore", label: "Rajasthan" },
-    { href: "/explore", label: "Punjab" },
-    { href: "/explore", label: "Tamil Nadu" },
-    { href: "/explore", label: "Maharashtra" },
-    { href: "/explore", label: "Madhya Pradesh" },
+    { href: "/explore?state=Gujarat", label: "Gujarat" },
+    { href: "/explore?state=Rajasthan", label: "Rajasthan" },
+    { href: "/explore?state=Punjab", label: "Punjab" },
+    { href: "/explore?state=Tamil%20Nadu", label: "Tamil Nadu" },
+    { href: "/explore?state=Maharashtra", label: "Maharashtra" },
+    { href: "/explore?state=Madhya%20Pradesh", label: "Madhya Pradesh" },
   ],
   project: [
     { href: "/about", label: "About Heritage Atlas" },

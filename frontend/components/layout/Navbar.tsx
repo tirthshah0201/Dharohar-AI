@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Search, MapPin, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { openSearchModal } from "@/components/ui/SearchModal";
 
 const navLinks = [
   { href: "/explore", label: "Explore" },
@@ -90,8 +91,9 @@ function Navbar() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => openSearchModal()}
               className="flex items-center gap-2 rounded-lg border border-cream bg-white/60 px-3 py-1.5 text-sm text-stone hover:text-charcoal hover:bg-white transition-all"
-              aria-label="Search"
+              aria-label="Search (Ctrl+K)"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="text-warm-gray hidden lg:inline">Search heritage...</span>

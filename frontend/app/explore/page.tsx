@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -23,6 +24,7 @@ import {
   ChevronRight,
   Compass,
   Bot,
+  X,
 } from "lucide-react";
 
 // Dynamic import for MapLibre (no SSR)
@@ -81,14 +83,38 @@ const locationTypeIcons: Record<string, typeof Building2> = {
    Page Component
    ======================================== */
 
-export default function ExplorePage() {
+function ExploreContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialState = searchParams.get("state") || "";
+
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [selectedState, setSelectedState] = useState(initialState);
 
   // Fetch locations based on type filter
   const typeParam = activeTab !== "all" ? `?type=${activeTab}` : "";
   const { data: locations, loading, error, refetch } = useApi<Location[]>(`/locations${typeParam}`);
+
+  // Filter locations by selected state
+  const filteredLocations = useMemo(() => {
+    if (!locations) return null;
+    if (!selectedState) return locations;
+    return locations.filter((loc) =>
+      loc.state?.toLowerCase() === selectedState.toLowerCase()
+    );
+  }, [locations, selectedState]);
+
+  // Update URL when state changes
+  const handleStateChange = (state: string) => {
+    setSelectedState(state);
+    if (state) {
+      router.push(`/explore?state=${encodeURIComponent(state)}`, { scroll: false });
+    } else {
+      router.push("/explore", { scroll: false });
+    }
+  };
 
   // Fetch search results when there's a query
   const { data: searchResults, loading: searchLoading } = useApi<SearchResult[]>(
@@ -126,10 +152,22 @@ export default function ExplorePage() {
               <span className="text-sm font-medium text-terracotta">Explore India</span>
             </div>
             <h1 className="font-display text-3xl sm:text-4xl text-charcoal mb-2">
-              Discover India&apos;s Heritage
+              {selectedState ? `Heritage in ${selectedState}` : "Discover India's Heritage"}
             </h1>
             <p className="text-muted max-w-xl">
-              Search and explore locations, heritage sites, and cultural landmarks across India.
+              {selectedState ? (
+                <>
+                  Exploring cultural heritage sites and landmarks in {selectedState}.
+                  <button
+                    onClick={() => handleStateChange("")}
+                    className="inline-flex items-center gap-1 ml-2 text-terracotta font-medium hover:text-terracotta-dark transition-colors"
+                  >
+                    <X className="h-3 w-3" /> Clear filter
+                  </button>
+                </>
+              ) : (
+                "Search and explore locations, heritage sites, and cultural landmarks across India."
+              )}
             </p>
           </div>
         </FadeIn>
@@ -160,13 +198,13 @@ export default function ExplorePage() {
             <h2 className="text-lg font-semibold text-charcoal mb-4">Explore by State</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {INDIAN_STATES.map((state) => (
-                <Link key={state.code} href="/explore">
+                <Link key={state.code} href={`/explore?state=${encodeURIComponent(state.name)}`} onClick={(e) => { e.preventDefault(); handleStateChange(state.name); }}>
                   <motion.div
                     whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
-                    className="rounded-lg border border-border bg-card p-4 cursor-pointer"
+                    className={`rounded-lg border p-4 cursor-pointer transition-colors ${selectedState === state.name ? "border-terracotta bg-terracotta/5" : "border-border bg-card"}`}
                   >
                     <div className="h-1 w-full rounded-full mb-3" style={{ backgroundColor: state.color }} />
-                    <h3 className="font-semibold text-charcoal text-sm">{state.name}</h3>
+                    <h3 className={`font-semibold text-sm ${selectedState === state.name ? "text-terracotta" : "text-charcoal"}`}>{state.name}</h3>
                     <p className="text-xs text-muted mt-0.5">{state.region}</p>
                     <p className="text-[11px] text-terracotta mt-2 flex items-center gap-1">
                       {state.heritageCount} sites <ChevronRight className="h-3 w-3" />
@@ -220,7 +258,7 @@ export default function ExplorePage() {
           )}
 
           {/* Results */}
-          {!loading && !searchLoading && !error && displayResults && displayResults.length > 0 && (
+          {!loading && !searchLoading && !error && displayResults && (isSearching ? displayResults.length > 0 : (filteredLocations?.length ?? 0) > 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {isSearching
                 ? (displayResults as SearchResult[]).map((result) => (
@@ -242,7 +280,7 @@ export default function ExplorePage() {
                       </motion.div>
                     </Link>
                   ))
-                : (displayResults as Location[]).map((loc) => {
+                : (filteredLocations as Location[]).map((loc) => {
                     const Icon = locationTypeIcons[loc.type] || Building2;
                     return (
                       <Link key={loc.id} href={`/explore/${loc.id}`}>
@@ -282,5 +320,22 @@ export default function ExplorePage() {
         </FadeIn>
       </Container>
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense fallback={
+      <div className="py-8 sm:py-12">
+        <Container>
+          <div className="text-center py-20">
+            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted mt-3">Loading explore...</p>
+          </div>
+        </Container>
+      </div>
+    }>
+      <ExploreContent />
+    </Suspense>
   );
 }

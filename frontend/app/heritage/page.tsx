@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -72,8 +73,11 @@ const categories = [
    Page Component
    ======================================== */
 
-export default function HeritagePage() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+function HeritageContent() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || null;
+
+  const [activeCategory, setActiveCategory] = useState<string | null>(initialCategory);
   const [searchQuery, setSearchQuery] = useState("");
 
   const categoryParam = activeCategory ? `?category=${activeCategory}` : "";
@@ -277,10 +281,10 @@ export default function HeritagePage() {
                                 y: -2,
                                 boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
                               }}
-                              className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
+                              className="rounded-xl border border-border bg-card overflow-hidden group"
                             >
                               {/* Image header — linked to heritage detail */}
-                              <Link href={`/heritage/${item.id}`} className="block">
+                              <Link href={`/heritage/${item.id}`} className="block cursor-pointer">
                                 <div className="relative h-24 overflow-hidden">
                                   {heritageImage ? (
                                     <img
@@ -341,17 +345,16 @@ export default function HeritagePage() {
                 {filteredHeritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
                   const heritageImage = getHeritageImage(item.name, item.category);
-                  return (
-                    <StaggerItem key={item.id}>
+                  return (                          <StaggerItem key={item.id}>
                       <motion.div
                         whileHover={{
                           y: -2,
                           boxShadow: "0 6px 20px rgba(139,69,19,0.08)",
                         }}
-                        className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group"
+                        className="rounded-xl border border-border bg-card overflow-hidden group"
                       >
                         {/* Image header — linked to heritage detail */}
-                        <Link href={`/heritage/${item.id}`} className="block">
+                        <Link href={`/heritage/${item.id}`} className="block cursor-pointer">
                           <div className="relative h-24 overflow-hidden">
                             {heritageImage ? (
                               <img
@@ -409,5 +412,22 @@ export default function HeritagePage() {
         )}
       </Container>
     </div>
+  );
+}
+
+export default function HeritagePage() {
+  return (
+    <Suspense fallback={
+      <div className="py-8 sm:py-12">
+        <Container>
+          <div className="text-center py-20">
+            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted mt-3">Loading heritage...</p>
+          </div>
+        </Container>
+      </div>
+    }>
+      <HeritageContent />
+    </Suspense>
   );
 }

@@ -110,7 +110,35 @@ Scalable `StateData` interface in `constants/india.ts` — add new states by ext
 - No duplicate photos across heritage entries
 - 8 state images + 20 heritage images supplied by developer
 
-## 14. Future
+## 14. Interactive Navigation & URL State
+
+### Global Search
+- **⌘K / Ctrl+K** opens a command-palette search modal
+- Searches heritage via `/search` API and states via client-side filter
+- Keyboard navigation (↑↓, Enter, Escape)
+- Quick links for Explore, Heritage, and AI pages
+
+### URL-Driven Filters
+- **State**: `/explore?state=Gujarat` — Explore page reads param, filters locations, highlights selected state
+- **Category**: `/heritage?category=monument` — Heritage page reads param, activates category filter
+- **Timeline**: `/timeline?period=<id>` — Timeline page reads param, auto-selects the correct tab
+- **AI Question**: `/ai?question=...` — ChatBot receives initialQuestion, auto-sends after welcome message
+
+### Interactive Elements
+- All state cards navigate with state filter
+- All category cards navigate with category filter
+- Homepage timeline cards link to timeline with period param
+- Suggested AI question pills link to /ai with pre-filled question
+- Statistics (States, Heritage, Categories) link to relevant pages
+- Heritage card body cursor-pointer removed from non-interactive areas
+
+### Accessibility
+- All interactive elements use semantic `<Link>` or `<button>`
+- No nested anchors
+- Search modal supports full keyboard navigation
+- Pages using `useSearchParams` wrapped in `<Suspense>`
+
+## 15. Future
 
 - Compress kutch_embroidery.png (currently 47MB)
 - Dark mode

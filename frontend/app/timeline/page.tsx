@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -49,7 +51,10 @@ function getEraColor(index: number): string {
    Page Component
    ======================================== */
 
-export default function TimelinePage() {
+function TimelineContent() {
+  const searchParams = useSearchParams();
+  const periodParam = searchParams.get("period") || undefined;
+
   const {
     data: periods,
     loading,
@@ -88,6 +93,7 @@ export default function TimelinePage() {
         {/* Timeline content */}
         {!loading && !error && periods && periods.length > 0 && (
           <Tabs
+            defaultTab={periodParam}
             tabs={periods.map((period, index) => ({
               id: period.id,
               label: period.name,
@@ -154,5 +160,22 @@ export default function TimelinePage() {
         )}
       </Container>
     </div>
+  );
+}
+
+export default function TimelinePage() {
+  return (
+    <Suspense fallback={
+      <div className="py-8 sm:py-12">
+        <Container>
+          <div className="text-center py-20">
+            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted mt-3">Loading timeline...</p>
+          </div>
+        </Container>
+      </div>
+    }>
+      <TimelineContent />
+    </Suspense>
   );
 }

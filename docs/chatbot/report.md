@@ -1,187 +1,138 @@
-# Heritage Atlas — Nested Link Hydration Error Fix + Image Asset Integration
+# Heritage Atlas — Interactive Navigation & Dead Element Resolution Report
 
-## 1. Nested Link Hydration Error Fix
+## 1. Objective
 
-### Problem
-The Heritage page (`app/heritage/page.tsx`) contained `<Link href="/heritage/...">` wrapping `<Link href="/explore/...">` inside it, producing invalid HTML:
+Convert all visually interactive but non-functional UI elements into real application functionality. Every element that looks clickable now performs a meaningful action.
 
-```html
-<a href="/heritage/...">
-  ...
-  <a href="/explore/...">View location</a>
-</a>
-```
+## 2. Issues Identified
 
-### Root Cause
-The heritage card rendered the entire card as a single Link, while the "View location" inside was also a Link — creating a nested anchor.
+| # | Element | Location | Issue |
+|---|---------|----------|-------|
+| 1 | Navbar Search button | `components/layout/Navbar.tsx` | No onClick handler, no keyboard shortcut, clicking does nothing |
+| 2 | Homepage suggested question pills | `app/page.tsx` | Rendered as `<span>`, no click action, no navigation |
+| 3 | Homepage timeline period cards | `app/page.tsx` | Has hover animation + cursor-pointer but no Link/onClick |
+| 4 | Footer state links | `components/layout/Footer.tsx` | All states point to `/explore` with no state filter |
+| 5 | Explore page state cards | `app/explore/page.tsx` | All cards navigate to `/explore` with no state parameter |
+| 6 | Homepage state cards | `app/page.tsx` (StateCard) | All cards navigate to `/explore` with no state parameter |
+| 7 | Homepage category cards | `app/page.tsx` | All category cards navigate to `/heritage` with no category filter |
+| 8 | Homepage statistics | `app/page.tsx` | Plain text, not interactive |
+| 9 | Heritage grouped view card body | `app/heritage/page.tsx` | `cursor-pointer` on non-interactive card container |
 
-### Solution
-Separated the card into independent interactive elements:
-- **Image + title**: Each wrapped in its own `<Link href="/heritage/{id}">`
-- **Location**: Separate `<Link href="/explore/{location_id}">`
-- **Card container**: Plain `<motion.div>` (not a Link)
+## 3. Implementation
 
-No `<Link>` contains another `<Link>`.
+| # | Element | Fix | Status |
+|---|---------|-----|--------|
+| 1 | Navbar Search | Created `SearchModal.tsx` with⌘K/Ctrl+K shortcut, real API search, keyboard navigation | ✅ Fixed |
+| 2 | Suggested questions | Converted `<span>` to `<Link href="/ai?question=X">`, AI page reads param | ✅ Fixed |
+| 3 | Timeline cards | Wrapped in `<Link href="/timeline?period=X">`, Timeline reads param | ✅ Fixed |
+| 4 | Footer state links | Updated to `/explore?state=Gujarat` etc. | ✅ Fixed |
+| 5 | Explore state cards | Cards use `handleStateChange()` → `/explore?state=X` with client-side filtering | ✅ Fixed |
+| 6 | Homepage state cards | StateCard links to `/explore?state=X` | ✅ Fixed |
+| 7 | Category cards | Updated to `/heritage?category=X`, Heritage page reads param | ✅ Fixed |
+| 8 | Statistics | "States Covered" → `/explore`, "Heritage Records" → `/heritage`, "Categories" → `/heritage` | ✅ Fixed |
+| 9 | Heritage card body | Removed `cursor-pointer` from card container, kept on interactive `<Link>` elements | ✅ Fixed |
 
-### Verification
-- DOM audit: 57 `<a>` tags, **0 nested**
-- Browser console: **no hydration errors**
-- Heritage navigation: ✅ works
-- Location navigation: ✅ works
-- TypeScript: ✅ clean
-- Build: ✅ passes
+## 4. Search Implementation
 
----
+### Components
+- `SearchModal.tsx` — Full command-palette style search modal
 
-## 2. Implementation Summary
+### Features
+- **⌘K / Ctrl+K** keyboard shortcut opens the modal
+- Searches heritage via `/search?q=` API endpoint
+- Searches states by name/region/highlights from `INDIAN_STATES`
+- Keyboard navigation (↑↓ arrows, Enter to select, Escape to close)
+- Quick links when no query (Explore India, Heritage Directory, Ask AI)
+- Smooth open/close animations via Motion
+- Responsive: full-width on mobile, centered on desktop
+- Footer shows keyboard shortcuts
 
-This implementation integrates supplied local image assets into Heritage Atlas and adds famous heritage markers for all 8 supported states.
+### Data Sources
+- Heritage search: Backend `/search` API
+- State search: Client-side `INDIAN_STATES` filter
+- No duplicate datasets created
 
-**Key changes:**
-- Replaced all external Unsplash/Wikimedia image URLs with local `/assets/` images
-- Fixed Explore Heritage hero button contrast (dark blue background + white text)
-- Added 30+ famous heritage markers covering all 8 states
-- Every state card now displays its correct supplied state image
-- Every heritage entity now displays its correct supplied heritage image
+## 5. URL Filter Implementation
 
-## 2. Image Architecture
+### State Parameter
+- Pattern: `/explore?state=Gujarat`
+- Explore page reads `useSearchParams().get("state")`
+- Client-side filtering of locations by state name
+- URL updates when state is selected/deselected
+- "Clear filter" button removes the state parameter
+- Header dynamically shows "Heritage in Gujarat" when filtered
 
-### Local Asset Paths
+### Category Parameter
+- Pattern: `/heritage?category=monument`
+- Heritage page reads `useSearchParams().get("category")`
+- Activates the corresponding category filter chip
+- Direct URL opens with the correct category selected
 
-Images are stored in:
-```
-frontend/public/assets/states/    (8 files)
-frontend/public/assets/heritage/  (20 files)
-```
+### Timeline Parameter
+- Pattern: `/timeline?period=<period-id>`
+- Timeline page reads `useSearchParams().get("period")`
+- Passed to `Tabs` component as `defaultTab`
+- Correct tab is auto-selected on page load
 
-### Deterministic Mapping
+### AI Question Parameter
+- Pattern: `/ai?question=Tell me about Rani ki Vav`
+- AI page reads `useSearchParams().get("question")`
+- Passed to ChatBot as `initialQuestion` prop
+- ChatBot auto-sends the question after welcome message loads
+- `hasSentInitial` ref prevents duplicate sends
 
-`frontend/constants/images.ts` contains the single source of truth:
+## 6. Accessibility
 
-- `STATE_IMAGES` — maps state codes (GJ, RJ, PB, etc.) to exact local images
-- `HERITAGE_IMAGES` — maps normalized heritage names to exact local images
-- `CATEGORY_IMAGES` — fallback only, never overrides entity-specific images
-- `getHeritageImage(name, category)` — priority lookup function
-- `getStateImage(stateCode)` — state image lookup
+- Search modal: keyboard navigation, ARIA roles, focus management
+- Suggestion pills: `<Link>` (semantic anchor) instead of `<span>`
+- Statistics: `<Link>` with meaningful destinations
+- All new interactive elements: focus-visible states preserved
+- Escape closes search modal
 
-### Fallback Hierarchy
+## 7. Hydration Safety
 
-1. Exact entity image (`HERITAGE_IMAGES[name]`)
-2. Partial name match
-3. Category fallback (`CATEGORY_IMAGES[category]`)
-4. Null (component handles gracefully)
-
-## 3. State Image Mapping
-
-| State | Code | Image File |
-|-------|------|-----------|
-| Gujarat | GJ | `gujarat_state.jpg` |
-| Rajasthan | RJ | `rajasthan_state.jpg` |
-| Punjab | PB | `punjab_state.jpg` |
-| Goa | GA | `goa_state.jpg` |
-| Tamil Nadu | TN | `tamil_nadu_state.jpg` |
-| Maharashtra | MH | `maharashtra_state.jpg` |
-| Madhya Pradesh | MP | `madhya_pradesh_state.jpg` |
-| Delhi | DL | `delhi_state.jpg` |
-
-## 4. Heritage Image Mapping
-
-20 heritage entities mapped to exact local images:
-
-- Rani ki Vav → `rani_ki_vav.jpg`
-- Modhera Sun Temple → `modhera_sun_temple.jpg`
-- Adalaj Stepwell → `adalaj_stepwell.jpg`
-- Dholavira → `dholavira.jpg`
-- Patola Silk → `patola_silk.webp`
-- Kutch Embroidery → `kutch_embroidery.png`
-- Garba → `garba.jpg`
-- Mahatma Gandhi → `mahatma_gandhi.jpg`
-- Sabarmati Ashram → `sabarmati_ashram.jpg`
-- Amber Fort → `amber_fort.jpg`
-- Hawa Mahal → `hawa_mahal.jpg`
-- Golden Temple → `golden_temple.jpg`
-- Jallianwala Bagh → `jallianwala_bagh.jpg`
-- Phulkari → `phulkari.webp`
-- Basilica of Bom Jesus → `basilica_of_bom_jesus.jpg`
-- Se Cathedral → `se_cathedral.jpg`
-- Meenakshi Amman Temple → `meenakshi_temple.jpg`
-- Ajanta Caves → `ajanta_caves.jpg`
-- Khajuraho Temples → `khajuraho_temples.jpg`
-- Red Fort → `red_fort.jpg`
-
-## 5. Button Contrast Fix
-
-**Problem:** Hero "Explore Heritage" button had white text on white/light background.
-
-**Fix:** Changed to `!bg-[#1a237e] !text-white` — dark blue background with white text, clearly readable without hover.
-
-## 6. Famous Heritage Markers
-
-`frontend/constants/famousMarkers.ts` contains 30+ pre-defined markers:
-
-### Gujarat (6 markers)
-- Rani ki Vav, Modhera Sun Temple, Dholavira, Adalaj Stepwell, Sabarmati Ashram, Ahmedabad
-
-### Rajasthan (5 markers)
-- Amber Fort, Hawa Mahal, Mehrangarh Fort, Jaipur, Udaipur
-
-### Punjab (3 markers)
-- Golden Temple, Jallianwala Bagh, Amritsar
-
-### Goa (3 markers)
-- Basilica of Bom Jesus, Sé Cathedral, Panaji
-
-### Tamil Nadu (3 markers)
-- Meenakshi Amman Temple, Mahabalipuram, Madurai
-
-### Maharashtra (4 markers)
-- Ajanta Caves, Ellora Caves, Gateway of India, Mumbai
-
-### Madhya Pradesh (3 markers)
-- Khajuraho Temples, Sanchi Stupa, Bhopal
-
-### Delhi (4 markers)
-- Red Fort, Qutub Minar, Humayun's Tomb, New Delhi
-
-### Marker Types
-- **Circles** — Database locations (from API)
-- **Diamonds** — Heritage sites (gold #B8963E)
-- **Triangles** — Famous cities (purple #7C3AED)
-
-### Deduplication
-Famous markers are de-duplicated against database locations to prevent double-rendering.
-
-## 7. Files Modified
-
-| File | Change |
-|------|--------|
-| `frontend/constants/images.ts` | Complete rewrite — local assets only |
-| `frontend/constants/famousMarkers.ts` | New file — 30+ famous heritage markers |
-| `frontend/app/page.tsx` | Fixed hero button contrast, updated marker count |
-| `frontend/components/map/IndiaHeritageMap.tsx` | Merged famous markers, city markers, updated legend |
-| `frontend/components/map/MapControls.tsx` | Updated marker count display text |
-| `frontend/public/assets/states/` | 8 state images (new) |
-| `frontend/public/assets/heritage/` | 20 heritage images (new) |
+- No nested `<a>` elements introduced
+- No nested `<button>` elements introduced
+- All pages using `useSearchParams` wrapped in `<Suspense>`
+- No `suppressHydrationWarning` used
 
 ## 8. Verification
 
-| Check | Status |
+| Check | Result |
 |-------|--------|
-| TypeScript (`tsc --noEmit`) | ✅ Clean — 0 errors |
-| Production build (`next build`) | ✅ Passes — all 9 routes |
-| All 8 state images present | ✅ Verified |
-| All 20 heritage images present | ✅ Verified |
-| No external image URLs | ✅ All local |
-| Hero button readable | ✅ Dark blue + white |
-| Famous markers added | ✅ 30+ across 8 states |
-| No secrets committed | ✅ .env gitignored |
+| TypeScript (`tsc --noEmit`) | ✅ 0 errors |
+| Build (`next build`) | ✅ All 9 routes pass |
+| Navbar search (⌘K) | ✅ Opens modal, searches, navigates |
+| Suggested questions | ✅ Navigate to /ai?question=X |
+| Timeline cards | ✅ Navigate to /timeline?period=X |
+| State cards (all 3 locations) | ✅ Navigate to /explore?state=X |
+| Category cards | ✅ Navigate to /heritage?category=X |
+| Statistics | ✅ States/Heritage/Categories clickable |
+| Heritage card body | ✅ No false cursor-pointer |
+| Footer state links | ✅ Each state filters correctly |
+| URL refresh behavior | ✅ State/category/period preserved |
+| No nested anchors | ✅ Verified |
+| Browser console | ✅ Clean |
 
-## 9. Remaining Issues
+## 9. Files Modified
 
-- `kutch_embroidery.png` is 47MB — should be compressed for production
-- Some category fallback images could be more specific (currently using heritage images as fallback)
-- MapTiler API key not in `.env` — uses free OSM tiles as fallback
+| File | Change |
+|------|--------|
+| `components/ui/SearchModal.tsx` | **New** — Command palette search with⌘K |
+| `components/layout/Navbar.tsx` | Added search button onClick + import |
+| `app/layout.tsx` | Wrapped with `SearchModalProvider` |
+| `app/page.tsx` | Fixed state cards, category cards, timeline cards, suggested questions, statistics |
+| `app/explore/page.tsx` | Added state filtering, URL param reading, state card active state |
+| `app/heritage/page.tsx` | Added category param reading, fixed cursor-pointer |
+| `app/timeline/page.tsx` | Added period param reading, Suspense wrapper |
+| `app/ai/page.tsx` | Added question param reading, Suspense wrapper |
+| `components/ai/ChatBot.tsx` | Added `initialQuestion` prop and auto-send logic |
+| `components/layout/Footer.tsx` | Updated state links with filter params |
 
-## 10. Final Status
+## 10. Remaining Issues
 
-**PASS** ✅
+None identified for this phase.
+
+## 11. Final Status
+
+**PASS** — All 9 identified dead elements are now functional. Search works with keyboard shortcut. All state/category/timeline/heritage filters are URL-driven and refresh-safe. No hydration errors. No nested interactive elements.
