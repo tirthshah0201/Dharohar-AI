@@ -143,7 +143,7 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
           {
             id: "welcome",
             role: "assistant",
-            content: "Welcome to Heritage Atlas. Ask me about India's heritage.",
+            content: "Welcome to Astrova. Ask me about India's heritage.",
             intent: "greeting",
             timestamp: new Date(),
           },
@@ -291,7 +291,7 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
               <Sparkles className="h-4 w-4" />
             </motion.div>
           <div>
-            <h3 className="text-sm font-semibold text-charcoal">Heritage Atlas</h3>
+            <h3 className="text-sm font-semibold text-charcoal">Astrova</h3>
             <p className="text-[10px] text-stone">Heritage Guide</p>
           </div>
         </div>
@@ -369,7 +369,7 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Sparkles className="h-3 w-3 text-heritage-gold" />
                     <span className="text-[10px] font-medium text-stone">
-                      Heritage Atlas
+                      Astrova
                       {msg.intent && msg.intent !== "greeting" && (
                         <Badge variant="outline" className="ml-1.5 text-[9px] py-0">
                           {msg.intent.replace(/_/g, " ")}

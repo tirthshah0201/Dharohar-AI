@@ -21,20 +21,20 @@ function AIPageContent() {
             <Sparkles className="h-7 w-7 text-terracotta" />
           </div>
           <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
-            Heritage Atlas Guide
+            Astrova Guide
           </h1>
           <p className="mt-3 text-stone text-lg">
-            Ask about India&apos;s heritage across 8 states in 6 languages.
+            Ask about India&apos;s heritage across 12 states in 6 languages.
           </p>
           <div className="flex flex-wrap gap-2 justify-center mt-3">
             <Badge variant="default" className="bg-terracotta text-white">
               <Globe className="h-3 w-3 mr-1" /> 6 Languages
             </Badge>
             <Badge variant="secondary" className="bg-terracotta-mist text-stone border-cream">
-              <Database className="h-3 w-3 mr-1" /> 31 Heritage Records
+              <Database className="h-3 w-3 mr-1" /> 52 Heritage Records
             </Badge>
             <Badge variant="outline" className="border-cream text-stone">
-              <MapPin className="h-3 w-3 mr-1" /> 8 States
+              <MapPin className="h-3 w-3 mr-1" /> 12 States
             </Badge>
           </div>
         </div>
@@ -54,7 +54,7 @@ function AIPageContent() {
             Supported States
           </h3>
           <div className="flex flex-wrap gap-2 justify-center">
-            {["Gujarat", "Rajasthan", "Punjab", "Goa", "Tamil Nadu", "Maharashtra", "Madhya Pradesh", "Delhi"].map(
+            {            ["Gujarat", "Rajasthan", "Punjab", "Goa", "Tamil Nadu", "Maharashtra", "Madhya Pradesh", "Delhi", "Kerala", "Jammu & Kashmir", "Assam", "Odisha"].map(
               (state) => (
                 <Badge key={state} variant="outline" className="border-cream text-stone">
                   {state}

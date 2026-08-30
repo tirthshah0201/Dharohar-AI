@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Search, MapPin, ChevronRight } from "lucide-react";
+import { Menu, X, Search, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { openSearchModal } from "@/components/ui/SearchModal";
 
@@ -37,23 +37,19 @@ function Navbar() {
     >
       <Container>
         <div className="flex h-16 items-center justify-between">
-          {/* Logo — Heritage Atlas */}
+          {/* Logo — Astrova */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <motion.div
-              whileHover={{ scale: 1.05, rotate: -3 }}
+              whileHover={{ scale: 1.03 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta text-white"
+              className="flex items-center"
             >
-              <MapPin className="h-4.5 w-4.5" />
+              <img
+                src="/assets/brand/astrova-wordmark.jpg"
+                alt="Astrova"
+                className="h-8 sm:h-9 w-auto object-contain"
+              />
             </motion.div>
-            <div className="flex flex-col">
-              <span className="font-display text-lg text-charcoal leading-none">
-                Heritage<span className="text-terracotta ml-0.5">Atlas</span>
-              </span>
-              <span className="text-[9px] text-stone leading-none mt-0.5 hidden sm:block">
-                Explore India. Discover Its Stories.
-              </span>
-            </div>
           </Link>
 
           {/* Desktop Navigation */}

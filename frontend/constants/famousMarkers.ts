@@ -1,5 +1,5 @@
 /**
- * Heritage Atlas — Famous Heritage Markers
+ * Astrova — Famous Heritage Markers
  *
  * Predefined famous heritage locations for all 8 supported states.
  * These supplement the database locations to ensure every state

@@ -293,7 +293,7 @@ export function SearchModal() {
                           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-charcoal hover:bg-parchment transition-colors"
                         >
                           <Search className="h-4 w-4 text-terracotta" />
-                          Ask Heritage Atlas
+                          Ask Astrova
                         </Link>
                       </div>
                     </div>
@@ -570,7 +570,7 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
                         </Link>
                         <Link href="/ai" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-charcoal hover:bg-parchment transition-colors">
                           <Search className="h-4 w-4 text-terracotta" />
-                          Ask Heritage Atlas
+                          Ask Astrova
                         </Link>
                       </div>
                     </div>

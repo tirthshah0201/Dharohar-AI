@@ -7,14 +7,14 @@ import { Target, Globe, Brain, Layers, BookOpen, Shield } from "lucide-react";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Heritage Atlas — an interactive digital platform for discovering India's cultural heritage.",
+    "Learn about Astrova — an interactive digital platform for discovering India's cultural heritage.",
 };
 
 const goals = [
   {
     icon: Globe,
     title: "India-Wide Vision",
-    description: "Starting with 8 states, scaling to cover India's complete cultural heritage — monuments, crafts, festivals, and traditions.",
+    description: "Covering 12 states, scaling to cover India's complete cultural heritage — monuments, crafts, festivals, traditions, nature, and culture.",
   },
   {
     icon: Brain,
@@ -39,7 +39,7 @@ const goals = [
   {
     icon: Target,
     title: "Scalable Architecture",
-    description: "While Gujarat is our starting point, the platform architecture supports nationwide expansion.",
+    description: "While starting with 12 states, the platform architecture supports nationwide expansion.",
   },
 ];
 
@@ -51,10 +51,10 @@ export default function AboutPage() {
         <div className="max-w-3xl mb-12">
           <Badge variant="accent" className="mb-4">About the Project</Badge>
           <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
-            Heritage Atlas
+            Astrova
           </h1>
           <p className="mt-4 text-lg text-stone leading-relaxed">
-            Heritage Atlas is an interactive digital platform for discovering India&apos;s cultural heritage
+            Astrova is an interactive digital platform for discovering India&apos;s cultural heritage
             — from ancient monuments to living traditions. We believe heritage is best understood
             not as isolated facts, but as a rich web of interconnected stories.
           </p>

@@ -234,7 +234,7 @@ export default function HeritageDetailPage({
               )}
             </div>
 
-            {/* Ask Heritage Atlas about this */}
+            {/* Ask Astrova about this */}
             <Card className="mb-8 border-terracotta/20">
               <CardContent>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -242,13 +242,13 @@ export default function HeritageDetailPage({
                     <Sparkles className="h-5 w-5 text-terracotta" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-charcoal">Ask Heritage Atlas about {heritage.name}</h3>
+                    <h3 className="font-semibold text-charcoal">Ask Astrova about {heritage.name}</h3>
                     <p className="text-sm text-muted">Get AI-powered insights about this heritage entry.</p>
                   </div>
                   <Link href="/ai">
                     <Button size="sm" variant="secondary">
                       <Sparkles className="h-3.5 w-3.5" />
-                      Ask Heritage Atlas
+                      Ask Astrova
                     </Button>
                   </Link>
                 </div>

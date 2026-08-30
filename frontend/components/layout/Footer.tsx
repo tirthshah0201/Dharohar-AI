@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { INDIAN_STATES } from "@/constants/india";
 
@@ -7,11 +6,9 @@ const footerLinks = {
   explore: [
     { href: "/explore", label: "Explore India" },
     { href: "/timeline", label: "Historical Timeline" },
-    { href: "/heritage", label: "Heritage Directory" },
-    { href: "/ai", label: "Ask Heritage Atlas" },
+    { href: "/heritage", label: "Heritage Directory" },            { href: "/ai", label: "Ask Astrova" },
   ],
-  project: [
-    { href: "/about", label: "About Heritage Atlas" },
+  project: [            { href: "/about", label: "About Astrova" },
     { href: "/about", label: "Our Mission" },
   ],
 };
@@ -24,18 +21,17 @@ function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-terracotta text-white">
-                <MapPin className="h-4.5 w-4.5" />
-              </div>
-              <span className="font-display text-xl text-white">
-                Heritage<span className="text-terracotta-light ml-0.5">Atlas</span>
-              </span>
+              <img
+                src="/assets/brand/astrova-wordmark.jpg"
+                alt="Astrova"
+                className="h-8 w-auto object-contain brightness-0 invert opacity-90"
+              />
             </Link>
             <p className="text-sm text-white/50 max-w-sm leading-relaxed">
-              An interactive digital platform for discovering India&apos;s cultural heritage — from ancient monuments to living traditions.
+              Discover India. Experience Heritage — from ancient monuments to living traditions, culture, nature, and stories.
             </p>
             <p className="text-xs text-terracotta-light mt-3 font-medium">
-              Explore India. Discover Its Stories.
+              Culture · Heritage · Nature · Tradition
             </p>
           </div>
 
@@ -81,7 +77,7 @@ function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/30">
-            &copy; {new Date().getFullYear()} Heritage Atlas. Preserving India&apos;s cultural heritage through technology.
+            &copy; {new Date().getFullYear()} Astrova. Preserving India&apos;s cultural heritage through technology.
           </p>
           <p className="text-xs text-white/30">
             Built for <span className="text-terracotta-light">India</span>, designed to scale worldwide.

@@ -26,15 +26,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Heritage Atlas — Explore India. Discover Its Stories.",
-    template: "%s | Heritage Atlas",
+    default: "Astrova — Discover India. Experience Heritage.",
+    template: "%s | Astrova",
   },
   description:
-    "Heritage Atlas is an interactive digital platform for discovering India's cultural heritage through maps, stories, history, places, culture, and AI-powered exploration.",
+    "Astrova is an interactive digital platform for discovering India's cultural heritage — culture, heritage, nature, and tradition — through maps, stories, history, and AI-powered exploration.",
   keywords: [
     "Indian heritage",
     "cultural heritage",
-    "heritage atlas",
+    "Astrova",
     "Indian monuments",
     "Indian crafts",
     "Indian history",

@@ -181,7 +181,7 @@ export default function HomePage() {
   return (
     <>
       {/* ============================================
-          HERO — Heritage Atlas India-wide Experience
+          HERO — Astrova India-wide Experience
           ============================================ */}
       <section ref={heroRef} className="relative overflow-hidden">
         {/* Terracotta gradient background */}
@@ -214,7 +214,7 @@ export default function HomePage() {
                 className="mb-6 bg-white/10 text-white border-white/15 backdrop-blur-sm"
               >
                 <MapPin className="h-3 w-3 mr-1.5" />
-                Heritage Atlas
+                Astrova
               </Badge>
             </motion.div>
 
@@ -273,7 +273,7 @@ export default function HomePage() {
                   className="border-white/30 text-white hover:bg-white/10"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Ask Heritage Atlas
+                  Ask Astrova
                 </Button>
               </Link>
             </motion.div>
@@ -655,7 +655,7 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
-          ASK HERITAGE ATLAS — CTA Section
+          ASK ASTROVA — CTA Section
           ============================================ */}
       <section className="py-16 sm:py-20 bg-parchment">
         <Container size="narrow">
@@ -669,7 +669,7 @@ export default function HomePage() {
                   <Sparkles className="h-7 w-7 text-terracotta" />
                 </div>
                 <h2 className="font-display text-2xl sm:text-3xl text-charcoal">
-                  Ask Heritage Atlas
+                  Ask Astrova
                 </h2>
                 <p className="mt-3 text-stone max-w-md mx-auto">
                   Ask questions about India&apos;s heritage in 6 languages. Get grounded, verified answers about monuments, crafts, traditions, and history.
@@ -696,7 +696,7 @@ export default function HomePage() {
                   <Link href="/ai">
                     <Button size="lg" className="bg-terracotta hover:bg-terracotta-dark text-white shadow-lg shadow-terracotta/15">
                       <Sparkles className="h-4 w-4" />
-                      Open Heritage Atlas Guide
+                      Open Astrova Guide
                       <ArrowUpRight className="h-4 w-4" />
                     </Button>
                   </Link>
