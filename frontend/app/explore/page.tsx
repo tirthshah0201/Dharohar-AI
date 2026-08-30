@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useMemo, Suspense } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { openSearchModal } from "@/components/ui/SearchModal";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
@@ -85,14 +85,21 @@ const locationTypeIcons: Record<string, typeof Building2> = {
    ======================================== */
 
 function ExploreContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const initialState = searchParams.get("state") || "";
+
+  // Read URL search params client-side to avoid Suspense suspension
+  const [selectedState, setSelectedState] = useState("");
+  const [urlInitialized, setUrlInitialized] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSelectedState(params.get("state") || "");
+    setUrlInitialized(true);
+  }, []);
 
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedState, setSelectedState] = useState(initialState);
 
   // Fetch locations based on type filter
   const typeParam = activeTab !== "all" ? `?type=${activeTab}` : "";
@@ -119,7 +126,7 @@ function ExploreContent() {
 
   // Fetch search results when there's a query
   const { data: searchResults, loading: searchLoading } = useApi<SearchResult[]>(
-    debouncedQuery ? `/search?q=${encodeURIComponent(debouncedQuery)}` : "",
+    debouncedQuery.trim() ? `/search?q=${encodeURIComponent(debouncedQuery.trim())}` : "",
     { immediate: false }
   );
 
@@ -335,18 +342,5 @@ function ExploreContent() {
 }
 
 export default function ExplorePage() {
-  return (
-    <Suspense fallback={
-      <div className="py-8 sm:py-12">
-        <Container>
-          <div className="text-center py-20">
-            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted mt-3">Loading explore...</p>
-          </div>
-        </Container>
-      </div>
-    }>
-      <ExploreContent />
-    </Suspense>
-  );
+  return <ExploreContent />;
 }

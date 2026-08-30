@@ -58,49 +58,53 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
       return;
     }
 
-    // Build search query using tsvector — search both heritage_entities and locations
+    // Build search query using ILIKE for flexible matching.
+    // plainto_tsquery uses English stemming which often misses Indian place names;
+    // ILIKE with wildcards gives substring matching for all languages.
     const searchTerm = q.trim();
+    const likePattern = `%${searchTerm}%`;
 
     let sql = `
       (
         SELECT
-          id,
-          name,
-          category,
-          description,
-          location_id,
-          period_id,
-          ts_rank(
-            to_tsvector('english', name || ' ' || description),
-            plainto_tsquery('english', $1)
-          ) AS relevance
-        FROM heritage_entities
-        WHERE to_tsvector('english', name || ' ' || description)
-              @@ plainto_tsquery('english', $1)
+          he.id,
+          he.name,
+          he.category,
+          he.description,
+          he.location_id,
+          he.period_id,
+          CASE
+            WHEN he.name ILIKE $1 THEN 1.0
+            WHEN he.name ILIKE $2 THEN 0.8
+            ELSE 0.5
+          END AS relevance
+        FROM heritage_entities he
+        WHERE he.name ILIKE $2
+           OR he.description ILIKE $2
       )
       UNION ALL
       (
         SELECT
-          id,
-          name,
-          type AS category,
-          description,
-          parent_id AS location_id,
+          l.id,
+          l.name,
+          l.type AS category,
+          l.description,
+          l.parent_id AS location_id,
           NULL::uuid AS period_id,
-          ts_rank(
-            to_tsvector('english', name || ' ' || COALESCE(description, '')),
-            plainto_tsquery('english', $1)
-          ) AS relevance
-        FROM locations
-        WHERE to_tsvector('english', name || ' ' || COALESCE(description, ''))
-              @@ plainto_tsquery('english', $1)
+          CASE
+            WHEN l.name ILIKE $1 THEN 1.0
+            WHEN l.name ILIKE $2 THEN 0.8
+            ELSE 0.5
+          END AS relevance
+        FROM locations l
+        WHERE l.name ILIKE $2
+           OR l.description ILIKE $2
       )
     `;
-    const params: unknown[] = [searchTerm];
+    const params: unknown[] = [searchTerm, likePattern];
 
     if (category) {
-      // Wrap the union in a subquery for category filtering
-      sql = `SELECT * FROM (${sql}) AS combined WHERE category = $2 ORDER BY relevance DESC LIMIT 50`;
+      sql = `SELECT * FROM (${sql}) AS combined WHERE category = $3 ORDER BY relevance DESC LIMIT 50`;
       params.push(category);
     } else {
       sql += " ORDER BY relevance DESC LIMIT 50";
