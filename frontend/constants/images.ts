@@ -108,7 +108,7 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
   "patola silk": {
-    src: "/assets/heritage/patola_silk.webp",
+    src: "/assets/heritage/patola_weaving.webp",
     alt: "Patola silk weaving from Patan, Gujarat",
     credit: "Astrova",
   },
@@ -128,8 +128,13 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
   "garba": {
-    src: "/assets/heritage/garba.jpg",
+    src: "/assets/heritage/navratri.jpeg",
     alt: "Garba dance performed during Navratri in Gujarat",
+    credit: "Astrova",
+  },
+  "navratri": {
+    src: "/assets/heritage/navratri.jpeg",
+    alt: "Navratri — nine nights of Garba and Dandiya Raas in Gujarat",
     credit: "Astrova",
   },
   "mahatma gandhi": {
