@@ -16,29 +16,48 @@ import {
   type SupportedStateCode,
 } from "../config/languages";
 
-/* ---- Romanized Gujarati Detection ---- */
-
-const ROMANIZED_GUJARATI_INDICATORS = [
-  "chhe", "che", "shu", "su", "kai", "kaya", "kya", "kyare",
-  "kem", "ketla", "ketli", "vishe", "vise", "mahiti", "janavo", "aapo",
-  "batavo", "baro", "barsa", "varsa", "itihas", "virasat",
-  "jagya", "sthal", "mandir", "kila", "durg", "halo",
-  "karo", "jano", "sheno", "kay",
-  "farva", "jeva", "jevi", "evu", "evi", "hato", "hati",
-  "aavi", "aave", "aavelo", "aavti", "kevi", "karto",
-  "vishay", "sthiti", "paristhiti", "samay", "yug",
-  "lakhay", "chahiye", "bani", "daso",
-];
+/* ---- Romanized Language Detection ---- */
 
 const ROMANIZED_GUJARATI_PATTERN =
   /\b(chhe|che|shu|su|kai|kaya|kya|kyare|kem|ketla|ketli|vishe|vise|mahiti|janavo|aapo|batavo|baro|barsa|varsa|itihas|virasat|jagya|sthal|mandir|kila|durg|halo|karo|jano|sheno|farva|jeva|jevi|evu|evi|hato|hati|aavi|aave|aavelo|aavti|kevi|karto|vishay|sthiti|samay|yug|lakhay|bani|daso)\b/i;
+
+const ROMANIZED_HINDI_PATTERN =
+  /\b(batao|bolo|bataiye|kaise|kahan|kaun|konsa|konsi|kya|kyun|kab|kitne|kitna|mera|meri|tere|uska|iske|unka|hai|hain|ho|hui|huwa|tha|thi|the|mein|me|mai|ka|ki|ke|ko|se|ne|aur|ya|bhi|par|pe|jab|tak|wala|wali|wale|karo|kijiye|dikhao|bataiye|sunao|jankari|chahiye|karu|karun|sakte|sakti|karte|karti)\b/i;
+
+const ROMANIZED_MARATHI_PATTERN =
+  /\b(sang|dya|dye|mahiti|baddal|kuthye|kontya|aahe|kasa|kase|banavli|jato|jate|milel|pahayla|dakhva|vichara|manavla|manavle|asle|kay|ti|te|chi|che|madhe|madhun|antargat)\b/i;
+
+const ROMANIZED_TAMIL_PATTERN =
+  /\b(sollunga|solunga|solunga|enna|eppadi|pathi|pakkathula|mudiyuma|varalaru|panpaadu|idaigal|kediyathu|kediyathu|seivadhunu|irukkira|irukku|irukkum|illai|ukkaga|ukku|akka|ukku|ila|aaga)\b/i;
+
+const ROMANIZED_PUNJABI_PATTERN =
+  /\b(daso|bare|daso|kive|kida|kehde|vich|da|de|di|ne|te|naal|wich|bana|bandi|jandi|vekhna|chahida|sunao|batao|virasat)\b/i;
+
+export type DetectedLanguage = "en" | "gu" | "hi" | "mr" | "ta" | "pa";
+
+function detectRomanizedLanguage(message: string): DetectedLanguage {
+  const lower = message.toLowerCase();
+  // Check Romanized patterns in order of specificity
+  if (ROMANIZED_GUJARATI_PATTERN.test(lower)) return "gu";
+  if (ROMANIZED_HINDI_PATTERN.test(lower)) return "hi";
+  if (ROMANIZED_MARATHI_PATTERN.test(lower)) return "mr";
+  if (ROMANIZED_TAMIL_PATTERN.test(lower)) return "ta";
+  if (ROMANIZED_PUNJABI_PATTERN.test(lower)) return "pa";
+  return "en";
+}
 
 function isRomanizedGujarati(message: string): boolean {
   const lower = message.toLowerCase();
   const hasIndicator = ROMANIZED_GUJARATI_PATTERN.test(lower);
   const hasGujaratContext = /\b(gujarat|ahmedabad|patan|somnath|modhera|dwarka|rajkot|bhuj|kutch|junagadh|vadodara|surat|gandhinagar|diu|palitana|champaner|lothal|statue of unity|gandhi)\b/i.test(lower);
-  const hasHindiIndicators = /\b(batao|bolo|bataiye|kaise|bataiye|hai|mein|ka|ki|ke|ko|se|ne|aur|ya)\b/i.test(lower);
-  return hasIndicator || (hasGujaratContext && !hasHindiIndicators);
+  return hasIndicator || (hasGujaratContext && !ROMANIZED_HINDI_PATTERN.test(lower));
+}
+
+function isRomanizedHindi(message: string): boolean {
+  const lower = message.toLowerCase();
+  const hasHindiIndicator = ROMANIZED_HINDI_PATTERN.test(lower);
+  const hasIndianContext = /\b(bharat|india|temple|fort|heritage|monument|killa|mandir)\b/i.test(lower);
+  return hasHindiIndicator && !isRomanizedGujarati(message);
 }
 
 /* ---- Romanized Gujarati Response Mode Detection ---- */
@@ -360,6 +379,120 @@ export interface ChatSuggestion {
   category: string;
 }
 
+/* ---- Navigation Actions ---- */
+
+export interface ChatAction {
+  label: string;
+  type: "view_heritage" | "view_map" | "view_timeline" | "explore_state" | "explore_category" | "ask_followup" | "view_location";
+  target: string;
+}
+
+function buildActions(
+  intent: string,
+  stateCode: SupportedStateCode | null,
+  knowledgeIds: string[],
+  language: string
+): ChatAction[] {
+  const actions: ChatAction[] = [];
+
+  // Heritage detail action
+  if (knowledgeIds.length === 1) {
+    actions.push({
+      label: language === "gu" ? "વિગત જુઓ" : language === "hi" ? "विवरण देखें" : "View Details",
+      type: "view_heritage",
+      target: "/heritage/" + knowledgeIds[0],
+    });
+  }
+
+  // Map action for state queries
+  if (stateCode) {
+    const stateName = STATE_NAMES[stateCode] || stateCode;
+    actions.push({
+      label: language === "gu" ? "નકશા પર જુઓ" : language === "hi" ? "मानचित्र पर देखें" : "View on Map",
+      type: "view_map",
+      target: "/explore?state=" + encodeURIComponent(stateName),
+    });
+  }
+
+  // Explore state action
+  if (stateCode && (intent === "state_exploration" || intent === "heritage_information")) {
+    const stateName = STATE_NAMES[stateCode] || stateCode;
+    actions.push({
+      label: language === "gu" ? stateName + " એક્સપ્લોર કરો" : "Explore " + stateName,
+      type: "explore_state",
+      target: "/explore?state=" + encodeURIComponent(stateName),
+    });
+  }
+
+  // Timeline action for historical queries
+  if (intent === "historical_period") {
+    actions.push({
+      label: language === "gu" ? "ટાઈમલાઈન જુઓ" : language === "hi" ? "समयरेखा देखें" : "View Timeline",
+      type: "view_timeline",
+      target: "/timeline",
+    });
+  }
+
+  // Category action for craft/festival queries
+  if (intent === "craft_information") {
+    actions.push({
+      label: language === "gu" ? "હસ્તકલા એક્સપ્લોર કરો" : "Explore Crafts",
+      type: "explore_category",
+      target: "/heritage?category=craft",
+    });
+  }
+  if (intent === "festival_information") {
+    actions.push({
+      label: language === "gu" ? "ઉત્સવો એક્સપ્લોર કરો" : "Explore Festivals",
+      type: "explore_category",
+      target: "/heritage?category=festival",
+    });
+  }
+
+  // Ask followup
+  if (knowledgeIds.length > 0) {
+    actions.push({
+      label: language === "gu" ? "વધુ પૂછો" : language === "hi" ? "और पूछें" : "Ask More",
+      type: "ask_followup",
+      target: "",
+    });
+  }
+
+  return actions;
+}
+
+function buildGuidedChoices(
+  intent: string,
+  stateCode: SupportedStateCode | null,
+  language: string
+): { text: string; category: string }[] {
+  // Only show choices for ambiguous/broad queries
+  if (intent !== "state_exploration" || !stateCode) return [];
+
+  const stateName = STATE_NAMES[stateCode];
+  const choices: { text: string; category: string }[] = [
+    { text: `Tell me about ${stateName} forts`, category: "heritage" },
+    { text: `What crafts are famous in ${stateName}?`, category: "craft" },
+    { text: `Show ${stateName} timeline`, category: "timeline" },
+  ];
+
+  if (language === "gu") {
+    return [
+      { text: `${stateName} na kila vishe janavo`, category: "heritage" },
+      { text: `${stateName} ni crafts kai chhe`, category: "craft" },
+      { text: `${stateName} no itihas janavo`, category: "timeline" },
+    ];
+  }
+  if (language === "hi") {
+    return [
+      { text: `${stateName} ke kille batao`, category: "heritage" },
+      { text: `${stateName} ke crafts dikhao`, category: "craft" },
+      { text: `${stateName} ka itihas batao`, category: "timeline" },
+    ];
+  }
+  return choices;
+}
+
 function getContextSuggestions(lastIntent: string | null, lastState: SupportedStateCode | null, language: string): ChatSuggestion[] {
   return getSuggestionsForContext(lastIntent, lastState, language);
 }
@@ -372,7 +505,7 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   reply: string; intent: string; stateCode: string | null; knowledgeIds: string[];
-  suggestions: ChatSuggestion[];
+  suggestions: ChatSuggestion[]; actions: ChatAction[]; choices: { text: string; category: string }[];
 }
 
 export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
@@ -445,8 +578,10 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   }
 
   const suggestions = getContextSuggestions(intent, stateCode, langCode);
+  const actions = buildActions(intent, stateCode, knowledgeIds, langCode);
+  const choices = buildGuidedChoices(intent, stateCode, langCode);
 
-  return { reply, intent, stateCode, knowledgeIds, suggestions };
+  return { reply, intent, stateCode, knowledgeIds, suggestions, actions, choices };
 }
 
 export { detectIntent, detectState, isRomanizedGujarati, wantsRomanizedResponse };

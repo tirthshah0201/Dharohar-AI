@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { api } from "@/services/api";
 import { Badge } from "@/components/ui/Badge";
@@ -13,6 +14,10 @@ import {
   Loader2,
   ChevronDown,
   MessageSquare,
+  MapPin,
+  Landmark,
+  Clock,
+  Palette,
 } from "lucide-react";
 
 /* ---- Types ---- */
@@ -28,12 +33,20 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   intent?: string;
+  actions?: ChatAction[];
+  choices?: SuggestionItem[];
   timestamp: Date;
 }
 
 interface SuggestionItem {
   text: string;
   category?: string;
+}
+
+interface ChatAction {
+  label: string;
+  type: "view_heritage" | "view_map" | "view_timeline" | "explore_state" | "explore_category" | "ask_followup" | "view_location";
+  target: string;
 }
 
 interface ChatResponseData {
@@ -45,6 +58,8 @@ interface ChatResponseData {
     knowledge_ids: string[];
     language: string;
     suggestions: SuggestionItem[];
+    actions: ChatAction[];
+    choices: SuggestionItem[];
   };
 }
 
@@ -186,6 +201,8 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
         role: "assistant",
         content: res.data.reply,
         intent: res.data.intent,
+        actions: res.data.actions || [],
+        choices: res.data.choices || [],
         timestamp: new Date(),
       };
 
@@ -364,6 +381,47 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
                 <div className={msg.role === "user" ? "text-white" : "text-charcoal"}>
                   {formatContent(msg.content)}
                 </div>
+                {/* Action buttons */}
+                {msg.actions && msg.actions.length > 0 && msg.role === "assistant" && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-2 border-t border-border/50">
+                    {msg.actions.map((action) => (
+                      <Link
+                        key={action.label}
+                        href={action.target || "#"}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-terracotta/5 border border-terracotta/20 text-[11px] font-medium text-terracotta hover:bg-terracotta/10 hover:border-terracotta/30 transition-colors"
+                        onClick={() => {
+                          if (action.type === "ask_followup") {
+                            inputRef.current?.focus();
+                          }
+                        }}
+                      >
+                        {action.type === "view_heritage" && <Landmark className="h-3 w-3" />}
+                        {action.type === "view_map" && <Globe className="h-3 w-3" />}
+                        {action.type === "view_timeline" && <Clock className="h-3 w-3" />}
+                        {action.type === "explore_state" && <MapPin className="h-3 w-3" />}
+                        {action.type === "explore_category" && <Palette className="h-3 w-3" />}
+                        {action.type === "ask_followup" && <MessageSquare className="h-3 w-3" />}
+                        {action.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {/* Guided choices */}
+                {msg.choices && msg.choices.length > 0 && msg.role === "assistant" && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {msg.choices.map((choice) => (
+                      <motion.button
+                        key={choice.text}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleSend(choice.text)}
+                        className="rounded-full border border-border bg-parchment px-2.5 py-1 text-[11px] text-muted hover:text-charcoal hover:border-terracotta/30 transition-colors"
+                      >
+                        {choice.text}
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}

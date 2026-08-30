@@ -1,0 +1,178 @@
+text,language,state,intent,script
+mujhe famous heritage places batao,hi,,state_exploration,roman
+rajasthan ke kille kaise hai,hi,Rajasthan,heritage_information,roman
+jaipur me kya dekhna chahiye,hi,Rajasthan,state_exploration,roman
+hawa mahal kyun famous hai,hi,Rajasthan,heritage_information,roman
+amber fort ka itihas batao,hi,Rajasthan,heritage_information,roman
+rajkot ke bare me jankari chahiye,hi,Gujarat,heritage_information,roman
+ahmedabad ki heritage sites dikhao,hi,Gujarat,state_exploration,roman
+rani ki vav kahan hai,hi,Gujarat,location_information,roman
+somnath mandir ka itihas batao,hi,Gujarat,heritage_information,roman
+modhera surya mandir kahan hai,hi,Gujarat,location_information,roman
+golden temple ka itihas batao,hi,Punjab,heritage_information,roman
+amritsar me kya dekhna chahiye,hi,Punjab,state_exploration,roman
+phulkari kaise banti hai,hi,Punjab,craft_information,roman
+maharashtra me famous kille batao,hi,Maharashtra,heritage_information,roman
+ajanta gufa ka itihas batao,hi,Maharashtra,heritage_information,roman
+mumbai ki heritage sites dikhao,hi,Maharashtra,state_exploration,roman
+tamil nadu ke famous kovilgal batao,hi,Tamil Nadu,heritage_information,roman
+madurai me kya dekhna chahiye,hi,Tamil Nadu,state_exploration,roman
+bharatanatyam kaise hota hai,hi,Tamil Nadu,heritage_information,roman
+goa me kya dekhna chahiye,hi,Goa,state_exploration,roman
+bom jesus church ka itihas batao,hi,Goa,heritage_information,roman
+khajuraho mandir ka itihas batao,hi,Madhya Pradesh,heritage_information,roman
+sanchi stupa kahan hai,hi,Madhya Pradesh,location_information,roman
+red fort ka itihas batao,hi,Delhi,heritage_information,roman
+qutub minar kyun bana,hi,Delhi,heritage_information,roman
+dilli me kya dekhna chahiye,hi,Delhi,state_exploration,roman
+rajasthan ke famous heritage places kaun se hai,hi,Rajasthan,state_exploration,roman
+mere pas me kya heritage sites hai,hi,,state_exploration,roman
+sabse purana konsa killa hai,hi,,heritage_information,roman
+bharat ki sabse famous heritage sites batao,hi,,heritage_information,roman
+sabse purana mandir konsa hai,hi,,heritage_information,roman
+bharat me konsi jagah sabse zyada famous hai,hi,,state_exploration,roman
+mujhe kuch naya sikhao virasat ke bare me,hi,,state_exploration,roman
+aadharstambh kya hai,hi,Delhi,heritage_information,roman
+rajaon ka qila konsa hai,hi,Rajasthan,heritage_information,roman
+chandni chowk kahan hai,hi,Delhi,location_information,roman
+india gate kyun bana,hi,Delhi,heritage_information,roman
+madhya pradesh me konsa mandir sabse famous hai,hi,Madhya Pradesh,heritage_information,roman
+aurangabad ki gufa kahan hai,hi,Maharashtra,location_information,roman
+punjab me konsi dance famous hai,hi,Punjab,festival_information,roman
+bhangra kaise hota hai,hi,Punjab,festival_information,roman
+kya aap mujhe bharat ke kille dikha sakte ho,hi,,heritage_information,roman
+dilli ke kille batao,hi,Delhi,heritage_information,roman
+jaipur ki blue pottery kaise banti hai,hi,Rajasthan,craft_information,roman
+madhya pradesh ke tribal areas dikhao,hi,Madhya Pradesh,state_exploration,roman
+chhatrapati shivaji maharaj kaun the,hi,Maharashtra,person_information,roman
+maharana pratap ka itihas batao,hi,Rajasthan,person_information,roman
+gandhi ji ne kya kiya,hi,Gujarat,person_information,roman
+sardar patel kaun the,hi,Gujarat,person_information,roman
+ahmedabad ki old city kahan hai,hi,Gujarat,location_information,roman
+kutch me kya famous hai,hi,Gujarat,state_exploration,roman
+navratri me garba kaise khelta hai,hi,Gujarat,festival_information,roman
+uttarayan ka festival kab hota hai,hi,Gujarat,festival_information,roman
+rajkot me konsi jagah famous hai,hi,Gujarat,state_exploration,roman
+gujarat na famous heritage places janavo,gu,Gujarat,heritage_information,roman
+rani ki vav vishe janavo,gu,Gujarat,heritage_information,roman
+modhera surya mandir kya chhe,gu,Gujarat,heritage_information,roman
+ahmedabad ni old city vishe batavo,gu,Gujarat,heritage_information,roman
+dholavira kya chhe,gu,Gujarat,heritage_information,roman
+gujarat ma kai historical places chhe,gu,Gujarat,state_exploration,roman
+patola silk kai rite thay chhe,gu,Gujarat,craft_information,roman
+kutch ni bandhani vishe janavo,gu,Gujarat,craft_information,roman
+garba nritya kai rite khelay chhe,gu,Gujarat,festival_information,roman
+uttarayan kya kyare ujavama aave chhe,gu,Gujarat,festival_information,roman
+sabarmati ashram kya avelu chhe,gu,Gujarat,heritage_information,roman
+somnath mandir no itihas janavo,gu,Gujarat,heritage_information,roman
+dwarka mandir vishe mahiti aapo,gu,Gujarat,heritage_information,roman
+rajkot ma kai jova lakhay chhe,gu,Gujarat,state_exploration,roman
+vadodara ma kya chhe,gu,Gujarat,state_exploration,roman
+surat ni heritage vishe janavo,gu,Gujarat,heritage_information,roman
+gandhi ji nu jivan vishe batavo,gu,Gujarat,person_information,roman
+jalaram bapa vishe janavo,gu,Gujarat,person_information,roman
+kutch na hathkala vishe janavo,gu,Gujarat,craft_information,roman
+lippan kaam kai rite thay chhe,gu,Gujarat,craft_information,roman
+navratri ma kya karo chhe,gu,Gujarat,festival_information,roman
+gujarat na famous persons kai chhe,gu,Gujarat,person_information,roman
+lothal archaeological site vishe mahiti aapo,gu,Gujarat,heritage_information,roman
+palitana ni temples vishe janavo,gu,Gujarat,heritage_information,roman
+champaner pavagadh no itihas janavo,gu,Gujarat,historical_period,roman
+kai movie aavi chhe,gu,,unknown,roman
+gujarat ma weather shu chhe,gu,,unknown,roman
+maharashtratil famous kille sang,mr,Maharashtra,heritage_information,roman
+ajanta gufeya baddal mahiti dya,mr,Maharashtra,heritage_information,roman
+ellora caves baddal mahiti dya,mr,Maharashtra,heritage_information,roman
+maharashtratil sanskrutik varsa sang,mr,Maharashtra,state_exploration,roman
+warli art baddal mahiti dya,mr,Maharashtra,craft_information,roman
+shivaji maharaj baddal mahiti dya,mr,Maharashtra,person_information,roman
+maharashtratil prasiddha temples sang,mr,Maharashtra,heritage_information,roman
+mumbai madhe kya pahayla milel,mr,Maharashtra,state_exploration,roman
+pune chi heritage sites dakhva,mr,Maharashtra,state_exploration,roman
+paithani silk kase banavli jate,mr,Maharashtra,craft_information,roman
+ganesha chaturthi kasa manavla jato,mr,Maharashtra,festival_information,roman
+maharashtratil forts kontya ahet,mr,Maharashtra,heritage_information,roman
+lavani nritya kase kela jato,mr,Maharashtra,festival_information,roman
+kolhapuri chappal kase banavli jate,mr,Maharashtra,craft_information,roman
+maharashtratil itihas kay aahe,mr,Maharashtra,historical_period,roman
+maharashtratil kuthhe heritage sites ahet,mr,Maharashtra,state_exploration,roman
+elephanta caves baddal mahiti dya,mr,Maharashtra,heritage_information,roman
+maharashtra madhe konsa fort famous aahe,mr,Maharashtra,heritage_information,roman
+tamilnadula famous heritage places enna,ta,Tamil Nadu,heritage_information,roman
+madurai meenakshi kovil pathi sollunga,ta,Tamil Nadu,heritage_information,roman
+bharatanatyam varalaru sollunga,ta,Tamil Nadu,festival_information,roman
+chola bronzes eppadi seyvadhunu solunga,ta,Tamil Nadu,craft_information,roman
+tamilnadu ina pagudhigalai patri sollunga,ta,Tamil Nadu,state_exploration,roman
+meenakshi amman temple patri sollunga,ta,Tamil Nadu,heritage_information,roman
+madurai nila koyilgal enna,ta,Tamil Nadu,heritage_information,roman
+tamilnadu odu panpaadu sollunga,ta,Tamil Nadu,craft_information,roman
+chola dynasty varalaru sollunga,ta,Tamil Nadu,historical_period,roman
+mahabalipuram pathi sollunga,ta,Tamil Nadu,heritage_information,roman
+thanjavur temple patri sollunga,ta,Tamil Nadu,heritage_information,roman
+tamilnadu la kudutha idangal enna,ta,Tamil Nadu,state_exploration,roman
+enakku pakkathula heritage places kaamikka mudiyuma,ta,Tamil Nadu,state_exploration,roman
+indha idathoda varalaru enna,ta,Tamil Nadu,historical_period,roman
+kanchipuram silk pathi sollunga,ta,Tamil Nadu,craft_information,roman
+pongal festival eppadi manappadugirathu,ta,Tamil Nadu,festival_information,roman
+punjab de mashhoor virasati sthan kehde ne,pa,Punjab,state_exploration,roman
+golden temple da itihas daso,pa,Punjab,heritage_information,roman
+amritsar bare daso,pa,Punjab,heritage_information,roman
+phulkari kive bani jandi hai,pa,Punjab,craft_information,roman
+bhangra nritya bare daso,pa,Punjab,festival_information,roman
+jallianwala bagh bare daso,pa,Punjab,heritage_information,roman
+sikh itihas bare daso,pa,Punjab,historical_period,roman
+punjab vich ki vekhna chahida,pa,Punjab,state_exploration,roman
+amritsar de heritage sites daso,pa,Punjab,heritage_information,roman
+punjab di virasat bare daso,pa,Punjab,state_exploration,roman
+maharaja ranjit singh bare daso,pa,Punjab,person_information,roman
+holi mohalla festival bare daso,pa,Punjab,festival_information,roman
+patiala di heritage bare daso,pa,Punjab,heritage_information,roman
+punjab de kille daso,pa,Punjab,heritage_information,roman
+gujarat na famous heritage places batavo,hi,Gujarat,state_exploration,roman
+mujhe rajasthan ke historical places dikhao,hi,Rajasthan,state_exploration,roman
+maharashtra ke famous temples batao,hi,Maharashtra,heritage_information,roman
+tamil nadu ke temples ke bare mein batao,hi,Tamil Nadu,heritage_information,roman
+punjab de heritage sites show karo,hi,Punjab,state_exploration,roman
+delhi me konsa fort sabse famous hai,hi,Delhi,heritage_information,roman
+goa me konsi heritage sites hai,hi,Goa,state_exploration,roman
+madhya pradesh me kya dekhna chahiye,hi,Madhya Pradesh,state_exploration,roman
+mujhe jaipur ke bare me jankari chahiye,hi,Rajasthan,heritage_information,roman
+delhi me famous heritage places kaun se hai,hi,Delhi,state_exploration,roman
+rajasthan ke prasiddh kile batao,hi,Rajasthan,heritage_information,roman
+gujarat ke famous temples dikhao,hi,Gujarat,heritage_information,roman
+maharashtratil prasiddha kille sang,mr,Maharashtra,heritage_information,roman
+tamilnadu la enna dekkalam,ta,Tamil Nadu,state_exploration,roman
+punjab da itihas sunao,pa,Punjab,historical_period,roman
+gujarat na heritage vishe janavo,gu,Gujarat,heritage_information,roman
+mujhe paas ke historical places dikhao,hi,,state_exploration,roman
+kya aap mujhe bharatiya sanskriti ke bare me bata sakte ho,hi,,heritage_information,roman
+mujhe kuch interesting places bataye,hi,,state_exploration,roman
+bharat me konsi jagah dekhne layak hai,hi,,state_exploration,roman
+konsa konsa killa famous hai bharat me,hi,,heritage_information,roman
+rajashtan ke famous crafts batao,hi,Rajasthan,craft_information,roman
+gujarat ki traditional arts dikhao,hi,Gujarat,craft_information,roman
+maharashtra me konsa craft famous hai,hi,Maharashtra,craft_information,roman
+tamil nadu ke classical dance bare me batao,hi,Tamil Nadu,festival_information,roman
+punjab ke famous festivals batao,hi,Punjab,festival_information,roman
+delhi ki street food heritage batao,hi,Delhi,heritage_information,roman
+goa ki portuguese heritage batao,hi,Goa,heritage_information,roman
+madhya pradesh ke tribal arts dikhao,hi,Madhya Pradesh,craft_information,roman
+rajasthan me kahan kahan kille hai,hi,Rajasthan,heritage_information,roman
+bharat me sabse purana temple konsa hai,hi,,heritage_information,roman
+qutub minar kisne banaya,hi,Delhi,person_information,roman
+red fort kisne banaya,hi,Delhi,person_information,roman
+humayun tomb kisne banaya,hi,Delhi,person_information,roman
+golden temple kisne banaya,hi,Punjab,person_information,roman
+amber fort kisne banaya,hi,Rajasthan,person_information,roman
+khajuraho kisne banaya,hi,Madhya Pradesh,person_information,roman
+meenakshi temple kahan hai,hi,Tamil Nadu,location_information,roman
+bharatanatyam kahan se shuru hua,hi,Tamil Nadu,location_information,roman
+ajanta caves kahan hai,hi,Maharashtra,location_information,roman
+ellora caves kahan hai,hi,Maharashtra,location_information,roman
+sanchi stupa kisne banaya,hi,Madhya Pradesh,person_information,roman
+ajanta gufya kuthye ahet,mr,Maharashtra,location_information,roman
+ellora kuthye ahet,mr,Maharashtra,location_information,roman
+shivaji maharaj kuthe janmale,mr,Maharashtra,location_information,roman
+maharashtra madhe kuthhe kille ahet,mr,Maharashtra,heritage_information,roman
+punjab ch kide kille ne,pa,Punjab,heritage_information,roman
+golden temple kithon hai,pa,Punjab,location_information,roman

@@ -110,6 +110,8 @@ router.post("/chat", requireDevelopmentApiKey, async (req, res) => {
         knowledge_ids: response.knowledgeIds,
         language,
         suggestions: response.suggestions || [],
+        actions: response.actions || [],
+        choices: response.choices || [],
       },
     });
   } catch (err) {

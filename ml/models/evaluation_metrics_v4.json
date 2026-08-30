@@ -1,0 +1,203 @@
+{
+  "accuracy": 0.7469135802469136,
+  "f1_macro": 0.7373563532130062,
+  "f1_weighted": 0.7435212978106743,
+  "precision_macro": 0.7792731233907705,
+  "recall_macro": 0.7490882042606182,
+  "confusion_matrix": [
+    [
+      16,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      9,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0,
+      1,
+      0,
+      0,
+      2
+    ],
+    [
+      3,
+      0,
+      0,
+      37,
+      3,
+      2,
+      1,
+      11,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      12,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      1,
+      5,
+      1,
+      2,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      10,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      21,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      9
+    ]
+  ],
+  "labels": [
+    "craft_information",
+    "festival_information",
+    "greeting",
+    "heritage_information",
+    "historical_period",
+    "location_information",
+    "person_information",
+    "state_exploration",
+    "unknown"
+  ],
+  "per_intent": {
+    "craft_information": {
+      "precision": 0.8,
+      "recall": 0.7619047619047619,
+      "f1": 0.7804878048780488,
+      "support": 21
+    },
+    "festival_information": {
+      "precision": 1.0,
+      "recall": 0.8181818181818182,
+      "f1": 0.9,
+      "support": 11
+    },
+    "greeting": {
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714285714285714,
+      "support": 5
+    },
+    "heritage_information": {
+      "precision": 0.8409090909090909,
+      "recall": 0.6379310344827587,
+      "f1": 0.7254901960784313,
+      "support": 58
+    },
+    "historical_period": {
+      "precision": 0.7058823529411765,
+      "recall": 1.0,
+      "f1": 0.8275862068965517,
+      "support": 12
+    },
+    "location_information": {
+      "precision": 0.5,
+      "recall": 0.45454545454545453,
+      "f1": 0.47619047619047616,
+      "support": 11
+    },
+    "person_information": {
+      "precision": 0.8333333333333334,
+      "recall": 0.7692307692307693,
+      "f1": 0.8,
+      "support": 13
+    },
+    "state_exploration": {
+      "precision": 0.5833333333333334,
+      "recall": 1.0,
+      "f1": 0.7368421052631579,
+      "support": 21
+    },
+    "unknown": {
+      "precision": 0.75,
+      "recall": 0.9,
+      "f1": 0.8181818181818182,
+      "support": 10
+    }
+  },
+  "per_language": {
+    "hi": {
+      "accuracy": 0.7142857142857143,
+      "samples": 21
+    },
+    "en": {
+      "accuracy": 0.7901234567901234,
+      "samples": 81
+    },
+    "gu": {
+      "accuracy": 0.631578947368421,
+      "samples": 38
+    },
+    "mr": {
+      "accuracy": 0.875,
+      "samples": 8
+    },
+    "pa": {
+      "accuracy": 0.75,
+      "samples": 8
+    },
+    "ta": {
+      "accuracy": 0.8333333333333334,
+      "samples": 6
+    }
+  },
+  "test_samples": 162,
+  "train_samples": 647
+}

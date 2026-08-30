@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, Suspense } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { openSearchModal } from "@/components/ui/SearchModal";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -188,7 +189,12 @@ function ExploreContent() {
                 Ask AI
               </a>
             </div>
-            <IndiaHeritageMap height="520px" />
+            <IndiaHeritageMap
+              height="520px"
+              onAskAI={(ctx) => {
+                window.location.href = `/ai?question=Tell me about ${encodeURIComponent(ctx.name)} in ${ctx.state}`;
+              }}
+            />
           </div>
         </FadeIn>
 
