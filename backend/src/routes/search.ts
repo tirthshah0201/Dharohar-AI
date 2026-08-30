@@ -58,33 +58,53 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
       return;
     }
 
-    // Build search query using tsvector
+    // Build search query using tsvector — search both heritage_entities and locations
     const searchTerm = q.trim();
 
     let sql = `
-      SELECT
-        id,
-        name,
-        category,
-        description,
-        location_id,
-        period_id,
-        ts_rank(
-          to_tsvector('english', name || ' ' || description),
-          plainto_tsquery('english', $1)
-        ) AS relevance
-      FROM heritage_entities
-      WHERE to_tsvector('english', name || ' ' || description)
-            @@ plainto_tsquery('english', $1)
+      (
+        SELECT
+          id,
+          name,
+          category,
+          description,
+          location_id,
+          period_id,
+          ts_rank(
+            to_tsvector('english', name || ' ' || description),
+            plainto_tsquery('english', $1)
+          ) AS relevance
+        FROM heritage_entities
+        WHERE to_tsvector('english', name || ' ' || description)
+              @@ plainto_tsquery('english', $1)
+      )
+      UNION ALL
+      (
+        SELECT
+          id,
+          name,
+          type AS category,
+          description,
+          parent_id AS location_id,
+          NULL::uuid AS period_id,
+          ts_rank(
+            to_tsvector('english', name || ' ' || COALESCE(description, '')),
+            plainto_tsquery('english', $1)
+          ) AS relevance
+        FROM locations
+        WHERE to_tsvector('english', name || ' ' || COALESCE(description, ''))
+              @@ plainto_tsquery('english', $1)
+      )
     `;
     const params: unknown[] = [searchTerm];
 
     if (category) {
-      sql += " AND category = $" + (params.length + 1);
+      // Wrap the union in a subquery for category filtering
+      sql = `SELECT * FROM (${sql}) AS combined WHERE category = $2 ORDER BY relevance DESC LIMIT 50`;
       params.push(category);
+    } else {
+      sql += " ORDER BY relevance DESC LIMIT 50";
     }
-
-    sql += " ORDER BY relevance DESC LIMIT 50";
 
     const { rows } = await query(sql, params);
 

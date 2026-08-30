@@ -168,10 +168,12 @@ export default function HomePage() {
   const timelineData = timeline?.slice(0, 5) ?? [];
   const featuredHeritage = heritage?.slice(0, 6) ?? [];
   const displayedStates = showAllStates ? INDIAN_STATES : INDIAN_STATES.slice(0, 4);
+  const totalStates = INDIAN_STATES.length;
+  const totalHeritageSites = INDIAN_STATES.reduce((sum, s) => sum + s.heritageCount, 0);
 
   const stats = [
-    { value: 8, label: "States Covered", suffix: "+", href: "/explore" },
-    { value: 31, label: "Heritage Records", suffix: "+", href: "/heritage" },
+    { value: totalStates, label: "States Covered", suffix: "", href: "/explore" },
+    { value: totalHeritageSites, label: "Heritage Records", suffix: "", href: "/heritage" },
     { value: 6, label: "Languages", suffix: "", href: null },
     { value: 9, label: "Heritage Categories", suffix: "", href: "/heritage" },
   ];
@@ -409,7 +411,7 @@ export default function HomePage() {
                   <div className="relative text-center p-6">
                     <MapPin className="h-12 w-12 text-terracotta mx-auto mb-3 opacity-60" />
                     <p className="text-sm text-stone font-medium">30+ Heritage Markers</p>
-                    <p className="text-xs text-stone/60 mt-1">8 States · Interactive Zoom</p>
+                    <p className="text-xs text-stone/60 mt-1">{totalStates} States · Interactive Zoom</p>
                   </div>
                 </div>
               </div>

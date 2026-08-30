@@ -124,13 +124,18 @@ function ExploreContent() {
   );
 
   // Trigger search with debounce
-  const handleSearch = useCallback((value: string) => {
-    setSearchQuery(value);
-    const timeout = setTimeout(() => {
-      setDebouncedQuery(value);
-    }, 400);
-    return () => clearTimeout(timeout);
+  const debounceRef = useCallback(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return (value: string) => {
+      clearTimeout(timeoutId);
+      setSearchQuery(value);
+      timeoutId = setTimeout(() => {
+        setDebouncedQuery(value);
+      }, 400);
+    };
   }, []);
+
+  const handleSearch = debounceRef();
 
   const tabs = [
     { id: "all", label: "All" },

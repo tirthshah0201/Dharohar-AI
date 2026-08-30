@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { INDIAN_STATES } from "@/constants/india";
 
 const footerLinks = {
   explore: [
@@ -8,14 +9,6 @@ const footerLinks = {
     { href: "/timeline", label: "Historical Timeline" },
     { href: "/heritage", label: "Heritage Directory" },
     { href: "/ai", label: "Ask Heritage Atlas" },
-  ],
-  regions: [
-    { href: "/explore?state=Gujarat", label: "Gujarat" },
-    { href: "/explore?state=Rajasthan", label: "Rajasthan" },
-    { href: "/explore?state=Punjab", label: "Punjab" },
-    { href: "/explore?state=Tamil%20Nadu", label: "Tamil Nadu" },
-    { href: "/explore?state=Maharashtra", label: "Maharashtra" },
-    { href: "/explore?state=Madhya%20Pradesh", label: "Madhya Pradesh" },
   ],
   project: [
     { href: "/about", label: "About Heritage Atlas" },
@@ -65,19 +58,19 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Regions */}
+          {/* States */}
           <div>
             <h4 className="text-xs font-semibold text-white/70 mb-3 uppercase tracking-wider">
               States
             </h4>
             <ul className="space-y-2">
-              {footerLinks.regions.map((link) => (
-                <li key={link.label}>
+              {INDIAN_STATES.map((state) => (
+                <li key={state.code}>
                   <Link
-                    href={link.href}
+                    href={`/explore?state=${encodeURIComponent(state.name)}`}
                     className="text-sm text-white/40 hover:text-terracotta-light transition-colors"
                   >
-                    {link.label}
+                    {state.name}
                   </Link>
                 </li>
               ))}
