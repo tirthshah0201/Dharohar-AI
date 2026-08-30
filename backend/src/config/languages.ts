@@ -21,12 +21,12 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "English",
     nativeName: "English",
     welcomeMessage:
-      "Welcome to **Dharohar AI** — your intelligent heritage guide.\n\nExplore India's cultural heritage across 8 states and 6 languages. Ask me about temples, forts, crafts, historical figures, or traditions.",
+      "Welcome to **Heritage Atlas** — your intelligent heritage guide.\n\nExplore India's cultural heritage across 12 states and 6 languages. Discover temples, forts, crafts, waterfalls, forests, wildlife, food, traditions, and stories.",
     unknownIntentResponse:
       "I couldn't find verified information about that topic. Try asking about a specific heritage site, craft, or historical figure from one of our supported states.",
     greetingResponses: [
       "Hello! I'm Dharohar AI, your heritage guide. Ask me about India's cultural heritage — temples, forts, crafts, traditions, or historical figures.",
-      "Namaste! I can tell you about Gujarat, Rajasthan, Punjab, Goa, Tamil Nadu, Maharashtra, Madhya Pradesh, or Delhi heritage.",
+      "Namaste! I can tell you about Gujarat, Rajasthan, Punjab, Goa, Tamil Nadu, Maharashtra, Madhya Pradesh, Delhi, Kerala, Jammu & Kashmir, Assam, or Odisha heritage.",
       "Welcome! Ask me about heritage sites, crafts, traditions, or historical figures across India.",
     ],
   },
@@ -35,7 +35,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Gujarati",
     nativeName: "ગુજરાતી",
     welcomeMessage:
-      "**ધરોહર AI** માં આપનું સ્વાગત છે — ભારતના સાંસ્કૃતિક વારસાનો તમારો બુદ્ધિશાળી માર્ગદર્શક.\n\n8 રાજ્યો અને 6 ભાષાઓમાં ભારતના સાંસ્કૃતિક વારસાને શોધો. મંદિરો, કિલ્લાઓ, હસ્તકલા, ઐતિહાસિક વ્યક્તિઓ અથવા પરંપરાઓ વિશે પૂછો.",
+      "**Heritage Atlas** માં આપનું સ્વાગત છે — ભારતના સાંસ્કૃતિક વારસાનો તમારો બુદ્ધિશાળી માર્ગદર્શક.\n\n12 રાજ્યો અને 6 ભાષાઓમાં ભારતના સાંસ્કૃતિક વારસાને શોધો. મંદિરો, કિલ્લાઓ, હસ્તકલા, પ્રકૃતિ, ખોરાક અને પરંપરાઓ વિશે પૂછો.",
     unknownIntentResponse:
       "હજુ સુધી એ વિષય વિશે મારી પાસે પૂરતી ચકાસાયેલ માહિતી નથી. કોઈ ચોક્કસ વારસા સ્થળ, હસ્તકલા અથવા ઐતિહાસિક વ્યક્તિ વિશે પૂછો.",
     greetingResponses: [
@@ -48,7 +48,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Hindi",
     nativeName: "हिन्दी",
     welcomeMessage:
-      "**धरोहर AI** में आपका स्वागत है — भारत की सांस्कृतिक विरासत का आपका बुद्धिमान गाइड.\n\n8 राज्यों और 6 भाषाओं में भारत की विरासत की खोज करें. मंदिरों, किलों, शिल्पों, ऐतिहासिक व्यक्तियों या परंपराओं के बारे में पूछें.",
+      "**Heritage Atlas** में आपका स्वागत है — भारत की सांस्कृतिक विरासत का आपका बुद्धिमान गाइड.\n\n12 राज्यों और 6 भाषाओं में भारत की विरासत की खोज करें. मंदिरों, किलों, जलप्रपातों, वन्यजीवों, खाने और परंपराओं के बारे में पूछें.",
     unknownIntentResponse:
       "उस विषय के बारे में मेरे पास अभी पर्याप्त सत्यापित जानकारी नहीं है. किसी विशिष्ट विरासत स्थल, शिल्प या ऐतिहासिक व्यक्ति के बारे में पूछें.",
     greetingResponses: [
@@ -61,7 +61,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Marathi",
     nativeName: "मराठी",
     welcomeMessage:
-      "**धरोहर AI** मध्ये आपले स्वागत आहे — भारताच्या सांस्कृतिक वारशाचा आपला बुद्धिमान मार्गदर्शक.\n\n8 राज्यांमध्ये भारताच्या वारशाचा शोध घ्या. मंदिरे, किल्ले, हस्तकला किंवा परंपरांबद्दल विचारा.",
+      "**Heritage Atlas** मध्ये आपले स्वागत आहे — भारताच्या सांस्कृतिक वारशाचा आपला बुद्धिमान मार्गदर्शक.\n\n12 राज्यांमध्ये भारताच्या वारशाचा शोध घ्या. मंदिरे, किल्ले, झरे, वन्यजीवे, अन्न आणि परंपरांबद्दल विचारा.",
     unknownIntentResponse:
       "त्या विषयाबद्दल माझ्याकडे अजून पुरेसी चकासलेली माहिती नाही. कोणत्याही विशिष्ट वारसा स्थळाबद्दल विचारा.",
     greetingResponses: [
@@ -73,7 +73,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Tamil",
     nativeName: "தமிழ்",
     welcomeMessage:
-      "**தரோகர் AI**-க்கு வரவேற்கிறோம் — இந்தியாவின் கலாச்சார பாரம்பரியத்தின் உங்கள் புத்திசாலி வழிகாட்டி.\n\n8 மாநிலங்களில் இந்தியாவின் பாரம்பரியத்தை ஆராயுங்கள். கோவில்கள், கோட்டைகள், கைவினைகள் பற்றி கேளுங்கள்.",
+      "**Heritage Atlas**-க்கு வரவேற்கிறோம் — இந்தியாவின் கலாச்சார பாரம்பரியத்தின் உங்கள் புத்திசாலி வழிகாட்டி.\n\n12 மாநிலங்களில் இந்தியாவின் பாரம்பரியத்தை ஆராயுங்கள். கோவில்கள், கோட்டைகள், நீர்வீழ்ச்சிகள், உணவு மற்றும் பண்பாடு பற்றி கேளுங்கள்.",
     unknownIntentResponse:
       "அந்த தலைப்பு பற்றி எனக்கு இன்னும் போதுமான சரிபார்க்கப்பட்ட தகவல் இல்லை. ஒரு குறிப்பிட்ட பாரம்பரிய தளம் பற்றி கேட்க முடியுமா?",
     greetingResponses: [
@@ -85,7 +85,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Punjabi",
     nativeName: "ਪੰਜਾਬੀ",
     welcomeMessage:
-      "**ਧਰੋਹਰ AI** ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ — ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਦਾ ਤੁਹਾਡਾ ਸਮਝਦਾਰ ਗਾਈਡ.\n\n8 ਰਾਜਾਂ ਵਿੱਚ ਭਾਰਤ ਦੀ ਵਿਰਾਸਤ ਦੀ ਖੋਜ ਕਰੋ. ਮੰਦਿਰਾਂ, ਕਿਲ੍ਹਿਆਂ, ਹੁਣਰ ਜਾਂ ਪਰੰਪਰਾਵਾਂ ਬਾਰੇ ਪੁੱਛੋ.",
+      "**Heritage Atlas** ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ — ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਦਾ ਤੁਹਾਡਾ ਸਮਝਦਾਰ ਗਾਈਡ.\n\n12 ਰਾਜਾਂ ਵਿੱਚ ਭਾਰਤ ਦੀ ਵਿਰਾਸਤ ਦੀ ਖੋਜ ਕਰੋ. ਮੰਦਿਰਾਂ, ਕਿਲ੍ਹਿਆਂ, ਝਰਨਿਆਂ, ਜੰਗਲਾਂ, ਖਾਣੇ ਜਾਂ ਪਰੰਪਰਾਵਾਂ ਬਾਰੇ ਪੁੱਛੋ.",
     unknownIntentResponse:
       "ਉਸ ਵਿਸ਼ੇ ਬਾਰੇ ਮੇਰੇ ਕੋਲ ਅਜੇ ਲੋੜੀਂਦੀ ਤਸਦੀਕ ਕੀਤੀ ਜਾਣਕਾਰੀ ਨਹੀਂ ਹੈ. ਕਿਸੇ ਖਾਸ ਵਿਰਾਸਤੀ ਥਾਂ ਜਾਂ ਹੁਣਰ ਬਾਰੇ ਪੁੱਛੋ.",
     greetingResponses: [
@@ -96,6 +96,7 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
 
 export const SUPPORTED_STATE_CODES = [
   "GJ", "RJ", "PB", "GA", "TN", "MH", "MP", "DL",
+  "KL", "JK", "AS", "OD",
 ] as const;
 
 export type SupportedStateCode = (typeof SUPPORTED_STATE_CODES)[number];
@@ -144,6 +145,13 @@ const SUGGESTIONS_EN: ChatSuggestion[] = [
   { text: "Tell me about Madhya Pradesh heritage", category: "explore" },
   { text: "What happened at Jallianwala Bagh?", category: "history" },
   { text: "Tell me about Khajuraho Temples", category: "heritage" },
+  { text: "What is special about North Malabar?", category: "explore" },
+  { text: "Tell me about Gurez Valley", category: "explore" },
+  { text: "What is Majuli island famous for?", category: "explore" },
+  { text: "Show waterfalls in India", category: "explore" },
+  { text: "What is Chettinad cuisine?", category: "food" },
+  { text: "Tell me about Satkosia Gorge", category: "explore" },
+  { text: "Show wildlife sanctuaries", category: "explore" },
 ];
 
 const SUGGESTIONS_GU: ChatSuggestion[] = [
@@ -277,6 +285,34 @@ const STATE_SUGGESTIONS: Record<string, Record<string, ChatSuggestion[]>> = {
       { text: "Tell me about Red Fort Delhi", category: "heritage" },
       { text: "What is the Qutub Minar?", category: "heritage" },
       { text: "Describe Chandni Chowk market", category: "culture" },
+    ],
+  },
+  KL: {
+    en: [
+      { text: "Tell me about North Malabar Theyyam", category: "heritage" },
+      { text: "What are Kerala backwaters?", category: "explore" },
+      { text: "Show waterfalls in Kerala", category: "explore" },
+    ],
+  },
+  JK: {
+    en: [
+      { text: "Tell me about Gurez Valley", category: "explore" },
+      { text: "What is Dard-Shina culture?", category: "culture" },
+      { text: "Show mountains in Kashmir", category: "explore" },
+    ],
+  },
+  AS: {
+    en: [
+      { text: "Tell me about Majuli island", category: "explore" },
+      { text: "What are Satras in Assam?", category: "heritage" },
+      { text: "Show mask making in Majuli", category: "craft" },
+    ],
+  },
+  OD: {
+    en: [
+      { text: "Tell me about Satkosia Gorge", category: "explore" },
+      { text: "What is Kalinga temple architecture?", category: "heritage" },
+      { text: "Show wildlife in Odisha", category: "explore" },
     ],
   },
 };

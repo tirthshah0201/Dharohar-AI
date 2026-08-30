@@ -108,6 +108,55 @@ export const INDIAN_STATES: StateData[] = [
     center: [77.2, 28.6],
     zoom: 10,
   },
+  // ---- NEW STATES (Regional Expansion) ----
+  {
+    code: "KL",
+    name: "Kerala",
+    region: "South India",
+    capital: "Thiruvananthapuram",
+    tagline: "Backwaters, Theyyam, and the Malabar coast",
+    highlights: ["Theyyam", "North Malabar", "Backwaters", "Wayanad", "Kalaripayattu"],
+    heritageCount: 6,
+    color: "#047857",
+    center: [76.0, 10.8],
+    zoom: 7,
+  },
+  {
+    code: "JK",
+    name: "Jammu & Kashmir",
+    region: "North India",
+    capital: "Srinagar",
+    tagline: "Himalayan valleys, Dard-Shina culture, and pristine landscapes",
+    highlights: ["Gurez Valley", "Dal Lake", "Mughal Gardens", "Habba Khatoon Peak", "Kishanganga River"],
+    heritageCount: 5,
+    color: "#2563EB",
+    center: [75.0, 34.0],
+    zoom: 7,
+  },
+  {
+    code: "AS",
+    name: "Assam",
+    region: "Northeast India",
+    capital: "Dispur",
+    tagline: "Tea gardens, Brahmaputra, and Majuli river island",
+    highlights: ["Majuli", "Sattriya Dance", "Kaziranga", "Mask Making", "Bihu Festival"],
+    heritageCount: 5,
+    color: "#059669",
+    center: [92.5, 26.2],
+    zoom: 7,
+  },
+  {
+    code: "OD",
+    name: "Odisha",
+    region: "East India",
+    capital: "Bhubaneswar",
+    tagline: "Kalinga temples, tribal heritage, and the Mahanadi gorge",
+    highlights: ["Satkosia Gorge", "Konark Sun Temple", "Puri Jagannath", "Tribal Culture", "Pattachitra"],
+    heritageCount: 5,
+    color: "#D97706",
+    center: [84.0, 20.5],
+    zoom: 7,
+  },
 ];
 
 /** Map from state code to INDIAN_STATES entry */
@@ -120,9 +169,11 @@ export const INDIA_CENTER: [number, number] = [78.9, 22.6];
 export const INDIA_ZOOM = 5;
 
 export const REGIONS = [
-  { name: "North India", states: ["PB", "DL"] },
+  { name: "North India", states: ["PB", "DL", "JK"] },
   { name: "Northwest India", states: ["RJ"] },
   { name: "West India", states: ["GJ", "GA", "MH"] },
   { name: "Central India", states: ["MP"] },
-  { name: "South India", states: ["TN"] },
+  { name: "South India", states: ["TN", "KL"] },
+  { name: "Northeast India", states: ["AS"] },
+  { name: "East India", states: ["OD"] },
 ];

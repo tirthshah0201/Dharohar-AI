@@ -60,6 +60,28 @@ export const STATE_IMAGES: Record<string, HeritageImage> = {
     alt: "Delhi — seven cities, centuries of history",
     credit: "Heritage Atlas",
   },
+  // ---- NEW STATES (Regional Expansion) ----
+  // Images below are placeholders. Developer must supply actual images.
+  KL: {
+    src: "/assets/states/kerala_state.jpg",
+    alt: "Kerala — backwaters, Theyyam, and the Malabar coast",
+    credit: "Heritage Atlas",
+  },
+  JK: {
+    src: "/assets/states/jk_state.jpg",
+    alt: "Jammu & Kashmir — Himalayan valleys and Dard-Shina culture",
+    credit: "Heritage Atlas",
+  },
+  AS: {
+    src: "/assets/states/assam_state.jpg",
+    alt: "Assam — tea gardens, Brahmaputra, and Majuli river island",
+    credit: "Heritage Atlas",
+  },
+  OD: {
+    src: "/assets/states/odisha_state.jpg",
+    alt: "Odisha — Kalinga temples, tribal heritage, and the Mahanadi gorge",
+    credit: "Heritage Atlas",
+  },
 };
 
 /* ==============================================

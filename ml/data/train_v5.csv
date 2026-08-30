@@ -1,0 +1,79 @@
+text,language,state,intent
+Tell me about North Malabar,en,Kerala,state_exploration
+What is special about Chettinad,en,Tamil Nadu,heritage_information
+Tell me about Gurez Valley,en,Jammu & Kashmir,state_exploration
+What is Satkosia Gorge,en,Odisha,state_exploration
+Why is Amboli famous during monsoon,en,Maharashtra,state_exploration
+Tell me about Majuli,en,Assam,state_exploration
+What is the Mahanadi River,en,Odisha,state_exploration
+Show waterfalls in India,en,,state_exploration
+Find wildlife sanctuaries in India,en,,state_exploration
+Show beaches near the coast,en,,state_exploration
+Show backwaters in Kerala,en,Kerala,state_exploration
+Tell me about Dard-Shina culture,en,Jammu & Kashmir,heritage_information
+Show eco-tourism places,en,,state_exploration
+Show mountains in Kashmir,en,Jammu & Kashmir,state_exploration
+Show traditional architecture in Chettinad,en,Tamil Nadu,heritage_information
+north malabar ke bare me batao,hi,Kerala,state_exploration
+gurez valley ki culture ke bare me batao,hi,Jammu & Kashmir,heritage_information
+satkosia gorge kaha hai,hi,Odisha,location_information
+amboli monsoon me kaisa hai,hi,Maharashtra,state_exploration
+majuli ke bare me jankari do,hi,Assam,state_exploration
+mane nature vala places batavo,gu,,state_exploration
+mane waterfall vala area batavo,gu,Kerala,state_exploration
+mahanadi vishe janavo,gu,Odisha,heritage_information
+amboli madhe kay baghayla milte,mr,Maharashtra,state_exploration
+chettinad pathi sollunga,ta,Tamil Nadu,heritage_information
+majuli bare daso,pa,Assam,heritage_information
+Tell me about Theyyam in North Malabar,en,Kerala,heritage_information
+What is Chettinad cuisine,en,Tamil Nadu,food
+Tell me about Gurez Valley trekking,en,Jammu & Kashmir,state_exploration
+What wildlife is in Satkosia,en,Odisha,state_exploration
+Tell me about Amboli waterfalls,en,Maharashtra,state_exploration
+What is Majuli island famous for,en,Assam,heritage_information
+What is the Mahanadi gorge,en,Odisha,heritage_information
+Show forests in Kerala,en,Kerala,state_exploration
+Show rivers in India,en,,state_exploration
+Show beaches in Goa,en,Goa,state_exploration
+Show backwaters in Alleppey,en,Kerala,state_exploration
+Tell me about Dard-Shina tribes,en,Jammu & Kashmir,heritage_information
+Show eco-tourism in Odisha,en,Odisha,state_exploration
+Show mountains near Gurez,en,Jammu & Kashmir,state_exploration
+Show Chettinad mansions,en,Tamil Nadu,architecture
+Tell me about Theyyam ritual art,en,Kerala,tradition
+What is Sattriya dance,en,Assam,tradition
+Tell me about mask making in Majuli,en,Assam,craft
+What is Pattachitra art,en,Odisha,craft
+Tell me about Amboli biodiversity,en,Maharashtra,wildlife
+What is Athangudi tiles,en,Tamil Nadu,craft
+Tell me about Mishing community,en,Assam,community
+What is Habba Khatoon peak,en,Jammu & Kashmir,mountain
+Tell me about Malabar cuisine,en,Kerala,food
+What is Chilika Lake,en,Odisha,heritage_information
+Tell me about Konark Sun Temple,en,Odisha,heritage_information
+What is the Kishanganga River,en,Jammu & Kashmir,river
+Tell me about Wayanad waterfalls,en,Kerala,state_exploration
+What is Raas Leela festival,en,Assam,festival
+Tell me about tribal heritage of Odisha,en,Odisha,heritage_information
+What is Western Ghats biodiversity,en,Maharashtra,wildlife
+kerala ma kai waterfall chhe,gu,Kerala,state_exploration
+mahanadi river vishe janavo,gu,Odisha,heritage_information
+majuli ke bare me batao,hi,Assam,state_exploration
+gurez valley trekking bare batao,hi,Jammu & Kashmir,state_exploration
+amboli monsoon me kaisa hota hai,hi,Maharashtra,state_exploration
+chettinad ki khasiyat kya hai,hi,Tamil Nadu,heritage_information
+satkosia gorge kaha hai,hi,Odisha,location_information
+north malabar ke bare me batao,hi,Kerala,state_exploration
+Tell me about Kalaripayattu martial art,en,Kerala,heritage_information
+What is Valiyaparamba backwaters,en,Kerala,heritage_information
+Tell me about Chettinad mansions,en,Tamil Nadu,architecture
+What is the Razdan Pass,en,Jammu & Kashmir,mountain
+Tell me about Bhaona theatre,en,Assam,tradition
+What is Amboli Falls,en,Maharashtra,waterfall
+Show me Brahmaputra River,en,Assam,river
+What is Satkosia Tiger Reserve,en,Odisha,wildlife
+Tell me about Chilika Lake birds,en,Odisha,heritage_information
+What is Meenmutty Falls,en,Kerala,waterfall
+Tell me about Kaziranga rhinoceros,en,Assam,wildlife
+What is Muzhappilangad Beach,en,Kerala,beach
+Tell me about Puri Jagannath Temple,en,Odisha,heritage_information

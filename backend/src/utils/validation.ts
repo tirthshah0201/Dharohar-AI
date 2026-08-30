@@ -27,6 +27,16 @@ export const VALID_LOCATION_TYPES = [
   "city",
   "village",
   "site",
+  "region",
+  "river",
+  "waterfall",
+  "forest",
+  "wildlife_area",
+  "mountain",
+  "beach",
+  "backwater",
+  "gorge",
+  "lake",
 ] as const;
 
 /** Allowed heritage categories (matches DB CHECK constraint) */
@@ -40,6 +50,18 @@ export const VALID_HERITAGE_CATEGORIES = [
   "event",
   "food",
   "community",
+  "river",
+  "waterfall",
+  "forest",
+  "wildlife",
+  "mountain",
+  "beach",
+  "backwater",
+  "gorge",
+  "eco_tourism",
+  "adventure",
+  "natural_landmark",
+  "cultural_site",
 ] as const;
 
 /**

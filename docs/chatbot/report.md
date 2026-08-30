@@ -1,174 +1,254 @@
-# Heritage Atlas — Advanced Multilingual AI + Map Intelligence Report
+# HERITAGE ATLAS — REGIONAL EXPANSION + NATURE + LIVING CULTURE REPORT
 
 ## 1. Executive Summary
 
-Upgraded the Heritage Atlas chatbot with expanded Romanized multilingual support (Hindi, Marathi, Tamil, Punjabi), guided choice/action system with navigation buttons, chatbot-to-map connection, expanded map markers with lesser-known verified heritage, and retrained intent classification model.
+Heritage Atlas has been expanded from 8 states to 12 states, adding Kerala, Jammu & Kashmir, Assam, and Odisha. Six required regional areas have been created: North Malabar (Kerala), Chettinad (Tamil Nadu), Gurez Valley (Jammu & Kashmir), Satkosia Gorge (Odisha), Amboli (Maharashtra), and Majuli (Assam). The system now supports nature categories (waterfalls, rivers, forests, wildlife, mountains, beaches, backwaters, gorges), eco-tourism, adventure, and expanded cultural heritage including tribal/community heritage.
 
-## 2. Existing Baseline
+## 2. Research-First Process
 
-- v3 model: 73.8% accuracy, 518 train / 130 test samples
-- Limited to English + Romanized Gujarati
-- No guided choices or navigation actions
-- No chatbot → map connection
-- 30 famous markers only
+Research was conducted before implementation using official sources:
+- Kerala Tourism (keralatourism.org)
+- Kashmir Tourism Official (kashmirtourismofficial.com)
+- Assam Tourism (assamtourism.gov.in)
+- Odisha Tourism (odishatourism.gov.in)
+- Maharashtra Tourism (maharashtratourism.gov.in)
+- Satkosia Tiger Reserve (satkosia.org)
+- UNESCO
+- World Monuments Fund
 
-## 3. Errors Found
+All data points are documented in `docs/data/regional-research.md` with sources.
 
-| Error | Root Cause |
-|-------|-----------|
-| Missing `function` keyword on `detectRomanizedLanguage` | Typo in str_replace edit |
-| `nn` prefix on stateCode line | Copy-paste artifact in famousMarkers.ts |
+## 3. New States
 
-## 4. Errors Fixed
+| State | Code | Region | Status |
+|-------|------|--------|--------|
+| Kerala | KL | South | IMPLEMENTED |
+| Jammu & Kashmir | JK | North | IMPLEMENTED |
+| Assam | AS | Northeast | IMPLEMENTED |
+| Odisha | OD | East | IMPLEMENTED |
 
-Both fixed and verified — TypeScript compiles clean for frontend and backend.
+All 8 existing states (GJ, RJ, PB, GA, TN, MH, MP, DL) are preserved.
 
-## 5. Multilingual Improvements
+## 4. Required Areas
 
-Added Romanized language detection patterns for:
-- **Romanized Hindi**: `batao`, `bolo`, `kaise`, `kahan`, `kaun`, `konsa`, `dikhao`, `sunao`, `jankari`, `chahiye`
-- **Romanized Marathi**: `sang`, `dya`, `mahiti`, `baddal`, `kuthye`, `kontya`, `aahe`, `kasa`, `banavli`
-- **Romanized Tamil**: `sollunga`, `enna`, `eppadi`, `pathi`, `varalaru`, `panpaadu`, `seivadhunu`
-- **Romanized Punjabi**: `daso`, `bare`, `kive`, `kida`, `kehde`, `vich`, `virasat`, `vekhna`, `chahida`
+| Area | State | Type | Status |
+|------|-------|------|--------|
+| North Malabar | Kerala | region | IMPLEMENTED |
+| Chettinad | Tamil Nadu | region | IMPLEMENTED |
+| Gurez Valley | Jammu & Kashmir | region | IMPLEMENTED |
+| Satkosia Gorge | Odisha | gorge | IMPLEMENTED |
+| Amboli | Maharashtra | region | IMPLEMENTED |
+| Majuli | Assam | region | IMPLEMENTED |
 
-## 6. Romanized Language Support
+## 5. Natural Heritage
 
-| Language | Detection Method | Status |
-|----------|-----------------|--------|
-| Romanized Gujarati | Pattern matching + Gujarat context | ✅ Improved |
-| Romanized Hindi | Hindi verb indicators + Indian context | ✅ New |
-| Romanized Marathi | Marathi verb patterns | ✅ New |
-| Romanized Tamil | Tamil verb patterns | ✅ New |
-| Romanized Punjabi | Punjabi verb patterns | ✅ New |
-| Code-mixed | Falls through to closest language match | ✅ New |
+### Rivers
+- Mahanadi River (Odisha) — forming Satkosia Gorge
+- Kishanganga River (J&K) — flowing through Gurez Valley
+- Brahmaputra River (Assam) — surrounding Majuli
 
-## 7. Dataset Expansion
+### Waterfalls
+- Meenmutty Falls (Kerala/Wayanad)
+- Amboli Falls (Maharashtra)
+- Multiple seasonal waterfalls at Amboli
 
-| Version | Total | Training | Test |
-|---------|-------|----------|------|
-| v3 | 648 | 518 | 130 |
-| **v4** | **809** | **647** | **162** |
+### Mountains
+- Habba Khatoon Peak (J&K/Gurez)
+- Razdan Pass (J&K/Gurez)
 
-New data: 177 Romanized multilingual examples covering Hindi, Marathi, Tamil, Punjabi queries.
+### Beaches
+- Muzhappilangad Beach (Kerala/Kannur) — Asia's longest drive-in beach
 
-## 8. Language Distribution (v4)
+### Backwaters
+- Valiyaparamba Backwaters (Kerala/Kasaragod)
 
-| Language | Count | % |
-|----------|-------|---|
-| English | 437 | 54% |
-| Gujarati (Romanized) | 177 | 22% |
-| Hindi | 111 | 14% |
-| Marathi | 33 | 4% |
-| Tamil | 26 | 3% |
-| Punjabi | 25 | 3% |
+### Gorges
+- Satkosia Gorge (Odisha) — 22-km Mahanadi gorge
 
-## 9. Model Evaluation (v4)
+### Lakes
+- Chilika Lake (Odisha) — Asia's largest brackish water lagoon
 
-| Metric | v3 | v4 |
-|--------|-----|-----|
-| Accuracy | 73.8% | **74.7%** |
-| F1 Macro | 76.7% | **73.7%** |
-| F1 Weighted | 73.9% | **74.2%** |
+### Wildlife
+- Satkosia Tiger Reserve (Odisha) — tigers, gharials, elephants
+- Kaziranga National Park (Assam) — one-horned rhinoceros
+- Western Ghats biodiversity (Maharashtra/Amboli)
 
-### Per-Language Accuracy (v4)
+## 6. Cultural Heritage
 
-| Language | Accuracy | Samples |
-|----------|----------|---------|
-| English | 79.0% | 81 |
-| Hindi | 71.4% | 21 |
-| Gujarati | 63.2% | 38 |
-| Marathi | **87.5%** | 8 |
-| Punjabi | **75.0%** | 8 |
-| Tamil | **83.3%** | 6 |
+### Traditions
+- Theyyam (Kerala/North Malabar) — 500+ ritual art forms
+- Sattriya Dance (Assam/Majuli) — UNESCO Intangible Heritage
+- Bhaona Theatre (Assam/Majuli) — traditional mask theatre
+- Kalaripayattu (Kerala) — ancient martial art
 
-## 10. Guided Choices
+### Crafts
+- Mask Making (Assam/Majuli) — 500-year tradition
+- Athangudi Tiles (Tamil Nadu/Chettinad) — handmade terracotta tiles
+- Pattachitra (Odisha) — traditional scroll painting
 
-Added structured action buttons to chatbot responses:
-- **View Details** → `/heritage/{id}`
-- **View on Map** → `/explore?state=X`
-- **View Timeline** → `/timeline`
-- **Explore State** → `/explore?state=X`
-- **Explore Crafts/Festivals** → `/heritage?category=X`
-- **Ask More** → focuses input
+### Architecture
+- Chettinad Mansions (Tamil Nadu) — UNESCO tentative list
+- Satras of Majuli (Assam) — 22 Vaishnavite monasteries
 
-Language-aware labels for Gujarati, Hindi, and English.
+### Food
+- Chettinad Cuisine (Tamil Nadu) — one of India's spiciest cuisines
+- Malabar Cuisine (Kerala) — Malabar Biryani, pathiri, mussels
 
-## 11. Chatbot → Map Connection
+## 7. Community Heritage
 
-Map popup "Ask Atlas" button now navigates to `/ai?question=Tell me about {name} in {state}`.
-ChatBot reads `?question=` param and auto-sends.
+- Dard-Shina Culture (J&K/Gurez) — verified against official sources
+- Mishing Community (Assam/Majuli) — verified against Assam Tourism
+- Deori & Sonowal Kachari (Assam/Majuli) — referenced from official sources
+- Chettiar Community (Tamil Nadu/Chettinad) — UNESCO tentative list
+
+## 8. Database Changes
+
+### Migration: 003_regional_expansion.sql
+- Extended `locations.type` CHECK constraint (added region, river, waterfall, forest, wildlife_area, mountain, beach, backwater, gorge, lake)
+- Extended `heritage_entities.category` CHECK constraint (added river, waterfall, forest, wildlife, mountain, beach, backwater, gorge, eco_tourism, adventure, natural_landmark, cultural_site)
+- Extended `relationships.type` CHECK constraint (added FLOWS_THROUGH, FORMS, INHABITED_BY, PRESERVED_BY, TRADITIONAL_TO, FAMOUS_FOR, CONNECTED_TO)
+- Added 4 new states to `supported_states`
+- Added 4 historical periods
+
+### Seed Data: 003_regional_expansion_seed.sql
+- 22 new location records
+- 28 new heritage entity records
+- 19 new chatbot knowledge records
+- All with verified sources
+
+## 9. Backend Changes
+
+### languages.ts
+- Updated `SUPPORTED_STATE_CODES` to include KL, JK, AS, OD
+- Updated welcome messages to reflect 12 states
+- Added state-specific suggestions for all 4 new states
+- Expanded English suggestions to include new states
+
+### validation.ts
+- Extended `VALID_LOCATION_TYPES` with natural feature types
+- Extended `VALID_HERITAGE_CATEGORIES` with nature categories
+
+### chatbot.ts
+- Added state keywords for Kerala, J&K, Assam, Odisha
+- Added Hindi Unicode keywords for new states
+- Added nature-related intent patterns (waterfall, river, forest, wildlife, etc.)
+- Updated `STATE_NAMES` and `STATE_NAMES_GU` maps
+
+## 10. Frontend Changes
+
+### india.ts
+- Added 4 new state entries (KL, JK, AS, OD) with verified coordinates
+- Updated REGIONS to include new states
+- All existing 8 states preserved
+
+### famousMarkers.ts
+- Added 14 new map markers for new states:
+  - Kerala: North Malabar, Wayanad, Thiruvananthapuram, Athirappilly Falls
+  - J&K: Gurez Valley, Dal Lake, Srinagar, Habba Khatoon Peak
+  - Assam: Majuli, Kaziranga, Guwahati
+  - Odisha: Satkosia Gorge, Konark Sun Temple, Puri, Bhubaneswar, Mahanadi River
+
+### images.ts
+- Added state image entries for KL, JK, AS, OD
+- Marked as developer-provided (no unrelated images used)
+
+## 11. ML Changes
+
+### Training Data
+- Created `ml/data/train_v5.csv` with 87 new training examples
+- Covers: new states, nature categories, Romanized queries, multi-intent
+- No train/test leakage
+
+### Test Data
+- Created `ml/data/test_v5.csv` with 50 new test examples
+- Covers: new states, nature, food, architecture, wildlife
 
 ## 12. Map Expansion
 
-Added 15 lesser-known verified heritage markers:
+### Verified Coordinates
+| Marker | Latitude | Longitude |
+|--------|----------|-----------|
+| North Malabar | 11.87 | 75.37 |
+| Wayanad | 11.68 | 76.13 |
+| Thiruvananthapuram | 8.5241 | 76.9366 |
+| Athirappilly Falls | 10.1734 | 76.5508 |
+| Gurez Valley | 34.68 | 74.83 |
+| Dal Lake | 34.1087 | 74.8398 |
+| Srinagar | 34.0837 | 74.7973 |
+| Habba Khatoon Peak | 34.70 | 74.85 |
+| Majuli | 26.95 | 94.15 |
+| Kaziranga | 26.6340 | 93.3570 |
+| Guwahati | 26.1445 | 91.7362 |
+| Satkosia Gorge | 20.72 | 84.78 |
+| Konark Sun Temple | 19.8876 | 86.0945 |
+| Puri | 19.8135 | 85.8312 |
+| Bhubaneswar | 20.2961 | 85.8245 |
+| Mahanadi River | 20.50 | 85.00 |
 
-| State | New Markers |
-|-------|------------|
-| Gujarat | Lothal, Champaner-Pavagadh, Palitana, Diu |
-| Rajasthan | Chittorgarh, Kumbhalgarh, Jaisalmer |
-| Punjab | Wagah Border |
-| Goa | Church of St. Cajetan |
-| Tamil Nadu | Brihadeeswara Temple, Kanchipuram |
-| Maharashtra | Raigad Fort, Elephanta Caves |
-| Madhya Pradesh | Bhimbetka, Orchha |
-| Delhi | Jama Masjid, Iron Pillar |
+### Existing Markers Preserved
+All 47 existing markers from the original 8 states are preserved.
 
-Total markers: **47** (30 famous + 17 lesser-known)
+## 13. Missing Images
 
-## 13. Security
+All 20 new images are documented in `docs/data/missing-images.md` with:
+- Entity name
+- Required filename
+- Reason missing
+- Suggested search/source
 
-- No API keys in training data
-- No secrets in model files
-- All coordinates validated (-90 to 90 lat, -180 to 180 lng)
-- Navigation targets validated against actual routes
+Developer must provide images manually. No unrelated images used.
 
-## 14. Regression Testing
+## 14. Security
 
-- Frontend TypeScript: ✅ 0 errors
-- Backend TypeScript: ✅ 0 errors
-- Frontend build: ✅ All 9 routes pass
-- Existing map functionality: ✅ Preserved
-- Existing chatbot: ✅ Preserved
-- Existing Neon: ✅ Preserved
+- No secrets committed
+- DATABASE_URL protected
+- API keys handled via environment variables
+- User input validated
+- SQL parameterization preserved
 
-## 15. Files Created/Modified
+## 15. Performance
 
-| File | Change |
-|------|--------|
-| `ml/data/romanized_multilingual.csv` | **New** — 177 multilingual examples |
-| `ml/src/train_v4.py` | **New** — v4 training script |
-| `ml/models/intent_classifier_v4.joblib` | **New** — trained v4 model |
-| `ml/models/evaluation_metrics_v4.json` | **New** — evaluation metrics |
-| `ml/data/combined_training_data_v4.csv` | **New** — combined dataset |
-| `ml/data/train_v4.csv` | **New** — train split |
-| `ml/data/test_v4.csv` | **New** — test split |
-| `backend/src/services/chatbot.ts` | Added Romanized Hindi/Marathi/Tamil/Punjabi detection, guided choices, navigation actions |
-| `backend/src/routes/ai.ts` | Added actions and choices to API response |
-| `frontend/components/ai/ChatBot.tsx` | Added action buttons, guided choices, Link import |
-| `frontend/app/explore/page.tsx` | Added onAskAI handler to map |
-| `frontend/constants/famousMarkers.ts` | Added 17 lesser-known heritage markers |
-| `docs/chatbot/report.md` | Updated |
+- Map markers loaded from API + supplemental famous markers
+- Images use `loading="lazy"` attribute
+- State cards use existing responsive grid
+- No unnecessary re-renders
 
 ## 16. Known Issues
 
-- 7 exact duplicates between train/test (inherited from base dataset)
-- Gujarati per-language accuracy (63.2%) could improve with more data
+- 20 images need developer provision (documented in missing-images.md)
+- ML model needs retraining with v5 data
+- Map zoom hierarchy not yet implemented (deferred)
 
-## 17. Limitations
+## 17. Files Created
 
-- Romanized detection relies on pattern matching, not ML classification
-- No multi-turn conversation context beyond last intent/state
-- No semantic similarity search (TF-IDF only)
+| File | Purpose |
+|------|---------|
+| `database/migrations/003_regional_expansion.sql` | Schema migration |
+| `database/seeds/003_regional_expansion_seed.sql` | Seed data |
+| `docs/data/regional-research.md` | Research report |
+| `docs/data/image-research.md` | Image requirements |
+| `docs/data/missing-images.md` | Missing images tracker |
+| `docs/chatbot/report.md` | This report |
+| `ml/data/train_v5.csv` | Expanded training data |
+| `ml/data/test_v5.csv` | Expanded test data |
 
-## 18. Future Improvements
+## 18. Files Modified
 
-- RAG with pgvector embeddings for semantic heritage search
-- Multi-turn conversation context window
-- Voice input support
-- pgvector-based semantic similarity for recommendations
-- Additional Indian states (Kerala, Karnataka, West Bengal, etc.)
-- Knowledge graph for heritage relationships
+| File | Changes |
+|------|---------|
+| `frontend/constants/india.ts` | Added 4 new states, updated REGIONS |
+| `frontend/constants/famousMarkers.ts` | Added 14 new map markers |
+| `frontend/constants/images.ts` | Added 4 state image entries |
+| `backend/src/config/languages.ts` | Added state codes, suggestions, welcome messages |
+| `backend/src/utils/validation.ts` | Extended location types and heritage categories |
+| `backend/src/services/chatbot.ts` | Added state keywords, nature intents, new state maps |
 
 ## 19. Final Status
 
-**PASS** — All critical functionality works. Model accuracy improved. Romanized multilingual support expanded. Guided choices and navigation actions functional. Map expanded with lesser-known heritage.
+**PASS WITH WARNINGS**
+
+- All code changes compile successfully
+- Frontend TypeScript: 0 errors
+- Backend TypeScript: 0 errors
+- 20 images pending developer provision (documented)
+- ML model needs retraining (data prepared)

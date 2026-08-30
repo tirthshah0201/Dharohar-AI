@@ -1,0 +1,54 @@
+text,language,state,intent
+Tell me about North Malabar heritage,en,Kerala,heritage_information
+What is Chettinad famous for,en,Tamil Nadu,state_exploration
+Tell me about Gurez Valley culture,en,Jammu & Kashmir,heritage_information
+What is the Mahanadi near Satkosia,en,Odisha,heritage_information
+Why is Amboli called Maharashtra's Cherrapunji,en,Maharashtra,state_exploration
+Tell me about Majuli Satras,en,Assam,heritage_information
+What is the Kishanganga River,en,Jammu & Kashmir,river
+Show waterfalls in Kerala,en,Kerala,state_exploration
+Find wildlife in Odisha,en,Odisha,state_exploration
+Show beaches in Goa,en,Goa,state_exploration
+Tell me about backwaters in Kerala,en,Kerala,state_exploration
+What is Dard-Shina language,en,Jammu & Kashmir,heritage_information
+Show eco-tourism places in India,en,,state_exploration
+Show Himalayan mountains,en,Jammu & Kashmir,mountain
+Tell me about Chettinad food,en,Tamil Nadu,food
+mane waterfall vala area batavo,gu,Kerala,state_exploration
+satkosia gorge kaha hai,hi,Odisha,location_information
+majuli ke bare me batao,hi,Assam,state_exploration
+amboli monsoon me kaisa hai,hi,Maharashtra,state_exploration
+chettinad pathi sollunga,ta,Tamil Nadu,heritage_information
+gurez valley ke bare me jankari do,hi,Jammu & Kashmir,state_exploration
+mahanadi vishe janavo,gu,Odisha,heritage_information
+amboli madhe kay baghayla milte,mr,Maharashtra,state_exploration
+majuli bare daso,pa,Assam,heritage_information
+Tell me about Theyyam ritual art,en,Kerala,tradition
+What is Sattriya dance form,en,Assam,tradition
+What is mask making in Majuli,en,Assam,craft
+Tell me about Pattachitra painting,en,Odisha,craft
+What is Athangudi tile making,en,Tamil Nadu,craft
+Tell me about Mishing tribe,en,Assam,community
+What is Habba Khatoon peak,en,Jammu & Kashmir,mountain
+Tell me about Malabar biryani,en,Kerala,food
+What is Chilika Lake famous for,en,Odisha,heritage_information
+Tell me about Konark Sun Temple wheels,en,Odisha,heritage_information
+What is Kishanganga trout fishing,en,Jammu & Kashmir,state_exploration
+Tell me about Wayanad wildlife,en,Kerala,state_exploration
+What is Raas Leela festival in Majuli,en,Assam,festival
+Tell me about Odisha tribal art,en,Odisha,heritage_information
+What is Amboli biodiversity site,en,Maharashtra,heritage_information
+Tell me about Kalaripayattu history,en,Kerala,heritage_information
+What is Valiyaparamba backwater system,en,Kerala,heritage_information
+Tell me about Chettinad mansion architecture,en,Tamil Nadu,architecture
+What is Razdan Pass altitude,en,Jammu & Kashmir,location_information
+Tell me about Bhaona theatre masks,en,Assam,heritage_information
+What are Amboli monsoon waterfalls,en,Maharashtra,waterfall
+Show Brahmaputra River on map,en,Assam,river
+What animals live in Satkosia,en,Odisha,wildlife
+Tell me about migratory birds at Chilika,en,Odisha,heritage_information
+What is Meenmutty waterfall height,en,Kerala,waterfall
+Tell me about Kaziranga rhinos,en,Assam,wildlife
+What is Muzhappilangad drive-in beach,en,Kerala,beach
+Tell me about Jagannath Rath Yatra,en,Odisha,festival
+What is Chettinad chicken dish,en,Tamil Nadu,food

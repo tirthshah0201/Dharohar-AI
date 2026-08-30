@@ -95,6 +95,19 @@ const STATE_KEYWORDS: Record<string, SupportedStateCode> = {
   bhuj: "GJ", kutch: "GJ", junagadh: "GJ", vadodara: "GJ",
   surat: "GJ", gandhinagar: "GJ", modhera: "GJ", diu: "GJ",
   palitana: "GJ", champaner: "GJ", lothal: "GJ",
+  // Kerala
+  kerala: "KL", thrissur: "KL", kochi: "KL", wayanad: "KL",
+  kannur: "KL", kasaragod: "KL", "north malabar": "KL",
+  theyyam: "KL", munnar: "KL", alleppey: "KL",
+  // Jammu & Kashmir
+  "jammu": "JK", kashmir: "JK", srinagar: "JK",
+  "gurez": "JK", gulmarg: "JK", pahalgam: "JK",
+  // Assam
+  assam: "AS", majuli: "AS", guwahati: "AS",
+  kaziranga: "AS", jorhat: "AS", tezpur: "AS",
+  // Odisha
+  odisha: "OD", bhubaneswar: "OD", puri: "OD",
+  konark: "OD", satkosia: "OD", cuttack: "OD",
   // Hindi state names
   "\u0930\u093E\u091C\u0938\u094D\u0925\u093E\u0928": "RJ",  // राजस्थान
   "\u092A\u0902\u091C\u093E\u092C": "PB",  // पंजाब
@@ -112,8 +125,14 @@ const STATE_KEYWORDS: Record<string, SupportedStateCode> = {
   "\u091C\u092F\u092A\u0941\u0930": "RJ",  // जयपुर
   "\u092E\u0941\u0902\u092C\u0907": "MH",  // मुंबई
   "\u092D\u094B\u092A\u093E\u0932": "MP",  // भोपाल
+  // New states in Hindi
+  "\u0915\u0947\u0930\u0932": "KL",  // केरल
+  "\u091C\u092E\u094D\u092E\u094D \u0914\u0930 \u0915\u0936\u094D\u092E\u0940\u0930": "JK",  // जम्मू और कश्मीर
+  "\u0905\u0938\u092E": "AS",  // असम
+  "\u0913\u0921\u093F\u0936": "OD",  // ओडिशा
   // Marathi state/city names
   // (Maharashtra in Marathi uses the same Unicode as Hindi महाराष्ट्र, already listed above)
+  // Odisha in Odia
   // Gujarati state names
   "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4": "GJ",  // ગુજરાત
   "\u0AB0\u0ABE\u0A9C\u0AB8\u0ACD\u0AA5\u0ABE\u0A82": "RJ",  // રાજસ્થાન
@@ -129,8 +148,12 @@ function detectIntent(message: string): Intent {
   const lower = message.toLowerCase().trim();
   if (GREETING_PATTERNS.test(lower) || GREETING_PATTERNS_UNICODE.test(message)) return "greeting";
 
+  // Nature: waterfalls, rivers, forests, wildlife, mountains, beaches, backwaters
+  if (/\b(waterfall|river|forest|wildlife|mountain|beach|backwater|gorge|lake|eco.?tourism|adventure|trekking|sanctuary|national.?park|natural)\b/i.test(lower))
+    return "state_exploration";
+
   // Heritage sites: temples, forts, monuments, etc.
-  if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog)\b/i.test(lower))
+  if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog|satra|monastery)\b/i.test(lower))
     return "heritage_information";
   // Non-Latin heritage keywords by script
   if (/મંદિર|કિલ્લો|મસ્જિદ|દુર્ગ|ગુંફ|ભવન/i.test(message)) return "heritage_information";  // Gujarati
@@ -326,11 +349,13 @@ async function getStateOverview(stateCode: string): Promise<KnowledgeResult[]> {
 const STATE_NAMES: Record<string, string> = {
   GJ: "Gujarat", RJ: "Rajasthan", PB: "Punjab", GA: "Goa",
   TN: "Tamil Nadu", MH: "Maharashtra", MP: "Madhya Pradesh", DL: "Delhi",
+  KL: "Kerala", JK: "Jammu & Kashmir", AS: "Assam", OD: "Odisha",
 };
 
 const STATE_NAMES_GU: Record<string, string> = {
   GJ: "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4", RJ: "\u0AB0\u0ABE\u0A9C\u0AB8\u0ACD\u0AA5\u0ABE\u0A82", PB: "\u0AAA\u0A82\u0A9C\u0ABE\u0AAC", GA: "\u0A97\u0acb\u0AB5\u0ABE",
   TN: "\u0A9F\u0ABF\u0A9C\u0ABF\u0AA4 \u0A9F\u0AC1", MH: "\u0AAE\u0AB9\u0ABE\u0AB0\u0ABE\u0AB7\u0ACD\u0A9F\u0ACD\u0AB0", MP: "\u0AAE\u0A27\u0acd\u0AAF \u0AAA\u0acd\u0AB0\u0A26\u0AC7\u0AB6", DL: "\u0A26\u0ABF\u0AB2\u0acd\u0AB9\u0AC0",
+  KL: "\u0A95\u0AC7\u0AB0\u0AB2", JK: "\u0A1C\u0A2E\u0A4D\u0A2E\u0A42 \u0A85\u0AAE\u0AC7\u0A82 \u0A95\u0AB6\u0ACD\u0A2E\u0A40\u0AB0", AS: "\u0A85\u0AB8\u0ABE\u0A2E", OD: "\u0A93\u0A21\u0A3F\u0AB6\u0ABE",
 };
 
 function formatHeritageResponse(results: KnowledgeResult[], language: string): string {
