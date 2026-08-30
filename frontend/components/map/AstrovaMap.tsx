@@ -46,6 +46,7 @@ import { REGIONS_GEOJSON } from "@/data/geojson/regions";
 import { StateSelector } from "./StateSelector";
 import { MapControls } from "./MapControls";
 import { HeritagePopup } from "./HeritagePopup";
+import { MapDetailPanel } from "./MapDetailPanel";
 
 /* ---- Fix Leaflet default icon issue in Next.js ---- */
 if (typeof window !== "undefined") {
@@ -100,49 +101,7 @@ function FlyToController({
   return null;
 }
 
-/* ---- Focus popup — opens a Leaflet popup at a specific location ---- */
-function FocusPopup({
-  feature,
-  onClose,
-}: {
-  feature: MapFeature | null;
-  onClose: () => void;
-}) {
-  const map = useMap();
 
-  useEffect(() => {
-    if (!feature) return;
-
-    map.closePopup();
-    const timer = setTimeout(() => {
-      const typeLabel = (feature.type || feature.category || "heritage")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (c: string) => c.toUpperCase());
-      const desc = feature.description || "No description available.";
-
-      const html = `
-        <div style="font-family:system-ui,-apple-system,sans-serif;padding:12px 14px;min-width:200px;max-width:300px;">
-          <div style="font-weight:700;font-size:14px;color:#2D2A26;margin-bottom:2px;">${feature.name}</div>
-          <div style="font-size:11px;color:#C2703E;margin-bottom:6px;">${typeLabel} · ${feature.state}</div>
-          <div style="font-size:12px;color:#8A8279;line-height:1.5;">${desc.substring(0, 180)}${desc.length > 180 ? "…" : ""}</div>
-          <div style="display:flex;gap:6px;margin-top:8px;">
-            <a href="/ai?question=Tell me about ${encodeURIComponent(feature.name)}" style="font-size:11px;color:#C2703E;text-decoration:underline;">Ask Astrova</a>
-          </div>
-        </div>
-      `;
-
-      L.popup({ maxWidth: 320, className: "astrova-popup" })
-        .setLatLng([feature.latitude, feature.longitude])
-        .setContent(html)
-        .openOn(map)
-        .on("popupclose", () => onClose());
-    }, 1800);
-
-    return () => clearTimeout(timer);
-  }, [feature, map, onClose]);
-
-  return null;
-}
 
 /* ---- Main Component ---- */
 export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props) {
@@ -188,13 +147,15 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
   }, [loadData]);
 
   // ---- Focus on a specific location when focusLocationId prop changes ----
+  const focusAppliedRef = useRef(false);
   useEffect(() => {
-    if (!focusLocationId || loading) return;
+    if (!focusLocationId || loading || focusAppliedRef.current) return;
 
     // Search in both locations and heritage
     const all = [...locations, ...heritage];
     const feature = all.find((f) => f.id === focusLocationId);
     if (feature && feature.latitude && feature.longitude) {
+      focusAppliedRef.current = true;
       setFlyTarget({
         center: [feature.latitude, feature.longitude],
         zoom: FOCUS_ZOOM,
@@ -496,13 +457,7 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
               </Popup>
             </Marker>
           );
-        })}        {/* Focus popup — opens when search navigates to a specific location */}
-        <FocusPopup
-          feature={focusFeature}
-          onClose={() => setFocusFeature(null)}
-        />
-
-      </MapContainer>
+        })}      </MapContainer>
 
       {/* State selector */}
       <div className="absolute left-3 top-3 z-10">
@@ -569,6 +524,13 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
           </div>
         </div>
       </div>
+
+      {/* Map Detail Panel — shows when a location is focused from search */}
+      <MapDetailPanel
+        feature={focusFeature}
+        onClose={() => setFocusFeature(null)}
+        onAskAI={onAskAI}
+      />
 
       {/* OSM Attribution (redundant but ensures visibility) */}
       <div className="absolute bottom-1 right-1 z-10">
