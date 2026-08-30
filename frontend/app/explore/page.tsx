@@ -90,11 +90,13 @@ function ExploreContent() {
 
   // Read URL search params client-side to avoid Suspense suspension
   const [selectedState, setSelectedState] = useState("");
+  const [focusLocationId, setFocusLocationId] = useState<string | null>(null);
   const [urlInitialized, setUrlInitialized] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setSelectedState(params.get("state") || "");
+    setFocusLocationId(params.get("focus") || null);
     setUrlInitialized(true);
   }, []);
 
@@ -166,10 +168,20 @@ function ExploreContent() {
               <span className="text-sm font-medium text-terracotta">Explore India</span>
             </div>
             <h1 className="font-display text-3xl sm:text-4xl text-charcoal mb-2">
-              {selectedState ? `Heritage in ${selectedState}` : "Discover India's Heritage"}
+              {focusLocationId ? "Viewing Location" : selectedState ? `Heritage in ${selectedState}` : "Discover India's Heritage"}
             </h1>
             <p className="text-muted max-w-xl">
-              {selectedState ? (
+              {focusLocationId ? (
+                <>
+                  Location highlighted on the map below.
+                  <button
+                    onClick={() => { setFocusLocationId(null); window.history.replaceState({}, '', '/explore'); }}
+                    className="inline-flex items-center gap-1 ml-2 text-terracotta font-medium hover:text-terracotta-dark transition-colors"
+                  >
+                    <X className="h-3 w-3" /> Clear focus
+                  </button>
+                </>
+              ) : selectedState ? (
                 <>
                   Exploring cultural heritage sites and landmarks in {selectedState}.
                   <button
@@ -204,6 +216,7 @@ function ExploreContent() {
             </div>
             <AstrovaMap
               height="520px"
+              focusLocationId={focusLocationId}
               onAskAI={(ctx) => {
                 window.location.href = `/ai?question=Tell me about ${encodeURIComponent(ctx.name)} in ${ctx.state}`;
               }}
@@ -281,7 +294,7 @@ function ExploreContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {isSearching
                 ? (displayResults as SearchResult[]).map((result) => (
-                    <Link key={result.id} href={result.source === "location" ? `/explore/${result.id}` : `/heritage/${result.id}`}>
+                    <Link key={result.id} href={result.source === "location" ? `/explore?focus=${result.id}` : `/heritage/${result.id}`}>
                       <motion.div
                         whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
                         className="rounded-xl border border-border bg-card p-4 cursor-pointer"
@@ -302,7 +315,7 @@ function ExploreContent() {
                 : (filteredLocations as Location[]).map((loc) => {
                     const Icon = locationTypeIcons[loc.type] || Building2;
                     return (
-                      <Link key={loc.id} href={`/explore/${loc.id}`}>
+                      <Link key={loc.id} href={`/explore?focus=${loc.id}`}>
                         <motion.div
                           whileHover={{ y: -2, boxShadow: "0 6px 20px rgba(45,42,38,0.08)" }}
                           className="rounded-xl border border-border bg-card p-4 cursor-pointer"

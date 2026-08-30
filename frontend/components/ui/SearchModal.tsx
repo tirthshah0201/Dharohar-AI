@@ -96,7 +96,7 @@ export function SearchModal() {
               id: item.id,
               name: item.name,
               subtitle: `${item.category.charAt(0).toUpperCase() + item.category.slice(1)}`,
-              href: isLocation ? `/explore/${item.id}` : `/heritage/${item.id}`,
+              href: isLocation ? `/explore?focus=${item.id}` : `/heritage/${item.id}`,
             });
           });
         }
@@ -405,7 +405,7 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
               id: item.id,
               name: item.name,
               subtitle: item.category.charAt(0).toUpperCase() + item.category.slice(1),
-              href: isLocation ? `/explore/${item.id}` : `/heritage/${item.id}`,
+              href: isLocation ? `/explore?focus=${item.id}` : `/heritage/${item.id}`,
             });
           });
         }

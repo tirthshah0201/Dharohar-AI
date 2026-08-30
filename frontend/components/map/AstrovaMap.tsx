@@ -24,6 +24,7 @@ import {
   MAX_ZOOM,
   STATE_ZOOM,
   REGION_ZOOM,
+  FOCUS_ZOOM,
   OSM_TILE_URL,
   OSM_ATTRIBUTION,
   STATE_STYLE,
@@ -61,6 +62,8 @@ if (typeof window !== "undefined") {
 interface Props {
   onAskAI?: (ctx: { name: string; state: string; category: string }) => void;
   height?: string;
+  /** If provided, the map will fly to this location and open its popup */
+  focusLocationId?: string | null;
 }
 
 /* ---- Map event handler component ---- */
@@ -97,8 +100,52 @@ function FlyToController({
   return null;
 }
 
+/* ---- Focus popup — opens a Leaflet popup at a specific location ---- */
+function FocusPopup({
+  feature,
+  onClose,
+}: {
+  feature: MapFeature | null;
+  onClose: () => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!feature) return;
+
+    map.closePopup();
+    const timer = setTimeout(() => {
+      const typeLabel = (feature.type || feature.category || "heritage")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c: string) => c.toUpperCase());
+      const desc = feature.description || "No description available.";
+
+      const html = `
+        <div style="font-family:system-ui,-apple-system,sans-serif;padding:12px 14px;min-width:200px;max-width:300px;">
+          <div style="font-weight:700;font-size:14px;color:#2D2A26;margin-bottom:2px;">${feature.name}</div>
+          <div style="font-size:11px;color:#C2703E;margin-bottom:6px;">${typeLabel} · ${feature.state}</div>
+          <div style="font-size:12px;color:#8A8279;line-height:1.5;">${desc.substring(0, 180)}${desc.length > 180 ? "…" : ""}</div>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <a href="/ai?question=Tell me about ${encodeURIComponent(feature.name)}" style="font-size:11px;color:#C2703E;text-decoration:underline;">Ask Astrova</a>
+          </div>
+        </div>
+      `;
+
+      L.popup({ maxWidth: 320, className: "astrova-popup" })
+        .setLatLng([feature.latitude, feature.longitude])
+        .setContent(html)
+        .openOn(map)
+        .on("popupclose", () => onClose());
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, [feature, map, onClose]);
+
+  return null;
+}
+
 /* ---- Main Component ---- */
-export function AstrovaMap({ onAskAI, height = "500px" }: Props) {
+export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props) {
   const [selState, setSelState] = useState<string | null>(null);
   const [catFilter, setCatFilter] = useState("all");
   const [markerCount, setMarkerCount] = useState(0);
@@ -116,6 +163,7 @@ export function AstrovaMap({ onAskAI, height = "500px" }: Props) {
   const [selectedFeature, setSelectedFeature] = useState<MapFeature | null>(
     null
   );
+  const [focusFeature, setFocusFeature] = useState<MapFeature | null>(null);
 
   // ---- Load data ----
   const loadData = useCallback(async () => {
@@ -138,6 +186,22 @@ export function AstrovaMap({ onAskAI, height = "500px" }: Props) {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // ---- Focus on a specific location when focusLocationId prop changes ----
+  useEffect(() => {
+    if (!focusLocationId || loading) return;
+
+    // Search in both locations and heritage
+    const all = [...locations, ...heritage];
+    const feature = all.find((f) => f.id === focusLocationId);
+    if (feature && feature.latitude && feature.longitude) {
+      setFlyTarget({
+        center: [feature.latitude, feature.longitude],
+        zoom: FOCUS_ZOOM,
+      });
+      setFocusFeature(feature);
+    }
+  }, [focusLocationId, loading, locations, heritage]);
 
   // ---- Merge all features for markers ----
   const allFeatures = useMemo(() => {
@@ -432,7 +496,12 @@ export function AstrovaMap({ onAskAI, height = "500px" }: Props) {
               </Popup>
             </Marker>
           );
-        })}
+        })}        {/* Focus popup — opens when search navigates to a specific location */}
+        <FocusPopup
+          feature={focusFeature}
+          onClose={() => setFocusFeature(null)}
+        />
+
       </MapContainer>
 
       {/* State selector */}

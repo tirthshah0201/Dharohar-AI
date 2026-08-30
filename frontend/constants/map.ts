@@ -18,6 +18,7 @@ export const MAX_ZOOM = 18;
 export const STATE_ZOOM = 7;
 export const REGION_ZOOM = 10;
 export const LOCAL_ZOOM = 13;
+export const FOCUS_ZOOM = 14;
 
 // ---- Marker Colors (Astrova brand palette) ----
 export const MARKER_COLORS: Record<string, string> = {
