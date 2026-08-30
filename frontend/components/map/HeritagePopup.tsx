@@ -12,6 +12,8 @@ interface HeritagePopupProps {
   description: string;
   state: string;
   category: string;
+  id?: string;
+  source?: "database" | "famous";
   onAskAI?: (context: { name: string; state: string; category: string }) => void;
 }
 
@@ -49,9 +51,20 @@ export function HeritagePopup({
   description,
   state,
   category,
+  id,
+  source,
   onAskAI,
 }: HeritagePopupProps) {
   const Icon = CATEGORY_ICONS[category] || CATEGORY_ICONS[type] || MapPin;
+
+  // Determine the detail link based on entity type
+  // Heritage entities link to /heritage/{id}, locations to /explore/{id}
+  const HERITAGE_TYPES = new Set(["monument", "craft", "festival", "architecture", "event", "food", "community", "tradition", "person"]);
+  const detailHref = id
+    ? HERITAGE_TYPES.has(type) || HERITAGE_TYPES.has(category)
+      ? `/heritage/${id}`
+      : `/explore/${id}`
+    : "/heritage";
 
   return (
     <div className="p-0 min-w-[220px] max-w-[280px]" style={{ fontFamily: "system-ui, sans-serif" }}>
@@ -90,7 +103,7 @@ export function HeritagePopup({
           Ask Atlas
         </button>
         <a
-          href={`/heritage`}
+          href={detailHref}
           className="flex items-center justify-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors"
         >
           <ExternalLink className="h-3 w-3" />

@@ -196,14 +196,33 @@ export function MapDetailPanel({
               Ask Astrova about {feature.name}
             </button>
 
+            {/* Entity detail link */}
+            {(() => {
+              const HERITAGE_TYPES = new Set(["monument", "craft", "festival", "architecture", "event", "food", "community", "tradition", "person"]);
+              const detailHref = HERITAGE_TYPES.has(typeKey)
+                ? `/heritage/${feature.id}`
+                : `/explore/${feature.id}`;
+              return (
+                <a
+                  href={detailHref}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5
+                             border border-border text-charcoal text-sm font-medium rounded-lg
+                             hover:bg-parchment transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View details
+                </a>
+              );
+            })()}
+
             <a
               href={`/ai?question=Tell me about ${encodeURIComponent(feature.name)} in ${encodeURIComponent(feature.state)}`}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5
                          border border-border text-charcoal text-sm font-medium rounded-lg
                          hover:bg-parchment transition-colors"
             >
-              <ExternalLink className="h-4 w-4" />
-              Learn more in chat
+              <Sparkles className="h-4 w-4" />
+              Ask in chat
             </a>
           </div>
 

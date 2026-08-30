@@ -92,6 +92,11 @@ export const STATE_IMAGES: Record<string, HeritageImage> = {
 
 export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
   // ---- Gujarat ----
+  "rabari community": {
+    src: "/assets/heritage/rabari_community.jpg",
+    alt: "Rabari community — pastoral nomads of Gujarat and Rajasthan",
+    credit: "Astrova",
+  },
   "rani ki vav": {
     src: "/assets/heritage/rani_ki_vav.jpg",
     alt: "Rani ki Vav stepwell in Patan, Gujarat",
@@ -218,6 +223,11 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Theyyam — ritual dance form of North Malabar, Kerala",
     credit: "Astrova",
   },
+  "malabar cuisine": {
+    src: "/assets/heritage/malabar_cuisine.jpg",
+    alt: "Malabar cuisine — traditional coastal cuisine of Kerala",
+    credit: "Astrova",
+  },
 
   // ---- Tamil Nadu / Chettinad ----
   "chettinad": {
@@ -230,6 +240,11 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Chettinad cuisine — spicy and aromatic culinary tradition",
     credit: "Astrova",
   },
+  "chettiar community": {
+    src: "/assets/heritage/chettiar_community.jpeg",
+    alt: "Chettiar community — merchant community of Chettinad",
+    credit: "Astrova",
+  },
   "athangudi tiles": {
     src: "/assets/heritage/athangudi_tiles.jpg",
     alt: "Athangudi tiles — handmade floor tiles from Chettinad",
@@ -240,6 +255,11 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
   "gurez valley": {
     src: "/assets/heritage/guraz_valley.jpg",
     alt: "Gurez Valley — pristine Himalayan valley in Jammu & Kashmir",
+    credit: "Astrova",
+  },
+  "dard-shina culture": {
+    src: "/assets/heritage/dard-shina_culture.jpg",
+    alt: "Dard-Shina culture — ancient heritage of the Dard people in Kashmir",
     credit: "Astrova",
   },
   "habba khatoon peak": {
@@ -262,6 +282,21 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
   "mahanadi river": {
     src: "/assets/heritage/mahanadi.jpg",
     alt: "Mahanadi River — major river forming Satkosia Gorge",
+    credit: "Astrova",
+  },
+  "pattachitra": {
+    src: "/assets/heritage/pattachitra.jpg",
+    alt: "Pattachitra — traditional scroll painting from Odisha",
+    credit: "Astrova",
+  },
+  "tribal heritage of odisha": {
+    src: "/assets/heritage/tribal_heritage_of_odisha.jpg",
+    alt: "Tribal heritage of Odisha — indigenous communities and their traditions",
+    credit: "Astrova",
+  },
+  "raas leela festival": {
+    src: "/assets/heritage/raas_leela_festival.jpg",
+    alt: "Raas Leela festival — traditional dance festival celebrated across India",
     credit: "Astrova",
   },
 
@@ -288,13 +323,28 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Sattriya — classical dance form from Assam",
     credit: "Astrova",
   },
+  "bhaona": {
+    src: "/assets/heritage/bhaona.jpg",
+    alt: "Bhaona — traditional Assamese dance-drama performed in Majuli",
+    credit: "Astrova",
+  },
   "samaguri satra": {
     src: "/assets/heritage/majuli.jpg",
     alt: "Samaguri Satra — famous Satra in Majuli for mask-making",
     credit: "Astrova",
   },
+  "mishing community": {
+    src: "/assets/heritage/mishing_community.jpeg",
+    alt: "Mishing community — riverine tribe of Assam",
+    credit: "Astrova",
+  },
 
   // ---- Maharashtra ----
+  "salvi community": {
+    src: "/assets/heritage/salvi_community.jpg",
+    alt: "Salvi community — traditional wood-carving artisans of Maharashtra",
+    credit: "Astrova",
+  },
   "ajanta caves": {
     src: "/assets/heritage/ajanta_caves.jpg",
     alt: "Ajanta Caves in Maharashtra",
@@ -339,7 +389,7 @@ export const CATEGORY_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
   craft: {
-    src: "/assets/heritage/patola_silk.webp",
+    src: "/assets/heritage/pattachitra.jpg",
     alt: "Traditional Indian craftwork",
     credit: "Astrova",
   },
@@ -349,17 +399,17 @@ export const CATEGORY_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
   festival: {
-    src: "/assets/heritage/garba.jpg",
+    src: "/assets/heritage/raas_leela_festival.jpg",
     alt: "Indian cultural festival",
     credit: "Astrova",
   },
   food: {
-    src: "/assets/heritage/garba.jpg",
+    src: "/assets/heritage/food.jpg",
     alt: "Indian culinary heritage",
     credit: "Astrova",
   },
   tradition: {
-    src: "/assets/heritage/garba.jpg",
+    src: "/assets/heritage/traditions.jpg",
     alt: "Indian cultural tradition",
     credit: "Astrova",
   },
@@ -374,7 +424,7 @@ export const CATEGORY_IMAGES: Record<string, HeritageImage> = {
     credit: "Astrova",
   },
   community: {
-    src: "/assets/heritage/kutch_embroidery.png",
+    src: "/assets/heritage/rabari_community.jpg",
     alt: "Indian community and craft heritage",
     credit: "Astrova",
   },

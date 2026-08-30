@@ -452,6 +452,8 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
                   description={feature.description || ""}
                   state={feature.state}
                   category={feature.type || feature.category || "heritage"}
+                  id={feature.id}
+                  source={feature.source}
                   onAskAI={onAskAI}
                 />
               </Popup>
