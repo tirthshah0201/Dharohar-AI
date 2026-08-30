@@ -24,7 +24,7 @@ ALTER TABLE heritage_entities ADD CONSTRAINT heritage_entities_category_check
         'architecture', 'event', 'food', 'community',
         'river', 'waterfall', 'forest', 'wildlife', 'mountain',
         'beach', 'backwater', 'gorge', 'eco_tourism', 'adventure',
-        'natural_landmark', 'cultural_site'
+        'natural_landmark', 'cultural_site', 'lake'
     ));
 
 -- ---- 3. Extend relationship types ----

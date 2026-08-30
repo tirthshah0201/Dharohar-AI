@@ -62,6 +62,7 @@ export const VALID_HERITAGE_CATEGORIES = [
   "adventure",
   "natural_landmark",
   "cultural_site",
+  "lake",
 ] as const;
 
 /**
