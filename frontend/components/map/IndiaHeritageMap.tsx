@@ -5,7 +5,8 @@ import { createRoot } from "react-dom/client";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { INDIAN_STATES, INDIA_CENTER, INDIA_ZOOM, type StateData } from "@/constants/india";
-import { API_BASE_URL, DEMO_API_KEY } from "@/constants";
+import { API_BASE_URL } from "@/constants";
+import { api } from "@/services/api";
 import { FAMOUS_HERITAGE_MARKERS, type FamousMarker } from "@/constants/famousMarkers";
 import { HeritagePopup } from "./HeritagePopup";
 import { StateSelector } from "./StateSelector";
@@ -67,33 +68,31 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [heritage, setHeritage] = useState<HeritageEntity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch data directly
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const headers: Record<string, string> = {};
-        if (DEMO_API_KEY) headers["X-API-Key"] = DEMO_API_KEY;
-
-        const [locRes, herRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/locations`, { headers }).then(r => r.json()),
-          fetch(`${API_BASE_URL}/heritage`, { headers }).then(r => r.json()),
-        ]);
-
-        if (!cancelled) {
-          setLocations(locRes.data ?? []);
-          setHeritage(herRes.data ?? []);
-          setLoading(false);
-        }
-      } catch (e) {
-        console.error("[Map] fetch error:", e);
-        if (!cancelled) setLoading(false);
-      }
+  // Fetch data via ApiClient
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [locRes, herRes] = await Promise.all([
+        api.get<{ data: Location[]; total: number }>('/locations'),
+        api.get<{ data: HeritageEntity[]; total: number }>('/heritage'),
+      ]);
+      setLocations(locRes.data ?? []);
+      setHeritage(herRes.data ?? []);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unable to load heritage data';
+      console.error('[Map] API error:', msg);
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-    load();
-    return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Derived data with validation
   const mappable = useMemo(() => {
@@ -409,12 +408,28 @@ export function IndiaHeritageMap({ onAskAI, height = "500px" }: Props) {
       <div className="absolute right-3 top-16 z-10">
         <MapControls onReset={() => flyTo(null)} categoryFilter={catFilter} onCategoryChange={setCatFilter} categories={categories} totalMarkers={markerCount} />
       </div>
-      {loading && (
+      {(loading || error) && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-ivory/80 backdrop-blur-sm">
-          <div className="flex items-center gap-3 text-charcoal">
-            <div className="h-5 w-5 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-medium">Loading heritage map...</span>
-          </div>
+          {loading ? (
+            <div className="flex items-center gap-3 text-charcoal">
+              <div className="h-5 w-5 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm font-medium">Loading heritage map...</span>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center gap-3 text-charcoal max-w-sm text-center px-4">
+              <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </div>
+              <p className="text-sm font-medium">Heritage locations are temporarily unavailable.</p>
+              <p className="text-xs text-muted">Ensure the backend API server is running on port {API_BASE_URL.split(':').pop()?.split('/')[0] || '3001'}.</p>
+              <button
+                onClick={loadData}
+                className="mt-1 px-4 py-2 text-xs font-semibold text-white bg-terracotta rounded-lg hover:bg-terracotta/90 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : null}
         </div>
       )}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-md">
