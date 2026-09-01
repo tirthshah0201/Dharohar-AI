@@ -35,12 +35,22 @@ const AstrovaMap = dynamic(
 interface Location {
   id: string;
   name: string;
+  slug: string;
   type: string;
   description: string;
   latitude: number | null;
   longitude: number | null;
   parent_id: string | null;
   state: string;
+}
+
+interface HeritageEntity {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  description: string;
+  location_id: string | null;
 }
 
 /* ========================================
@@ -55,6 +65,16 @@ export default function LocationDetailPage({
   const { id } = use(params);
 
   const { data: location, loading, error, refetch } = useApi<Location>(`/locations/${id}`);
+  const { data: heritageList } = useApi<HeritageEntity[]>(
+    location ? `/heritage` : "",
+    { immediate: !!location }
+  );
+
+  // Filter heritage entities associated with this location
+  const associatedHeritage = useMemo(() => {
+    if (!heritageList || !location) return [];
+    return heritageList.filter(h => h.location_id === location.id);
+  }, [heritageList, location]);
 
   return (
     <div className="py-8 sm:py-12">
@@ -137,6 +157,36 @@ export default function LocationDetailPage({
                 <p className="text-muted leading-relaxed">{location.description}</p>
               </CardContent>
             </Card>
+
+            {/* Heritage at this location */}
+            {associatedHeritage.length > 0 && (
+              <div className="mb-8">
+                <h2 className="font-display text-xl text-charcoal mb-4">Heritage at {location.name}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {associatedHeritage.map((item) => (
+                    <Link key={item.id} href={`/heritage/${item.slug || item.id}`}>
+                      <Card hover>
+                        <CardContent>
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-terracotta/10 shrink-0">
+                              <Landmark className="h-4 w-4 text-terracotta" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-semibold text-charcoal hover:text-terracotta transition-colors">
+                                {item.name}
+                              </h3>
+                              <Badge variant="outline" className="mt-1 text-[10px]">
+                                {item.category}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Quick Links */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

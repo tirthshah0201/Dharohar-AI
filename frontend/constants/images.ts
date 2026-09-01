@@ -360,11 +360,9 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Ajanta Caves in Maharashtra",
     credit: "Astrova",
   },
-  "ellora caves": {
-    src: "/assets/heritage/ajanta_caves.jpg",
-    alt: "Ellora Caves in Maharashtra",
-    credit: "Astrova",
-  },
+  // IMAGE_REQUIRED: Correct Ellora Caves image needed
+  // Currently falls back to category 'monument' image
+  // Do NOT use ajanta_caves.jpg — it shows the wrong caves
 
   // ---- Madhya Pradesh ----
   "khajuraho temples": {
@@ -372,11 +370,9 @@ export const HERITAGE_IMAGES: Record<string, HeritageImage> = {
     alt: "Khajuraho Temples in Madhya Pradesh",
     credit: "Astrova",
   },
-  "sanchi stupa": {
-    src: "/assets/heritage/khajuraho_temples.jpg",
-    alt: "Sanchi Stupa in Madhya Pradesh",
-    credit: "Astrova",
-  },
+  // IMAGE_REQUIRED: Correct Sanchi Stupa image needed
+  // Currently falls back to category 'monument' image
+  // Do NOT use khajuraho_temples.jpg — it shows the wrong monument
 
   // ---- Delhi ----
   "red fort": {

@@ -1,0 +1,70 @@
+%% ============================================
+%% ASTROVA — Security & Authentication Flow
+%% ============================================
+
+graph TB
+    subgraph "Client Side"
+        B[Browser]
+        FE[Next.js Frontend]
+        PROXY[API Proxy Route]
+    end
+
+    subgraph "Server Side"
+        BE[Express Backend]
+        AUTH[requireDevelopmentApiKey]
+        ROUTES[API Routes]
+    end
+
+    subgraph "Environment"
+        DEMO_KEY[DEMO_API_KEY]
+        API_BASE[API_BASE_URL]
+    end
+
+    subgraph "Security Measures"
+        CONSTANT[Constant-Time Comparison]
+        FAILSAFE[Fail-Safe Design]
+        VALIDATE[Input Validation]
+        PARAM[SQL Parameterization]
+    end
+
+    %% Flow
+    B --> FE
+    FE -->|fetch /api/proxy/*| PROXY
+    PROXY -->|reads API_KEY server-side| DEMO_KEY
+    PROXY -->|adds X-API-Key header| BE
+    BE --> AUTH
+    AUTH -->|validates key| CONSTANT
+    CONSTANT -->|valid| ROUTES
+    CONSTANT -->|invalid| FAILSAFE
+    FAILSAFE -->|401| FE
+    ROUTES --> VALIDATE
+    VALIDATE --> PARAM
+    PARAM -->|SQL query| DB[(Database)]
+
+    %% Security Notes
+    NOTE1[No NEXT_PUBLIC secrets]
+    NOTE2[API key never in browser]
+    NOTE3[Constant-time comparison]
+    NOTE4[Fail-safe on missing key]
+    NOTE5[Parameterized SQL queries]
+    NOTE6[Input validation on routes]
+
+    DEMO_KEY -.-> NOTE1
+    PROXY -.-> NOTE2
+    CONSTANT -.-> NOTE3
+    FAILSAFE -.-> NOTE4
+    PARAM -.-> NOTE5
+    VALIDATE -.-> NOTE6
+
+    %% Styling
+    classDef client fill:#E8F5E9,stroke:#2E7D32
+    classDef server fill:#E3F2FD,stroke:#1565C0
+    classDef env fill:#FFF3E0,stroke:#E65100
+    classDef security fill:#FCE4EC,stroke:#C62828
+    classDef note fill:#F5F5F5,stroke:#9E9E9E
+
+    class B,FE,PROXY client
+    class BE,AUTH,ROUTES server
+    class DEMO_KEY,API_BASE env
+    class CONSTANT,FAILSAFE,VALIDATE,PARAM security
+    class NOTE1,NOTE2,NOTE3,NOTE4,NOTE5,NOTE6 note

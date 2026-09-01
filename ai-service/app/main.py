@@ -74,8 +74,16 @@ async def root():
 
 
 # Import and include API routers
-from app.api import chat, rag, graph
+from app.api import chat, rag, graph, predict
+from app.models.intent_classifier import load_model
 
 app.include_router(chat.router, prefix="/api/ai", tags=["chat"])
 app.include_router(rag.router, prefix="/api/rag", tags=["rag"])
 app.include_router(graph.router, prefix="/api/graph", tags=["graph"])
+app.include_router(predict.router, prefix="/api/ml", tags=["ml"])
+
+# Load ML model on startup
+@app.on_event("startup")
+async def startup_event():
+    """Load ML model when service starts."""
+    load_model()

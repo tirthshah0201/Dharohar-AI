@@ -14,6 +14,7 @@ import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { CountUp } from "@/components/motion/CountUp";
 import { useApi } from "@/hooks/useApi";
 import { INDIAN_STATES, type StateData } from "@/constants/india";
+import type { Collection } from "@/app/collections/page";
 import { STATE_IMAGES, CATEGORY_IMAGES, getHeritageImage } from "@/constants/images";
 import {
   MapPin,
@@ -48,6 +49,7 @@ interface TimelinePeriod {
 interface HeritageEntity {
   id: string;
   name: string;
+  slug: string;
   category: string;
   description: string;
   location_id: string | null;
@@ -156,6 +158,7 @@ export default function HomePage() {
     useApi<TimelinePeriod[]>("/timeline");
   const { data: heritage, loading: heritageLoading, error: heritageError } =
     useApi<HeritageEntity[]>("/heritage");
+  const { data: collections } = useApi<Collection[]>("/collections");
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -585,6 +588,77 @@ export default function HomePage() {
       </section>
 
       {/* ============================================
+          HERITAGE COLLECTIONS
+          ============================================ */}
+      <section className="py-16 sm:py-20">
+        <Container>
+          <FadeIn>
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="font-display text-3xl sm:text-4xl text-charcoal">
+                  Heritage Collections
+                </h2>
+                <p className="mt-2 text-stone max-w-xl">
+                  Curated groupings of India&apos;s heritage — explore by theme, era, or tradition.
+                </p>
+              </div>
+              <Link href="/collections" className="hidden sm:flex items-center gap-1.5 text-sm text-terracotta font-medium hover:gap-2.5 transition-all">
+                View all <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </FadeIn>
+
+          {collections && collections.length > 0 && (
+            <Stagger className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {collections.slice(0, 6).map((col) => (
+                <StaggerItem key={col.id}>
+                  <Link href={`/collections/${col.slug}`}>
+                    <motion.div
+                      whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(139,69,19,0.08)" }}
+                      className="rounded-xl border border-cream bg-white overflow-hidden cursor-pointer group"
+                    >
+                      <div className="relative h-28 overflow-hidden">
+                        {col.hero_image ? (
+                          <img
+                            src={col.hero_image}
+                            alt={col.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="absolute bottom-2 left-3 right-3">
+                          <h3 className="font-display text-sm text-white drop-shadow-md">{col.name}</h3>
+                        </div>
+                        <Badge variant="outline" className="absolute top-2 right-2 text-[9px] bg-white/90 border-white/50 text-charcoal backdrop-blur-sm">
+                          {col.entity_count}
+                        </Badge>
+                      </div>
+                      <div className="p-3">
+                        <p className="text-xs text-stone line-clamp-2">{col.description}</p>
+                      </div>
+                    </motion.div>
+                  </Link>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          )}
+
+          <FadeIn delay={0.15}>
+            <div className="mt-6 text-center">
+              <Link href="/collections">
+                <Button variant="ghost" className="text-terracotta">
+                  View All Collections <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </FadeIn>
+        </Container>
+      </section>
+
+      {/* ============================================
           FEATURED HERITAGE
           ============================================ */}
       <section className="py-16 sm:py-20">
@@ -617,7 +691,7 @@ export default function HomePage() {
                 const heritageImage = getHeritageImage(item.name, item.category);
                 return (
                   <StaggerItem key={item.id}>
-                    <Link href={`/heritage/${item.id}`}>
+                    <Link href={`/heritage/${item.slug || item.id}`}>
                       <motion.div
                         whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(139,69,19,0.08)" }}
                         whileTap={{ scale: 0.985 }}

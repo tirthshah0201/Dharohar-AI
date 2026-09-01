@@ -51,7 +51,7 @@ DATABASE_URL=postgresql://neondb_owner:xxxx@ep-xxxxx.us-east-1.aws.neon.tech/dha
 
 ```env
 DEMO_API_KEY=your_random_key_here
-NEXT_PUBLIC_DEMO_API_KEY=your_random_key_here
+API_BASE_URL=http://localhost:3001
 ```
 
 > ⚠️ **Important**: Generate a random key for `DEMO_API_KEY`. Do not use the default value in any environment with real data.

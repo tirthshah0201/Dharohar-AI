@@ -91,7 +91,9 @@ cp .env.example .env
 |----------|-------------|----------------|
 | `DATABASE_URL` | Neon PostgreSQL connection string | [console.neon.tech](https://console.neon.tech) |
 | `DEMO_API_KEY` | Development API key (random string) | Generate with `node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"` |
-| `NEXT_PUBLIC_DEMO_API_KEY` | Same as DEMO_API_KEY (for frontend) | Same value as DEMO_API_KEY |
+| `API_BASE_URL` | Backend URL for proxy route | `http://localhost:3001` (default) |
+
+> **Security Note:** API key is now server-side only (attached by `/api/proxy` route). `NEXT_PUBLIC_DEMO_API_KEY` has been removed.
 
 See [docs/database/neon-setup.md](docs/database/neon-setup.md) for detailed Neon setup instructions.
 
@@ -135,7 +137,15 @@ cd backend && npm run build
 
 ## API Key System
 
-All data endpoints require a development API key. The health endpoint is public.
+The frontend communicates with the backend through a Next.js API proxy route (`/api/proxy/*`). The API key is attached **server-side**, keeping it hidden from the browser.
+
+```
+Browser → /api/proxy/heritage → Next.js (adds API key) → Backend:3001/api/heritage
+```
+
+### Direct Backend Access (Development)
+
+For direct backend testing, the API key is still required:
 
 ```bash
 # Health check (no key needed)
@@ -143,9 +153,6 @@ curl http://localhost:3001/api/health
 
 # Data endpoint (key required)
 curl -H "X-API-Key: your_key_here" http://localhost:3001/api/locations
-
-# Connectivity check
-curl -H "X-API-Key: your_key_here" http://localhost:3001/api/system/connectivity
 ```
 
 See [docs/development/api-key.md](docs/development/api-key.md) for full details.

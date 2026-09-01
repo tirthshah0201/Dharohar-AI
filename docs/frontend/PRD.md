@@ -69,8 +69,8 @@ All components are in `components/ui/`:
 ### API Client
 
 `services/api.ts` provides a centralized `ApiClient` class:
-- Automatically attaches `X-API-Key` header from `NEXT_PUBLIC_DEMO_API_KEY`
-- Reads `NEXT_PUBLIC_API_URL` from environment (default: `http://localhost:3001/api`)
+- Routes all requests through `/api/proxy/*` (API key attached server-side)
+- No `NEXT_PUBLIC_DEMO_API_KEY` needed (removed for security)
 - Handles 401, 400, 404, 500 errors with structured error messages
 - Supports GET, POST, PUT, DELETE methods
 

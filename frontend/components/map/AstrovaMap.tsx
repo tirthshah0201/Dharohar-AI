@@ -107,6 +107,8 @@ function FlyToController({
 export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props) {
   const [selState, setSelState] = useState<string | null>(null);
   const [catFilter, setCatFilter] = useState("all");
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [periods, setPeriods] = useState<Array<{id: string; name: string; start_year: number; end_year: number | null}>>([]);
   const [markerCount, setMarkerCount] = useState(0);
   const [locations, setLocations] = useState<MapFeature[]>([]);
   const [heritage, setHeritage] = useState<MapFeature[]>([]);
@@ -129,9 +131,13 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
     setLoading(true);
     setError(null);
     try {
-      const data = await loadMapData();
+      const [data, periodsRes] = await Promise.all([
+        loadMapData(),
+        import("@/services/api").then(m => m.api.get<{ data: Array<{id: string; name: string; start_year: number; end_year: number | null}> }>('/periods')),
+      ]);
       setLocations(data.mappableLocations);
       setHeritage(data.heritageFeatures);
+      setPeriods(periodsRes.data || []);
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "Unable to load heritage data";
@@ -202,8 +208,15 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
       );
     }
 
+    // Filter by period
+    if (periodFilter !== "all") {
+      features = features.filter(
+        (f) => f.period_id === periodFilter
+      );
+    }
+
     return features;
-  }, [allFeatures, selState, catFilter]);
+  }, [allFeatures, selState, catFilter, periodFilter]);
 
   // ---- Categories ----
   const categories = useMemo(() => {
@@ -453,7 +466,9 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
                   state={feature.state}
                   category={feature.type || feature.category || "heritage"}
                   id={feature.id}
+                  slug={feature.slug}
                   source={feature.source}
+                  period={feature.period_id ? periods.find(p => p.id === feature.period_id)?.name : undefined}
                   onAskAI={onAskAI}
                 />
               </Popup>
@@ -473,10 +488,13 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
       {/* Map controls */}
       <div className="absolute right-3 top-16 z-10">
         <MapControls
-          onReset={() => handleStateSelect(null)}
+          onReset={() => { handleStateSelect(null); setCatFilter("all"); setPeriodFilter("all"); }}
           categoryFilter={catFilter}
           onCategoryChange={setCatFilter}
           categories={categories}
+          periodFilter={periodFilter}
+          onPeriodChange={setPeriodFilter}
+          periods={periods}
           totalMarkers={markerCount}
         />
       </div>

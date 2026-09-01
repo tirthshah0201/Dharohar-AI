@@ -10,6 +10,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { SearchInput } from "@/components/ui/SearchInput";
+import { SearchSuggestions } from "@/components/ui/SearchSuggestions";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -26,6 +27,7 @@ import {
   Compass,
   Bot,
   X,
+  Clock,
 } from "lucide-react";
 
 // Dynamic import for Leaflet map (no SSR)
@@ -66,8 +68,12 @@ interface SearchResult {
   description: string;
   location_id: string | null;
   period_id: string | null;
+  period_name: string | null;
+  state: string | null;
   source: "heritage" | "location";
 }
+
+
 
 /* ========================================
    Helpers
@@ -104,6 +110,15 @@ function ExploreContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
+
+
+  // Fetch heritage counts per state
+  const { data: stateCounts } = useApi<Array<{ state: string; heritage_count: number }>>("/heritage/state-counts");
+  const stateCountMap = useMemo(() => {
+    if (!stateCounts) return new Map<string, number>();
+    return new Map(stateCounts.map(sc => [sc.state, sc.heritage_count]));
+  }, [stateCounts]);
+
   // Fetch locations based on type filter
   const typeParam = activeTab !== "all" ? `?type=${activeTab}` : "";
   const { data: locations, loading, error, refetch } = useApi<Location[]>(`/locations${typeParam}`);
@@ -127,9 +142,12 @@ function ExploreContent() {
     }
   };
 
-  // Fetch search results when there's a query
+  // Fetch search results when there's a query, with state filter
+  const searchUrl = debouncedQuery.trim()
+    ? `/search?q=${encodeURIComponent(debouncedQuery.trim())}${selectedState ? `&state=${encodeURIComponent(selectedState)}` : ""}`
+    : "";
   const { data: searchResults, loading: searchLoading } = useApi<SearchResult[]>(
-    debouncedQuery.trim() ? `/search?q=${encodeURIComponent(debouncedQuery.trim())}` : "",
+    searchUrl,
     { immediate: false }
   );
 
@@ -239,42 +257,57 @@ function ExploreContent() {
                     <h3 className={`font-semibold text-sm ${selectedState === state.name ? "text-terracotta" : "text-charcoal"}`}>{state.name}</h3>
                     <p className="text-xs text-muted mt-0.5">{state.region}</p>
                     <p className="text-[11px] text-terracotta mt-2 flex items-center gap-1">
-                      {state.heritageCount} sites <ChevronRight className="h-3 w-3" />
+                      {stateCountMap.get(state.name) ?? state.heritageCount} sites <ChevronRight className="h-3 w-3" />
                     </p>
                   </motion.div>
                 </Link>
               ))}
             </div>
           </div>
-        </FadeIn>
-
-        {/* Search and Tabs */}
+        </FadeIn>            {/* Search and Tabs */}
         <FadeIn delay={0.15}>
           <div className="mb-6">
-            <div className="max-w-md mb-4">
+            <div className="relative max-w-md mb-4">
               <SearchInput
-                placeholder="Search locations, heritage..."
+                placeholder="Search locations, heritage sites, states..."
                 onSearch={handleSearch}
                 value={searchQuery}
+              />
+              <SearchSuggestions
+                query={searchQuery}
+                onSelect={() => { setSearchQuery(""); setDebouncedQuery(""); }}
               />
             </div>
 
             {!isSearching && (
-              <div className="flex gap-1 border-b border-border">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                      activeTab === tab.id
-                        ? "border-terracotta text-charcoal"
-                        : "border-transparent text-muted hover:text-charcoal hover:border-warm-gray"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="flex gap-1 border-b border-border">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                        activeTab === tab.id
+                          ? "border-terracotta text-charcoal"
+                          : "border-transparent text-muted hover:text-charcoal hover:border-warm-gray"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                {selectedState && (
+                  <div className="flex items-center gap-2 mt-3">
+                    <span className="text-xs text-muted">Filtering by:</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-terracotta/10 text-terracotta rounded-full text-xs font-medium">
+                      {selectedState}
+                      <button onClick={() => handleStateChange("")} className="hover:text-terracotta-dark">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </FadeIn>
@@ -300,13 +333,31 @@ function ExploreContent() {
                         className="rounded-xl border border-border bg-card p-4 cursor-pointer"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-heritage-gold/10 shrink-0">
-                            <Landmark className="h-4 w-4 text-heritage-gold" />
+                          <div className={`flex h-9 w-9 items-center justify-center rounded-lg shrink-0 ${result.source === 'heritage' ? 'bg-heritage-gold/10' : 'bg-terracotta/10'}`}>
+                            {result.source === 'heritage' ? (
+                              <Landmark className="h-4 w-4 text-heritage-gold" />
+                            ) : (
+                              <MapPin className="h-4 w-4 text-terracotta" />
+                            )}
                           </div>
-                          <div className="min-w-0">
-                            <h4 className="text-sm font-semibold text-charcoal">{result.name}</h4>
-                            <Badge variant="outline" className="mt-1 text-[10px]">{result.category}</Badge>
-                            <p className="text-xs text-muted mt-1.5 line-clamp-2">{result.description}</p>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-semibold text-charcoal truncate">{result.name}</h4>
+                              <Badge variant="outline" className="text-[10px] shrink-0 capitalize">{result.source}</Badge>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <Badge variant="outline" className="text-[10px]">{result.category}</Badge>
+                              {result.state && (
+                                <span className="text-[10px] text-muted">{result.state}</span>
+                              )}
+                              {result.period_name && (
+                                <Badge variant="secondary" className="text-[9px] bg-heritage-gold/10 text-heritage-gold border-heritage-gold/20">
+                                  <Clock className="h-2.5 w-2.5 mr-0.5" />
+                                  {result.period_name}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted mt-1.5 line-clamp-2 leading-relaxed">{result.description}</p>
                           </div>
                         </div>
                       </motion.div>
@@ -337,6 +388,15 @@ function ExploreContent() {
             </div>
           )}
 
+          {/* Search result count */}
+          {isSearching && !loading && !searchLoading && !error && displayResults && displayResults.length > 0 && (
+            <div className="mb-4">
+              <p className="text-sm text-muted">
+                Found <span className="font-medium text-charcoal">{displayResults.length}</span> result{displayResults.length !== 1 ? 's' : ''} for &quot;{debouncedQuery}&quot;
+              </p>
+            </div>
+          )}
+
           {/* Empty state */}
           {!loading && !searchLoading && !error && (!displayResults || displayResults.length === 0) && (
             <EmptyState
@@ -344,7 +404,7 @@ function ExploreContent() {
               title={isSearching ? "No results found" : "No locations available"}
               description={
                 isSearching
-                  ? `No heritage results found for "${debouncedQuery}". Try a different search term.`
+                  ? `No results found for "${debouncedQuery}". Try a different search term or explore by state above.`
                   : "Locations will appear here once they are added to the database."
               }
             />

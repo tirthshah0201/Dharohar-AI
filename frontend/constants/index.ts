@@ -79,9 +79,7 @@ export const AI_SERVICE_URL =
   process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:8000";
 
 /**
- * Development-only API key for frontend→backend connectivity.
- * ⚠️ This is NOT a secret — it is a temporary dev-only key.
- * It will be removed when real authentication is implemented.
+ * API key is now handled server-side via /api/proxy route.
+ * NEXT_PUBLIC_DEMO_API_KEY is no longer needed.
  */
-export const DEMO_API_KEY =
-  process.env.NEXT_PUBLIC_DEMO_API_KEY || "";
+// DEMO_API_KEY removed from client - now server-side only

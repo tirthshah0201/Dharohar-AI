@@ -1,0 +1,102 @@
+%% ============================================
+%% ASTROVA — System Architecture Diagram
+%% ============================================
+
+graph TB
+    subgraph "User Interface"
+        U[User]
+        B[Browser]
+    end
+
+    subgraph "Frontend - Next.js"
+        FE[Next.js App]
+        UI[React Components]
+        API_PROXY[API Proxy Route]
+        MAP[Leaflet Map]
+        AI_CHAT[ChatBot Component]
+    end
+
+    subgraph "Backend - Express"
+        BE[Express Server]
+        ROUTES[API Routes]
+        MW[Middleware]
+        CHATBOT[Chatbot Service]
+    end
+
+    subgraph "AI Service - FastAPI"
+        AI_SVC[FastAPI Server]
+        ML[ML Intent Classifier]
+        PREDICT[Prediction Endpoint]
+    end
+
+    subgraph "Database - Neon PostgreSQL"
+        DB[(Neon PostgreSQL)]
+        LOCATIONS[locations]
+        HERITAGE[heritage_entities]
+        KNOWLEDGE[chatbot_knowledge]
+        SOURCES[sources]
+        MEDIA[media]
+    end
+
+    subgraph "External Services"
+        OSM[OpenStreetMap Tiles]
+        NOMINATIM[Nominatim Geocoding]
+    end
+
+    subgraph "Static Data"
+        GEOJSON[GeoJSON Files]
+        IMAGES[Local Images]
+    end
+
+    %% User interactions
+    U --> B
+    B --> FE
+
+    %% Frontend flow
+    FE --> UI
+    FE --> API_PROXY
+    FE --> MAP
+    FE --> AI_CHAT
+
+    %% API Proxy flow
+    API_PROXY -->|HTTP| BE
+
+    %% Backend flow
+    BE --> ROUTES
+    BE --> MW
+    ROUTES --> CHATBOT
+
+    %% AI Service flow
+    CHATBOT -->|HTTP| AI_SVC
+    AI_SVC --> ML
+    ML --> PREDICT
+
+    %% Database flow
+    ROUTES -->|SQL| DB
+    CHATBOT -->|SQL| DB
+    DB --> LOCATIONS
+    DB --> HERITAGE
+    DB --> KNOWLEDGE
+    DB --> SOURCES
+    DB --> MEDIA
+
+    %% External service flow
+    MAP -->|Tiles| OSM
+    CHATBOT -->|Geocoding| NOMINATIM
+
+    %% Static data flow
+    MAP --> GEOJSON
+    UI --> IMAGES
+
+    %% Styling
+    classDef frontend fill:#E8F5E9,stroke:#2E7D32
+    classDef backend fill:#E3F2FD,stroke:#1565C0
+    classDef ai fill:#FFF3E0,stroke:#E65100
+    classDef database fill:#F3E5F5,stroke:#6A1B9A
+    classDef external fill:#ECEFF1,stroke:#546E7A
+
+    class FE,UI,API_PROXY,MAP,AI_CHAT frontend
+    class BE,ROUTES,MW,CHATBOT backend
+    class AI_SVC,ML,PREDICT ai
+    class DB,LOCATIONS,HERITAGE,KNOWLEDGE,SOURCES,MEDIA database
+    class OSM,NOMINATIM,GEOJSON,IMAGES external

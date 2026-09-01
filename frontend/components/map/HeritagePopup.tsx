@@ -13,7 +13,9 @@ interface HeritagePopupProps {
   state: string;
   category: string;
   id?: string;
+  slug?: string;
   source?: "database" | "famous";
+  period?: string;
   onAskAI?: (context: { name: string; state: string; category: string }) => void;
 }
 
@@ -52,7 +54,9 @@ export function HeritagePopup({
   state,
   category,
   id,
+  slug,
   source,
+  period,
   onAskAI,
 }: HeritagePopupProps) {
   const Icon = CATEGORY_ICONS[category] || CATEGORY_ICONS[type] || MapPin;
@@ -62,8 +66,8 @@ export function HeritagePopup({
   const HERITAGE_TYPES = new Set(["monument", "craft", "festival", "architecture", "event", "food", "community", "tradition", "person"]);
   const detailHref = id
     ? HERITAGE_TYPES.has(type) || HERITAGE_TYPES.has(category)
-      ? `/heritage/${id}`
-      : `/explore/${id}`
+      ? `/heritage/${slug || id}`
+      : `/explore/${slug || id}`
     : "/heritage";
 
   return (
@@ -82,6 +86,12 @@ export function HeritagePopup({
               <span className="text-[11px] text-gray-300">·</span>
               <span className="text-[11px] text-[#C2703E] font-medium capitalize">{type}</span>
             </div>
+            {period && (
+              <div className="flex items-center gap-1 mt-1">
+                <Clock className="h-3 w-3 text-[#B8963E]" />
+                <span className="text-[11px] text-[#B8963E] font-medium">{period}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -107,7 +117,7 @@ export function HeritagePopup({
           className="flex items-center justify-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors"
         >
           <ExternalLink className="h-3 w-3" />
-          Details
+          View Heritage
         </a>
       </div>
     </div>

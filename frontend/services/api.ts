@@ -6,7 +6,15 @@
    Automatically attaches the development API key to requests.
    ======================================== */
 
-import { API_BASE_URL, DEMO_API_KEY } from "@/constants";
+/* ========================================
+   Astrova — API Client
+   ========================================
+
+   Central API client for all backend communication.
+   Uses /api/proxy/* route to keep API key server-side.
+   ======================================== */
+
+import { API_BASE_URL } from "@/constants";
 
 interface RequestOptions {
   method?: string;
@@ -21,18 +29,29 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  /**
+   * Convert backend endpoint to proxy URL.
+   * /heritage → /api/proxy/heritage
+   */
+  private getProxyUrl(endpoint: string): string {
+    // Remove leading /api/ if present, then prepend /api/proxy/
+    const cleanEndpoint = endpoint.replace(/^\/api\//, "/");
+    return `/api/proxy${cleanEndpoint}`;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {}
   ): Promise<T> {
     const { method = "GET", headers = {}, body } = options;
 
+    // Route through proxy (API key attached server-side)
+    const url = this.getProxyUrl(endpoint);
+
     const config: RequestInit = {
       method,
       headers: {
         "Content-Type": "application/json",
-        // Attach development API key for backend connectivity
-        ...(DEMO_API_KEY ? { "X-API-Key": DEMO_API_KEY } : {}),
         ...headers,
       },
     };
@@ -41,7 +60,7 @@ class ApiClient {
       config.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, config);
+    const response = await fetch(url, config);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -52,7 +71,7 @@ class ApiClient {
       if (response.status === 401) {
         throw new Error(
           error.error?.message ||
-            "API key is invalid or missing. Check NEXT_PUBLIC_DEMO_API_KEY in your .env.local."
+            "Authentication failed. Please check server configuration."
         );
       }
 

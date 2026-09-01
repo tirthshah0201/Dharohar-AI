@@ -200,8 +200,8 @@ export function MapDetailPanel({
             {(() => {
               const HERITAGE_TYPES = new Set(["monument", "craft", "festival", "architecture", "event", "food", "community", "tradition", "person"]);
               const detailHref = HERITAGE_TYPES.has(typeKey)
-                ? `/heritage/${feature.id}`
-                : `/explore/${feature.id}`;
+                ? `/heritage/${feature.slug || feature.id}`
+                : `/explore/${feature.slug || feature.id}`;
               return (
                 <a
                   href={detailHref}

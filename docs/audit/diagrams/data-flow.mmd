@@ -1,0 +1,67 @@
+%% ============================================
+%% ASTROVA — Data Flow Diagram
+%% ============================================
+
+graph LR
+    subgraph "A. Heritage Search Flow"
+        A1[Search Input] --> A2[Search API]
+        A2 --> A3[PostgreSQL Full-Text]
+        A3 --> A4[Results]
+        A4 --> A5[Navigation]
+    end
+
+    subgraph "B. Map Marker Flow"
+        B1[Load Markers] --> B2[API /locations + /heritage]
+        B2 --> B3[Validate Coordinates]
+        B3 --> B4[Create Leaflet Markers]
+        B4 --> B5[Render on Map]
+        B5 --> B6[Hover → Tooltip]
+        B5 --> B7[Click → Popup]
+        B7 --> B8[View Details]
+        B7 --> B9[Ask AI]
+    end
+
+    subgraph "C. AI Question Flow"
+        C1[User Question] --> C2[Language Detection]
+        C2 --> C3[ML Intent Classification]
+        C3 --> C4{Confidence > 0.3?}
+        C4 -->|Yes| C5[ML Intent]
+        C4 -->|No| C6[Regex Fallback]
+        C5 --> C7[State Detection]
+        C6 --> C7
+        C7 --> C8[Knowledge Retrieval]
+        C8 --> C9[Response Generation]
+        C9 --> C10[Action Builder]
+        C10 --> C11[Reply + Actions]
+    end
+
+    subgraph "D. Map ↔ AI Flow"
+        D1[Map Marker] -->|onAskAI| D2[ChatBot Context]
+        D2 --> D3[AI Response]
+        D3 --> D4[Navigation Action]
+        D4 --> D5[Page or Map]
+    end
+
+    subgraph "E. Image System Flow"
+        E1[Entity Name] --> E2[HERITAGE_IMAGES Lookup]
+        E2 --> E3{Exact Match?}
+        E3 -->|Yes| E4[Return Image]
+        E3 -->|No| E5[Partial Match]
+        E5 --> E6{Found?}
+        E6 -->|Yes| E4
+        E6 -->|No| E7[Category Fallback]
+        E7 --> E4
+    end
+
+    %% Styling
+    classDef search fill:#E8F5E9,stroke:#2E7D32
+    classDef map fill:#E3F2FD,stroke:#1565C0
+    classDef ai fill:#FFF3E0,stroke:#E65100
+    classDef interaction fill:#F3E5F5,stroke:#6A1B9A
+    classDef image fill:#E0F7FA,stroke:#00695C
+
+    class A1,A2,A3,A4,A5 search
+    class B1,B2,B3,B4,B5,B6,B7,B8,B9 map
+    class C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11 ai
+    class D1,D2,D3,D4,D5 interaction
+    class E1,E2,E3,E4,E5,E6,E7 image

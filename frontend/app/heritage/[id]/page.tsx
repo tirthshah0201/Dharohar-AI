@@ -1,9 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -24,6 +23,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { getHeritageImage } from "@/constants/images";
+import { GalleryLightbox } from "@/components/ui/GalleryLightbox";
+import { FavoriteButton } from "@/components/ui/FavoriteButton";
 
 /* ========================================
    Types
@@ -32,11 +33,61 @@ import { getHeritageImage } from "@/constants/images";
 interface HeritageEntity {
   id: string;
   name: string;
+  slug: string;
   category: string;
   description: string;
   location_id: string | null;
   period_id: string | null;
+  image_url: string | null;
   created_at: string;
+  source: {
+    id: string;
+    title: string | null;
+    publisher: string | null;
+    author: string | null;
+    url: string | null;
+    source_type: string;
+    verification_status: string;
+    publication_date: string | null;
+    retrieved_date: string | null;
+  } | null;
+  period?: {
+    id: string;
+    name: string;
+    start_year: number | null;
+    end_year: number | null;
+    description: string | null;
+  } | null;
+  media?: Array<{
+    id: string;
+    entity_id: string;
+    type: string;
+    url: string;
+    caption: string | null;
+    alt_text: string | null;
+    credit: string | null;
+    display_order: number | null;
+    is_primary: boolean;
+    verification_status: string | null;
+  }>;
+  related?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    category: string;
+    relationship_type: string;
+    relationship_description: string | null;
+  }>;
+}
+
+interface Location {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  state: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 /* ========================================
@@ -79,15 +130,22 @@ export default function HeritageDetailPage({
   const { id } = use(params);
 
   const { data: heritage, loading, error, refetch } = useApi<HeritageEntity>(`/heritage/${id}`);
+  const { data: location } = useApi<Location>(
+    heritage?.location_id ? `/locations/${heritage.location_id}` : "",
+    { immediate: !!heritage?.location_id }
+  );
+
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const Icon = categoryIcons[heritage?.category || "monument"] || Landmark;
   const colorClass = categoryColors[heritage?.category || "monument"] || "bg-terracotta/10 text-terracotta";
 
   return (
-    <div className="py-8 sm:py-12">
+    <div className="min-h-screen">
       <Container>
         {/* Breadcrumb */}
-        <div className="mb-6">
+        <div className="pt-6 pb-4">
           <Breadcrumb
             items={[
               { label: "Home", href: "/" },
@@ -96,15 +154,6 @@ export default function HeritageDetailPage({
             ]}
           />
         </div>
-
-        {/* Back link */}
-        <Link
-          href="/heritage"
-          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-charcoal transition-colors mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Heritage
-        </Link>
 
         {/* Loading */}
         {loading && <LoadingState message="Loading heritage entity..." />}
@@ -121,67 +170,93 @@ export default function HeritageDetailPage({
         {/* Heritage Detail */}
         {!loading && !error && heritage && (
           <>
-            {/* Hero Image */}
+            {/* Hero Section */}
             {(() => {
-              const heroImage = getHeritageImage(heritage.name, heritage.category);
+              // Priority: 1) database primary media, 2) database image_url, 3) frontend fallback
+              const primaryMedia = heritage.media?.find(m => m.is_primary) || heritage.media?.[0];
+              const heroSrc = primaryMedia?.url || heritage.image_url || null;
+              const heroAlt = primaryMedia?.alt_text || `${heritage.name} - ${heritage.category}`;
+              const heroImage = heroSrc ? { src: heroSrc, alt: heroAlt } : getHeritageImage(heritage.name, heritage.category);
               return heroImage ? (
-                <div className="relative rounded-2xl overflow-hidden mb-8 h-64 sm:h-80">
+                <div className="relative rounded-2xl overflow-hidden mb-10 h-72 sm:h-96 lg:h-[28rem]">
                   <img
                     src={heroImage.src}
                     alt={heroImage.alt}
                     className="w-full h-full object-cover"
+                    loading="eager"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <Badge variant="secondary" className="bg-white/90 text-charcoal backdrop-blur-sm">
-                        {heritage.category}
-                      </Badge>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10">
+                    <div className="max-w-3xl">
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <Badge variant="secondary" className="bg-white/90 text-charcoal backdrop-blur-sm">
+                          {heritage.category}
+                        </Badge>
+                        {location && (
+                          <span className="text-white/80 text-sm">
+                            {location.name}, {location.state}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white drop-shadow-lg mb-3">
+                          {heritage.name}
+                        </h1>
+                        <FavoriteButton heritageId={heritage.id} size="md" className="!text-white/80 hover:!text-white" />
+                      </div>
+                      <p className="text-base sm:text-lg text-white/90 max-w-2xl leading-relaxed">
+                        {heritage.description.substring(0, 200)}...
+                      </p>
                     </div>
-                    <h1 className="font-display text-3xl sm:text-4xl text-white drop-shadow-md">
-                      {heritage.name}
-                    </h1>
-                    <p className="text-sm text-white/80 mt-2 max-w-xl">
-                      {heritage.description.substring(0, 120)}...
-                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="mb-8">
-                  <div className="flex items-start gap-4">
-                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl shrink-0 ${colorClass}`}>
-                      <Icon className="h-7 w-7" />
+                <div className="mb-10 pt-4">
+                  <div className="max-w-3xl">
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <Badge variant="secondary" className={colorClass}>
+                        {heritage.category}
+                      </Badge>
+                      {location && (
+                        <span className="text-muted text-sm">
+                          {location.name}, {location.state}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3 mb-1">
-                        <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
-                          {heritage.name}
-                        </h1>
-                        <Badge variant="secondary">{heritage.category}</Badge>
-                      </div>
-                      <p className="text-sm text-muted">
-                        {heritage.description.substring(0, 100)}...
-                      </p>
-                    </div>
+                    <h1 className="font-display text-4xl sm:text-5xl text-charcoal mb-3">
+                      {heritage.name}
+                    </h1>
+                    <p className="text-lg text-muted leading-relaxed">
+                      {heritage.description.substring(0, 200)}...
+                    </p>
                   </div>
                 </div>
               );
             })()}
 
-            {/* Description Card */}
-            <Card className="mb-8">
-              <CardContent>
-                <h2 className="font-display text-xl text-charcoal mb-3">About {heritage.name}</h2>
-                <p className="text-muted leading-relaxed whitespace-pre-wrap">{heritage.description}</p>
-              </CardContent>
-            </Card>
+            {/* Editorial Content Section */}
+            <div className="mb-16">
+              <div className="max-w-3xl mx-auto">
+                <div className="border-l-4 border-terracotta pl-6 mb-8">
+                  <h2 className="font-display text-3xl sm:text-4xl text-charcoal">Discover the Story</h2>
+                </div>
+                <div className="prose prose-lg max-w-none text-charcoal/85 leading-relaxed">
+                  {heritage.description.split('\n\n').map((paragraph, idx) => (
+                    <p key={idx} className="mb-6 text-lg">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-            {/* Metadata Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {/* Category */}
-              <Card>
-                <CardContent>
-                  <div className="flex items-center gap-3">
+            {/* At a Glance */}
+            <div className="mb-16">
+              <div className="max-w-3xl mx-auto">
+                <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-6">At a Glance</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Category */}
+                  <div className="flex items-center gap-3 p-4 bg-cream/50 rounded-xl">
                     <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${colorClass}`}>
                       <Icon className="h-5 w-5" />
                     </div>
@@ -190,77 +265,332 @@ export default function HeritageDetailPage({
                       <p className="text-sm font-semibold text-charcoal capitalize">{heritage.category}</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
 
-              {/* Location */}
-              {heritage.location_id && (
-                <Link href={`/explore/${heritage.location_id}`}>
-                  <Card hover>
-                    <CardContent>
-                      <div className="flex items-center gap-3">
+                  {/* Location */}
+                  {location && (
+                    <Link href={`/explore/${location.slug || location.id}`} className="block">
+                      <div className="flex items-center gap-3 p-4 bg-cream/50 rounded-xl hover:bg-cream transition-colors">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10">
                           <MapPin className="h-5 w-5 text-terracotta" />
                         </div>
                         <div>
                           <p className="text-xs text-muted uppercase tracking-wider">Location</p>
-                          <p className="text-sm font-semibold text-terracotta">View location →</p>
+                          <p className="text-sm font-semibold text-terracotta">{location.name}</p>
+                          <p className="text-xs text-muted">{location.state}</p>
                         </div>
-                        <ExternalLink className="h-4 w-4 text-muted ml-auto" />
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )}
+                    </Link>
+                  )}
 
-              {/* Period */}
-              {heritage.period_id && (
-                <Link href="/timeline">
-                  <Card hover>
-                    <CardContent>
-                      <div className="flex items-center gap-3">
+                  {/* Period */}
+                  {heritage.period && (
+                    <Link href={`/heritage?period=${heritage.period.id}`} className="block">
+                      <div className="flex items-center gap-3 p-4 bg-cream/50 rounded-xl hover:bg-cream transition-colors">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/10">
                           <Clock className="h-5 w-5 text-heritage-gold" />
                         </div>
                         <div>
                           <p className="text-xs text-muted uppercase tracking-wider">Historical Period</p>
-                          <p className="text-sm font-semibold text-heritage-gold">View timeline →</p>
+                          <p className="text-sm font-semibold text-heritage-gold">{heritage.period.name}</p>
+                          {heritage.period.start_year != null && (
+                            <p className="text-xs text-muted">
+                              {heritage.period.start_year < 0
+                                ? `${Math.abs(heritage.period.start_year)} BCE`
+                                : `${heritage.period.start_year} CE`}
+                              {heritage.period.end_year != null && (
+                                <>
+                                  {' — '}
+                                  {heritage.period.end_year < 0
+                                    ? `${Math.abs(heritage.period.end_year)} BCE`
+                                    : heritage.period.end_year > 2000
+                                      ? 'Present'
+                                      : `${heritage.period.end_year} CE`}
+                                </>
+                              )}
+                            </p>
+                          )}
+                          {heritage.period.description && (
+                            <p className="text-xs text-muted mt-1 line-clamp-2">{heritage.period.description}</p>
+                          )}
                         </div>
-                        <ExternalLink className="h-4 w-4 text-muted ml-auto" />
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )}
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Ask Astrova about this */}
-            <Card className="mb-8 border-terracotta/20">
-              <CardContent>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
-                    <Sparkles className="h-5 w-5 text-terracotta" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-charcoal">Ask Astrova about {heritage.name}</h3>
-                    <p className="text-sm text-muted">Get AI-powered insights about this heritage entry.</p>
-                  </div>
-                  <Link href="/ai">
-                    <Button size="sm" variant="secondary">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Ask Astrova
-                    </Button>
+            {/* Explore the Place */}
+            {location && (
+              <div className="mb-16">
+                <div className="max-w-3xl mx-auto">
+                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-6">Explore the Place</h2>
+                  <Link href={`/explore?focus=${location.id}`} className="block">
+                    <div className="p-6 bg-gradient-to-br from-terracotta/5 to-heritage-gold/5 rounded-2xl border border-terracotta/10 hover:border-terracotta/20 transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-terracotta/10 shrink-0">
+                          <MapPin className="h-6 w-6 text-terracotta" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-display text-xl text-charcoal mb-1">{location.name}</h3>
+                          <p className="text-sm text-muted mb-2">{location.state} · {location.type}</p>
+                          {location.latitude && location.longitude && (
+                            <p className="text-sm text-muted">
+                              {Number(location.latitude).toFixed(4)}°N, {Number(location.longitude).toFixed(4)}°E
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-terracotta font-medium text-sm">View on Map →</span>
+                      </div>
+                    </div>
                   </Link>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            )}
 
-            {/* Back to heritage */}
-            <div className="text-center">
+            {/* Heritage Gallery */}
+            {heritage.media && heritage.media.length > 0 && (
+              <div className="mb-16">
+                <div className="max-w-3xl mx-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-display text-2xl sm:text-3xl text-charcoal">Gallery</h2>
+                    <span className="text-sm text-muted">
+                      {heritage.media.length} image{heritage.media.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {heritage.media.length === 1 ? (
+                    <button
+                      onClick={() => setGalleryOpen(true)}
+                      className="rounded-2xl overflow-hidden w-full text-left group"
+                      aria-label={`Open gallery for ${heritage.name}`}
+                    >
+                      <img
+                        src={heritage.media[0].url}
+                        alt={heritage.media[0].alt_text || `${heritage.name} - ${heritage.category}`}
+                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        loading="eager"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          const heroFallback = getHeritageImage(heritage.name, heritage.category);
+                          if (heroFallback && img.src !== heroFallback.src) {
+                            img.src = heroFallback.src;
+                          }
+                        }}
+                      />
+                      {(heritage.media[0].caption || heritage.media[0].credit) && (
+                        <div className="mt-3 flex items-center justify-between text-xs text-muted">
+                          {heritage.media[0].caption && <span>{heritage.media[0].caption}</span>}
+                          {heritage.media[0].credit && <span className="italic">Credit: {heritage.media[0].credit}</span>}
+                        </div>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                      {heritage.media.map((m, idx) => (
+                        <button
+                          key={m.id}
+                          onClick={() => { setGalleryIndex(idx); setGalleryOpen(true); }}
+                          className={`rounded-xl overflow-hidden text-left group ${idx === 0 ? 'col-span-2 sm:col-span-2' : ''}`}
+                          aria-label={`Open image ${idx + 1}: ${m.alt_text || m.caption || heritage.name}`}
+                        >
+                          <div className={`relative overflow-hidden ${idx === 0 ? 'h-48 sm:h-72' : 'h-32 sm:h-40'}`}>
+                            <img
+                              src={m.url}
+                              alt={m.alt_text || `${heritage.name} - image ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
+                              onError={(e) => {
+                                const img = e.currentTarget;
+                                const fallback = getHeritageImage(heritage.name, heritage.category);
+                                if (fallback && img.src !== fallback.src) {
+                                  img.src = fallback.src;
+                                }
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                          </div>
+                          {(m.caption || m.credit) && (
+                            <div className="mt-2 flex items-center justify-between text-xs text-muted px-0.5">
+                              {m.caption && <span className="truncate mr-2">{m.caption}</span>}
+                              {m.credit && <span className="italic shrink-0">Credit: {m.credit}</span>}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Sources */}
+            {heritage.source && (
+              <div className="mb-16">
+                <div className="max-w-3xl mx-auto">
+                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-6">Sources</h2>
+                  <div className="p-6 bg-cream/30 rounded-2xl">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/10 shrink-0">
+                        <BookOpen className="h-5 w-5 text-heritage-gold" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-charcoal mb-1">{heritage.source.title || "Unknown Source"}</h3>
+                        {heritage.source.publisher && (
+                          <p className="text-sm text-muted">Publisher: {heritage.source.publisher}</p>
+                        )}
+                        {heritage.source.author && (
+                          <p className="text-sm text-muted">Author: {heritage.source.author}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-3">
+                          <Badge variant="secondary" className="text-xs">
+                            {heritage.source.source_type}
+                          </Badge>
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs ${
+                              heritage.source.verification_status === "VERIFIED"
+                                ? "bg-green-100 text-green-700"
+                                : heritage.source.verification_status === "REVIEWED"
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {heritage.source.verification_status.toLowerCase()}
+                          </Badge>
+                        </div>
+                        {heritage.source.url && (
+                          <a
+                            href={heritage.source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mt-3 text-sm text-terracotta hover:text-terracotta-dark font-medium"
+                          >
+                            View source <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Related Heritage */}
+            {heritage.related && heritage.related.length > 0 && (
+              <div className="mb-16">
+                <div className="max-w-3xl mx-auto">
+                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-2">Related Heritage</h2>
+                  <p className="text-sm text-muted mb-6">Discover connections across India&apos;s heritage traditions</p>
+                  {(() => {
+                    // Group by relationship type
+                    const grouped = heritage.related.reduce((acc, rel) => {
+                      const key = rel.relationship_type;
+                      if (!acc[key]) acc[key] = [];
+                      acc[key].push(rel);
+                      return acc;
+                    }, {} as Record<string, typeof heritage.related>);
+                    const typeLabels: Record<string, string> = {
+                      ASSOCIATED_WITH: 'Cultural Connections',
+                      PRACTICED_BY: 'Practiced By',
+                      PART_OF: 'Part Of',
+                      INFLUENCED_BY: 'Influenced By',
+                      RELATED_TO: 'Related Heritage',
+                    };
+                    return (
+                      <div className="space-y-6">
+                        {Object.entries(grouped).map(([type, rels]) => (
+                          <div key={type}>
+                            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">
+                              {typeLabels[type] || type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                            </h3>
+                            <div className="space-y-3">
+                              {rels.map((rel) => {
+                                const RelIcon = categoryIcons[rel.category] || Landmark;
+                                const relColor = categoryColors[rel.category] || "bg-terracotta/10 text-terracotta";
+                                const relTypeLabel = rel.relationship_type
+                                  .replace(/_/g, ' ')
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, l => l.toUpperCase());
+                                return (
+                                  <Link key={rel.id} href={`/heritage/${rel.slug || rel.id}`}>
+                                    <div className="group p-5 bg-cream/30 rounded-xl hover:bg-cream/60 transition-all border border-transparent hover:border-terracotta/15 hover:shadow-sm">
+                                      <div className="flex items-start gap-4">
+                                        <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 ${relColor} group-hover:scale-105 transition-transform`}>
+                                          <RelIcon className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="font-semibold text-charcoal truncate group-hover:text-terracotta transition-colors">{rel.name}</h3>
+                                            <Badge variant="outline" className="text-[10px] capitalize shrink-0">
+                                              {relTypeLabel}
+                                            </Badge>
+                                          </div>
+                                          <p className="text-xs text-muted capitalize mb-1.5">{rel.category}</p>
+                                          {rel.relationship_description && (
+                                            <p className="text-sm text-charcoal/70 line-clamp-2 leading-relaxed">{rel.relationship_description}</p>
+                                          )}
+                                        </div>
+                                        <span className="text-terracotta/0 group-hover:text-terracotta/60 transition-colors text-sm shrink-0 self-center">
+                                          →
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Ask Astrova */}
+            <div className="mb-16">
+              <div className="max-w-3xl mx-auto">
+                <div className="p-8 bg-gradient-to-br from-terracotta/10 to-heritage-gold/10 rounded-2xl border border-terracotta/10">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta/20 shrink-0">
+                      <Sparkles className="h-7 w-7 text-terracotta" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display text-xl text-charcoal mb-2">Want to explore this heritage further?</h3>
+                      <p className="text-muted">Ask Astrova for AI-powered insights about {heritage.name}.</p>
+                    </div>
+                    <Link href={`/ai?question=Tell me about ${encodeURIComponent(heritage.name)}${location ? ` in ${encodeURIComponent(location.state)}` : ""}`}>
+                      <Button size="lg" className="bg-terracotta hover:bg-terracotta-dark text-white">
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Ask Astrova
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Continue Exploring */}
+            <div className="text-center pb-12 flex flex-wrap items-center justify-center gap-3">
               <Link href="/heritage">
-                <Button variant="outline">
-                  <ArrowLeft className="h-4 w-4" />
+                <Button variant="outline" size="lg">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Browse All Heritage
+                </Button>
+              </Link>
+              {heritage.period && (
+                <Link href={`/heritage?period=${heritage.period.id}`}>
+                  <Button variant="outline" size="lg">
+                    <Clock className="h-4 w-4 mr-2" />
+                    Explore {heritage.period.name}
+                  </Button>
+                </Link>
+              )}
+              <Link href="/timeline">
+                <Button variant="outline" size="lg">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  View Timeline
                 </Button>
               </Link>
             </div>
@@ -275,6 +605,17 @@ export default function HeritageDetailPage({
           />
         )}
       </Container>
+
+      {/* Gallery Lightbox */}
+      {heritage?.media && heritage.media.length > 0 && (
+        <GalleryLightbox
+          media={heritage.media}
+          initialIndex={galleryIndex}
+          open={galleryOpen}
+          onClose={() => setGalleryOpen(false)}
+          entityName={heritage.name}
+        />
+      )}
     </div>
   );
 }

@@ -1,0 +1,95 @@
+%% ============================================
+%% ASTROVA — Chatbot Architecture Flow
+%% ============================================
+
+graph TB
+    subgraph "User Input"
+        U[User Message]
+    end
+
+    subgraph "Frontend"
+        CB[ChatBot Component]
+        API[API Client]
+    end
+
+    subgraph "Backend"
+        CHAT[POST /api/ai/chat]
+        VALIDATE[Validate Input]
+        LANG[Language Detection]
+        ROM[Romanized Detection]
+        ML_CALL[Call ML Service]
+        INTENT[Intent Detection]
+        STATE[State Detection]
+        KB[Knowledge Retrieval]
+        GEO[Geocoding]
+        RESP[Response Generation]
+        ACTIONS[Action Builder]
+    end
+
+    subgraph "AI Service"
+        PREDICT[POST /api/ml/predict]
+        MODEL[ML v5 Classifier]
+    end
+
+    subgraph "Database"
+        CK[chatbot_knowledge]
+        CONV[conversations]
+        MSG[conversation_messages]
+    end
+
+    subgraph "External"
+        NOM[Nominatim API]
+    end
+
+    subgraph "Response"
+        REPLY[Reply]
+        INTENT_OUT[Intent]
+        ACTIONS_OUT[Actions]
+        CHOICES[Guided Choices]
+        SUGGESTIONS[Suggestions]
+    end
+
+    %% Flow
+    U --> CB
+    CB -->|POST| API
+    API -->|Proxy| CHAT
+    CHAT --> VALIDATE
+    VALIDATE --> LANG
+    LANG --> ROM
+    ROM --> ML_CALL
+    ML_CALL -->|HTTP| PREDICT
+    PREDICT --> MODEL
+    MODEL -->|intent + confidence| ML_CALL
+    ML_CALL -->|ML result or null| INTENT
+    INTENT --> STATE
+    STATE --> KB
+    KB -->|SQL| CK
+    INTENT -->|location query| GEO
+    GEO -->|HTTP| NOM
+    KB --> RESP
+    GEO --> RESP
+    RESP --> ACTIONS
+    ACTIONS --> CONV
+    ACTIONS --> MSG
+    ACTIONS --> REPLY
+    ACTIONS --> INTENT_OUT
+    ACTIONS --> ACTIONS_OUT
+    ACTIONS --> CHOICES
+    ACTIONS --> SUGGESTIONS
+
+    %% Styling
+    classDef user fill:#E8F5E9,stroke:#2E7D32
+    classDef frontend fill:#E3F2FD,stroke:#1565C0
+    classDef backend fill:#FFF3E0,stroke:#E65100
+    classDef ai fill:#F3E5F5,stroke:#6A1B9A
+    classDef database fill:#FCE4EC,stroke:#C62828
+    classDef external fill:#ECEFF1,stroke:#546E7A
+    classDef response fill:#E0F7FA,stroke:#00695C
+
+    class U user
+    class CB,API frontend
+    class CHAT,VALIDATE,LANG,ROM,ML_CALL,INTENT,STATE,KB,GEO,RESP,ACTIONS backend
+    class PREDICT,MODEL ai
+    class CK,CONV,MSG database
+    class NOM external
+    class REPLY,INTENT_OUT,ACTIONS_OUT,CHOICES,SUGGESTIONS response

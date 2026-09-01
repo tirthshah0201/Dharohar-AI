@@ -1,0 +1,88 @@
+%% ============================================
+%% ASTROVA — Map Architecture Flow
+%% ============================================
+
+graph TB
+    subgraph "User Interaction"
+        U[User]
+        HOVER[Hover Marker]
+        CLICK[Click Marker]
+        STATE_SEL[Select State]
+        CAT_FILTER[Category Filter]
+    end
+
+    subgraph "Map Component"
+        MAP[Leaflet MapContainer]
+        TILES[OSM TileLayer]
+        STATES_GEO[State GeoJSON]
+        REGIONS_GEO[Region GeoJSON]
+        MARKERS[Feature Markers]
+        POPUP[HeritagePopup]
+        PANEL[MapDetailPanel]
+        CONTROLS[StateSelector + MapControls]
+    end
+
+    subgraph "Data Sources"
+        API_LOC[GET /api/locations]
+        API_HER[GET /api/heritage]
+        STATES_DATA[INDIA_STATES_GEOJSON]
+        REGIONS_DATA[REGIONS_GEOJSON]
+    end
+
+    subgraph "Database"
+        LOC_DB[(locations)]
+        HER_DB[(heritage_entities)]
+    end
+
+    subgraph "Actions"
+        DETAIL[View Details Page]
+        ASK_AI[Ask Astrova AI]
+        ZOOM[Zoom to Location]
+    end
+
+    %% Data Loading
+    MAP -->|onMount| API_LOC
+    MAP -->|onMount| API_HER
+    API_LOC -->|Proxy| LOC_DB
+    API_HER -->|Proxy| HER_DB
+    API_LOC --> MARKERS
+    API_HER --> MARKERS
+    MAP --> STATES_DATA
+    MAP --> REGIONS_DATA
+
+    %% User Interactions
+    U --> HOVER
+    U --> CLICK
+    U --> STATE_SEL
+    U --> CAT_FILTER
+
+    HOVER -->|tooltip| MARKERS
+    CLICK -->|open popup| POPUP
+    STATE_SEL -->|fly to state| MAP
+    CAT_FILTER -->|filter markers| MARKERS
+
+    %% Popup Actions
+    POPUP --> DETAIL
+    POPUP --> ASK_AI
+    POPUP -->|View on Map| MAP
+
+    %% Panel Actions
+    PANEL --> DETAIL
+    PANEL --> ASK_AI
+
+    %% Controls
+    CONTROLS --> STATE_SEL
+    CONTROLS --> CAT_FILTER
+
+    %% Styling
+    classDef user fill:#E8F5E9,stroke:#2E7D32
+    classDef map fill:#E3F2FD,stroke:#1565C0
+    classDef data fill:#FFF3E0,stroke:#E65100
+    classDef database fill:#F3E5F5,stroke:#6A1B9A
+    classDef action fill:#E0F7FA,stroke:#00695C
+
+    class U,HOVER,CLICK,STATE_SEL,CAT_FILTER user
+    class MAP,TILES,STATES_GEO,REGIONS_GEO,MARKERS,POPUP,PANEL,CONTROLS map
+    class API_LOC,API_HER,STATES_DATA,REGIONS_DATA data
+    class LOC_DB,HER_DB database
+    class DETAIL,ASK_AI,ZOOM action

@@ -18,24 +18,45 @@ const router = Router();
 router.get("/", requireDevelopmentApiKey, async (_req, res) => {
   if (!requireDatabase(res)) return;
   try {
-    const { rows } = await query(`
+    // Get periods with their associated heritage entities
+    const { rows: periods } = await query(`
       SELECT
         hp.id,
         hp.name,
         hp.start_year,
         hp.end_year,
-        hp.description,
-        COUNT(he.id)::int AS entity_count
+        hp.description
       FROM historical_periods hp
-      LEFT JOIN heritage_entities he ON he.period_id = hp.id
-      GROUP BY hp.id
       ORDER BY hp.start_year ASC
     `);
 
+    // For each period, fetch its heritage entities
+    const result = [];
+    for (const period of periods) {
+      const { rows: entities } = await query(`
+        SELECT he.id, he.name, he.slug, he.category, he.description,
+          CASE WHEN l.id IS NOT NULL THEN json_build_object(
+            'name', l.name, 'state', l.state
+          ) ELSE NULL END as location,
+          (SELECT m.url FROM media m WHERE m.entity_id = he.id AND m.is_primary = true LIMIT 1) as media_url,
+          (SELECT m.alt_text FROM media m WHERE m.entity_id = he.id AND m.is_primary = true LIMIT 1) as media_alt
+        FROM heritage_entities he
+        LEFT JOIN locations l ON he.location_id = l.id
+        WHERE he.period_id = $1
+        ORDER BY he.name ASC
+      `, [period.id]);
+
+      result.push({
+        ...period,
+        entity_count: entities.length,
+        entities,
+      });
+    }
+
     res.json({
       success: true,
-      data: rows,
-      total: rows.length,
+      data: result,
+      total: result.length,
     });
   } catch (err) {
     console.error("[Timeline] Query error:", (err as Error).message);

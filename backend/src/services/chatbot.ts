@@ -77,7 +77,69 @@ type Intent =
   | "craft_information"
   | "person_information"
   | "festival_information"
+  | "explore_collection"
   | "unknown";
+
+// AI Service URL for ML inference
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+
+/**
+ * Call AI service for ML-based intent prediction.
+ * Falls back to null if AI service is unavailable.
+ */
+async function predictIntentWithML(
+  message: string,
+  language: string
+): Promise<{ intent: Intent; confidence: number } | null> {
+  try {
+    const response = await fetch(`${AI_SERVICE_URL}/api/ml/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: message, language }),
+      signal: AbortSignal.timeout(2000), // 2 second timeout
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json() as {
+      model_available: boolean;
+      confidence: number;
+      intent: string;
+    };
+    if (!data.model_available || data.confidence < 0.3) {
+      // Low confidence or model not available - fall back to regex
+      return null;
+    }
+
+    // Map ML intent to our Intent type
+    const intentMap: Record<string, Intent> = {
+      greeting: "greeting",
+      heritage_information: "heritage_information",
+      location_information: "location_information",
+      state_exploration: "state_exploration",
+      historical_period: "historical_period",
+      craft_information: "craft_information",
+      person_information: "person_information",
+      festival_information: "festival_information",
+      food: "state_exploration",
+      tradition: "state_exploration",
+      river: "state_exploration",
+      waterfall: "state_exploration",
+      mountain: "state_exploration",
+      beach: "state_exploration",
+      wildlife: "state_exploration",
+      architecture: "heritage_information",
+      community: "state_exploration",
+      unknown: "unknown",
+    };
+
+    const intent = intentMap[data.intent] || "unknown";
+    return { intent, confidence: data.confidence };
+  } catch {
+    // AI service unavailable - fall back to regex
+    return null;
+  }
+}
 
 const GREETING_PATTERNS =
   /^(hi|hello|hey|namaste|namaskar|vanakkam|sat sri akal|halo|kem cho|kaise ho|nomoshkar|good morning|good afternoon|good evening)/i;
@@ -161,6 +223,12 @@ function detectIntent(message: string): Intent {
   if (/கோவில்|கோட்டை|மசூதி|குகை|தூபி/i.test(message)) return "heritage_information";  // Tamil
   if (/ਮੰਦਿਰ|ਕਿੱਲਾ|ਮਸਜਿਦ|ਗੁੰਫਾ|ਕਿੱਲੇ/i.test(message)) return "heritage_information";  // Punjabi
 
+  // Collection-specific patterns (check BEFORE craft/state intents)
+  if (/\b(first time|beginner|starter|newcomer|must.?see|top.*heritage|what should i)\b/i.test(lower))
+    return "explore_collection";
+  if (/\b(show|give|list|browse|curated|collection).*\b(collection|grouped)\b/i.test(lower))
+    return "explore_collection";
+
   // Crafts and arts
   if (/\b(crafts?|weaving|embroidery|art|pottery|silk|textile|bronze|painting|kalaa|hathkala|bandhani|patola)\b/i.test(lower) ||
       /હસ્તકલા|શિલ્પ|કલા|બાંધણી|પટોળા|शिल्प|कला|शिल्पकला|कौशल|कारीगरी|கைவினை|நெசவு|ਹੁਣਰ|ਕਲਾ|ਫੁਲਕਾਰੀ|ਬੁਣਾਈ|ਮਾਹਿਰ/i.test(message))
@@ -203,6 +271,21 @@ function detectIntent(message: string): Intent {
   // Location information
   if (/\b(location|city|where|place|district|kuthhe|kahaan|sthalo|located|kya aveli|kya che|kya chhe|kya thi|kya aavelu)\b/i.test(lower))
     return "location_information";
+
+  // Collection exploration
+  if (/\b(collection|collections|curated|grouped|first time|beginner|starter|newcomer|show me.*collection|give me.*collection|explore.*collection)\b/i.test(lower))
+    return "explore_collection";
+  // Keywords that map to specific collections
+  if (/\b(sacred|architecture|temples and|stepwells and|monuments and)\b/i.test(lower) && /\b(architect|temple|stepwell|monument|fort|palace)\b/i.test(lower))
+    return "explore_collection";
+  if (/\b(craft|handicraft|weaving|embroidery|artisan|handmade|art and craft)\b/i.test(lower) && /\b(explore|show|want|discover|see|looking)\b/i.test(lower))
+    return "explore_collection";
+  if (/\b(natural|nature|waterfall|wildlife|beach|mountain|river|gorge|eco|adventure|trek)\b/i.test(lower) && /\b(explore|show|want|discover|see|looking|heritage)\b/i.test(lower))
+    return "explore_collection";
+  if (/\b(ancient|classical|early|old|primitive|prehistor|indus|chola|kalinga)\b/i.test(lower) && /\b(explore|show|want|discover|see|looking)\b/i.test(lower))
+    return "explore_collection";
+  if (/\b(tradition|festival|food|cultural|community|living)\b/i.test(lower) && /\b(explore|show|want|discover|see|looking|heritage)\b/i.test(lower))
+    return "explore_collection";
 
   return "unknown";
 }
@@ -280,68 +363,83 @@ interface KnowledgeResult {
   source: string; state_code: string;
 }
 
-async function searchKnowledge(message: string, stateCode: string | null): Promise<KnowledgeResult[]> {
+async function searchKnowledge(message: string, stateCode: string | null, language: string = "en"): Promise<KnowledgeResult[]> {
   const keywords = extractKeywords(message);
   if (keywords.length === 0) return [];
 
-  // Step 1: Try exact heritage name match first (highest relevance)
-  const nameConditions = keywords.map((k, i) => `heritage_name ILIKE $${i + 1}`).join(" OR ");
-  const nameParams: unknown[] = keywords.map((k) => `%${k}%`);
-  const nameSql = `SELECT id, heritage_name, heritage_type, city, historical_period,
-    description, significance, related_event, related_person,
-    related_craft, source, state_code
-  FROM chatbot_knowledge WHERE ${nameConditions} LIMIT 3`;
-  const nameResult = await query(nameSql, nameParams);
-  const nameResults = nameResult.rows as unknown as KnowledgeResult[];
-  if (nameResults.length > 0) return nameResults;
+  // Language-aware search: try requested language first, fall back to English
+  const langs = language === "en" ? ["en"] : [language, "en"];
 
-  // Step 2: Full-text search with ranking boost for name matches
-  const searchQuery = keywords.join(" ");
-  let sql = `
-    SELECT id, heritage_name, heritage_type, city, historical_period,
+  for (const lang of langs) {
+    // Step 1: Try exact heritage name match first (highest relevance)
+    const nameConditions = keywords.map((k, i) => `heritage_name ILIKE $${i + 1}`).join(" OR ");
+    const nameParams: unknown[] = keywords.map((k) => `%${k}%`);
+    let nameSql = `SELECT id, heritage_name, heritage_type, city, historical_period,
       description, significance, related_event, related_person,
       related_craft, source, state_code
-    FROM chatbot_knowledge
-    WHERE to_tsvector('english',
-      heritage_name || ' ' || COALESCE(description, '') || ' ' ||
-      COALESCE(significance, '') || ' ' || COALESCE(related_event, '') || ' ' ||
-      COALESCE(related_person, '') || ' ' || COALESCE(related_craft, '') || ' ' ||
-      COALESCE(array_to_string(keywords, ' '), '')
-    ) @@ plainto_tsquery('english', $1)
-  `;
-  const params: unknown[] = [searchQuery];
-  if (stateCode) { sql += " AND state_code = $2"; params.push(stateCode); }
-  sql += ` ORDER BY ts_rank(
-    to_tsvector('english', heritage_name || ' ' || COALESCE(description, '')),
-    plainto_tsquery('english', $1)
-  ) DESC LIMIT 5`;
+    FROM chatbot_knowledge WHERE (${nameConditions}) AND language = $${keywords.length + 1}`;
+    nameParams.push(lang);
+    if (stateCode) { nameSql += ` AND state_code = $${nameParams.length + 1}`; nameParams.push(stateCode); }
+    nameSql += " LIMIT 3";
+    const nameResult = await query(nameSql, nameParams);
+    const nameResults = nameResult.rows as unknown as KnowledgeResult[];
+    if (nameResults.length > 0) return nameResults;
 
-  let { rows } = await query(sql, params);
-  let results = rows as unknown as KnowledgeResult[];
+    // Step 2: Full-text search with ranking boost for name matches
+    const searchQuery = keywords.join(" ");
+    let sql = `
+      SELECT id, heritage_name, heritage_type, city, historical_period,
+        description, significance, related_event, related_person,
+        related_craft, source, state_code
+      FROM chatbot_knowledge
+      WHERE language = $${1} AND to_tsvector('english',
+        heritage_name || ' ' || COALESCE(description, '') || ' ' ||
+        COALESCE(significance, '') || ' ' || COALESCE(related_event, '') || ' ' ||
+        COALESCE(related_person, '') || ' ' || COALESCE(related_craft, '') || ' ' ||
+        COALESCE(array_to_string(keywords, ' '), '')
+      ) @@ plainto_tsquery('english', $${2})
+    `;
+    const params: unknown[] = [lang, searchQuery];
+    if (stateCode) { sql += ` AND state_code = $${params.length + 1}`; params.push(stateCode); }
+    sql += ` ORDER BY ts_rank(
+      to_tsvector('english', heritage_name || ' ' || COALESCE(description, '')),
+      plainto_tsquery('english', $${2})
+    ) DESC LIMIT 5`;
 
-  // Step 3: Fallback to ILIKE search if full-text returns nothing
-  if (results.length === 0) {
-    const likeConditions = keywords.map((_, i) =>
-      `(heritage_name ILIKE $${i + 1} OR description ILIKE $${i + 1} OR COALESCE(significance, '') ILIKE $${i + 1} OR COALESCE(related_person, '') ILIKE $${i + 1})`
-    ).join(" OR ");
-    let fallbackSql = `SELECT id, heritage_name, heritage_type, city, historical_period,
-      description, significance, related_event, related_person,
-      related_craft, source, state_code FROM chatbot_knowledge WHERE ${likeConditions}`;
-    const fallbackParams: unknown[] = keywords.map((k) => `%${k}%`);
-    if (stateCode) { fallbackSql += ` AND state_code = $${keywords.length + 1}`; fallbackParams.push(stateCode); }
-    fallbackSql += " LIMIT 5";
-    const fallback = await query(fallbackSql, fallbackParams);
-    results = fallback.rows as unknown as KnowledgeResult[];
+    let { rows } = await query(sql, params);
+    let results = rows as unknown as KnowledgeResult[];
+
+    // Step 3: Fallback to ILIKE search if full-text returns nothing
+    if (results.length === 0) {
+      const likeConditions = keywords.map((_, i) =>
+        `(heritage_name ILIKE $${i + 1} OR description ILIKE $${i + 1} OR COALESCE(significance, '') ILIKE $${i + 1} OR COALESCE(related_person, '') ILIKE $${i + 1})`
+      ).join(" OR ");
+      let fallbackSql = `SELECT id, heritage_name, heritage_type, city, historical_period,
+        description, significance, related_event, related_person,
+        related_craft, source, state_code FROM chatbot_knowledge WHERE (${likeConditions}) AND language = $${keywords.length + 1}`;
+      const fallbackParams: unknown[] = [...keywords.map((k) => `%${k}%`), lang];
+      if (stateCode) { fallbackSql += ` AND state_code = $${fallbackParams.length + 1}`; fallbackParams.push(stateCode); }
+      fallbackSql += " LIMIT 5";
+      const fallback = await query(fallbackSql, fallbackParams);
+      results = fallback.rows as unknown as KnowledgeResult[];
+    }
+    if (results.length > 0) return results;
   }
-  return results;
+
+  return [];
 }
 
-async function getStateOverview(stateCode: string): Promise<KnowledgeResult[]> {
-  const { rows } = await query(
-    `SELECT heritage_name, heritage_type, city, description, significance, source, state_code
-     FROM chatbot_knowledge WHERE state_code = $1 ORDER BY heritage_name LIMIT 8`, [stateCode]
-  );
-  return rows as unknown as KnowledgeResult[];
+async function getStateOverview(stateCode: string, language: string = "en"): Promise<KnowledgeResult[]> {
+  // Try requested language first, fall back to English
+  const langs = language === "en" ? ["en"] : [language, "en"];
+  for (const lang of langs) {
+    const { rows } = await query(
+      `SELECT heritage_name, heritage_type, city, description, significance, source, state_code
+       FROM chatbot_knowledge WHERE state_code = $1 AND language = $2 ORDER BY heritage_name LIMIT 8`, [stateCode, lang]
+    );
+    if (rows.length > 0) return rows as unknown as KnowledgeResult[];
+  }
+  return [];
 }
 
 /* ---- Response Generation ---- */
@@ -408,8 +506,94 @@ export interface ChatSuggestion {
 
 export interface ChatAction {
   label: string;
-  type: "view_heritage" | "view_map" | "view_timeline" | "explore_state" | "explore_category" | "ask_followup" | "view_location";
+  type: "view_heritage" | "view_map" | "view_timeline" | "explore_state" | "explore_category" | "ask_followup" | "view_location" | "explore_collection";
   target: string;
+}
+
+/* ---- Collection Matching ---- */
+
+interface CollectionMatch {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  entity_count: number;
+  relevance: number;
+}
+
+const COLLECTION_KEYWORDS: Record<string, string[]> = {
+  "sacred-architecture": ["temple", "fort", "palace", "stepwell", "monument", "architecture", "sacred", "religious", "mandir", "kila"],
+  "indian-crafts": ["craft", "handicraft", "weaving", "embroidery", "pottery", "artisan", "art", "textile", "bandhani", "phulkari", "madhubani", "blue pottery", "hastkala", "shilpa"],
+  "living-traditions": ["tradition", "festival", "food", "cultural", "community", "living", "garba", "navratri", "cuisine", "dance", "utsav"],
+  "natural-heritage": ["natural", "waterfall", "wildlife", "beach", "mountain", "river", "gorge", "lake", "eco", "adventure", "trek", "forest", "sanctuary"],
+  "ancient-india": ["ancient", "classical", "early", "old", "indus", "chola", "kalinga", "prehistoric", "dynasty"],
+  "first-time-explorers": ["first time", "beginner", "starter", "newcomer", "must see", "essential", "popular", "famous", "iconic", "introductory"],
+};
+
+async function findMatchingCollections(message: string, language: string): Promise<CollectionMatch[]> {
+  const lower = message.toLowerCase();
+  const matches: CollectionMatch[] = [];
+
+  for (const [slug, keywords] of Object.entries(COLLECTION_KEYWORDS)) {
+    let score = 0;
+    for (const kw of keywords) {
+      if (lower.includes(kw)) score += 1;
+    }
+    if (score > 0) {
+      matches.push({ id: slug, name: "", slug, description: "", entity_count: 0, relevance: score });
+    }
+  }
+
+  if (matches.length === 0) return [];
+
+  // Fetch collection details from database
+  matches.sort((a, b) => b.relevance - a.relevance);
+  const topSlugs = matches.slice(0, 2).map(m => m.slug);
+
+  try {
+    const { rows } = await query(
+      `SELECT c.id, c.name, c.slug, c.description, COUNT(ci.id)::int AS entity_count
+       FROM collections c LEFT JOIN collection_items ci ON c.id = ci.collection_id
+       WHERE c.slug = ANY($1) AND c.is_active = true
+       GROUP BY c.id, c.name, c.slug, c.description`,
+      [topSlugs]
+    );
+
+    for (const row of rows as Array<{ id: string; name: string; slug: string; description: string; entity_count: number }>) {
+      const match = matches.find(m => m.slug === row.slug);
+      if (match) {
+        match.id = row.id;
+        match.name = row.name;
+        match.description = row.description;
+        match.entity_count = row.entity_count;
+      }
+    }
+
+    return matches.filter(m => m.name).slice(0, 2);
+  } catch {
+    return [];
+  }
+}
+
+function formatCollectionResponse(collections: CollectionMatch[], language: string): string {
+  if (collections.length === 0) return "";
+  const prefix = language === "gu" ? "Here is a collection I found for you:"
+    : language === "hi" ? "Mujhe aapke liye ek collection mila:"
+    : "I found a collection for you:";
+  const suffix = language === "gu" ? "Collection jova che?"
+    : language === "hi" ? "Kya aap is collection ko dekhna chahenge?"
+    : "Would you like to explore this collection?";
+
+  if (collections.length === 1) {
+    const c = collections[0];
+    const entityWord = c.entity_count === 1 ? "entity" : "entities";
+    return prefix + "\n\n**" + c.name + "\u2014 " + c.entity_count + " curated heritage " + entityWord + ".\n\n" + c.description + "\n\n" + suffix;
+  }
+
+  const list = collections.map(function(c, i) {
+    return (i + 1) + ". **" + c.name + "\u2014 " + (c.description || "").substring(0, 80) + "... (" + c.entity_count + " entities)";
+  }).join("\n");
+  return prefix + "\n\n" + list + "\n\n" + suffix;
 }
 
 function buildActions(
@@ -483,6 +667,15 @@ function buildActions(
     });
   }
 
+  // Collection action for collection intent
+  if (intent === "explore_collection") {
+    actions.push({
+      label: language === "gu" ? "બધી કolekcio\u0950 જુઓ" : language === "hi" ? "सभी संग्रह देखें" : "Browse Collections",
+      type: "explore_collection",
+      target: "/collections",
+    });
+  }
+
   return actions;
 }
 
@@ -539,7 +732,10 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   const wantsRoman = wantsRomanizedResponse(message);
   // Determine response language: RG input -> Gujarati, unless user wants Romanized
   const langCode = (isValidLanguage(language) ? language : (isRG ? "gu" : "en"));
-  const intent = detectIntent(message);
+  
+  // Try ML-based intent detection first, fall back to regex
+  const mlResult = await predictIntentWithML(message, langCode);
+  const intent = mlResult?.intent || detectIntent(message);
   const stateCode = detectState(message);
 
   let reply = "";
@@ -556,7 +752,7 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
     case "person_information":
     case "festival_information":
     case "historical_period": {
-      const results = await searchKnowledge(message, stateCode);
+      const results = await searchKnowledge(message, stateCode, langCode);
       if (results.length > 0) {
         knowledgeIds = results.map((r) => r.id);
         reply = formatHeritageResponse(results, langCode);
@@ -574,9 +770,39 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
       }
       break;
     }
+    case "explore_collection": {
+      const collections = await findMatchingCollections(message, langCode);
+      if (collections.length > 0) {
+        reply = formatCollectionResponse(collections, langCode);
+      } else {
+        // No specific match — list all collections
+        try {
+          const { rows } = await query(
+            `SELECT c.name, c.slug, c.description, COUNT(ci.id)::int AS entity_count
+             FROM collections c LEFT JOIN collection_items ci ON c.id = ci.collection_id
+             WHERE c.is_active = true
+             GROUP BY c.id, c.name, c.slug, c.description
+             ORDER BY c.display_order ASC LIMIT 4`
+          );
+          if (rows.length > 0) {
+            const list = (rows as Array<{name:string;description:string;entity_count:number}>).map((r, i) =>
+              `${i + 1}. **${String(r.name)}** — ${r.description?.substring(0, 80)}... (${r.entity_count} entities)`
+            ).join("\n");
+            reply = "Here are our curated heritage collections:\n\n" + list + "\n\nWould you like to explore one?";
+
+
+          } else {
+            reply = getUnknownResponse(langCode);
+          }
+        } catch {
+          reply = getUnknownResponse(langCode);
+        }
+      }
+      break;
+    }
     case "state_exploration": {
       if (stateCode) {
-        const results = await getStateOverview(stateCode);
+        const results = await getStateOverview(stateCode, langCode);
         if (results.length > 0) {
           knowledgeIds = results.map((r) => r.id);
           reply = formatStateOverview(results, langCode);
@@ -591,7 +817,7 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
       break;
     }
     default: {
-      const results = await searchKnowledge(message, stateCode);
+      const results = await searchKnowledge(message, stateCode, langCode);
       if (results.length > 0) {
         knowledgeIds = results.map((r) => r.id);
         reply = formatHeritageResponse(results, langCode);

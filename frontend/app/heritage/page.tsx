@@ -24,21 +24,60 @@ import {
   Theater,
   Search,
   X,
+  Timer,
 } from "lucide-react";
-import { CATEGORY_IMAGES, getHeritageImage } from "@/constants/images";
+import { SearchSuggestions } from "@/components/ui/SearchSuggestions";
+import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { getHeritageImage } from "@/constants/images";
 
 /* ========================================
    Types
    ======================================== */
 
+interface HeritagePeriod {
+  id: string;
+  name: string;
+  start_year: number;
+  end_year: number | null;
+}
+
 interface HeritageEntity {
   id: string;
   name: string;
+  slug: string;
   category: string;
   description: string;
   location_id: string | null;
   period_id: string | null;
+  image_url: string | null;
   created_at: string;
+  source?: {
+    id: string;
+    title: string | null;
+    publisher: string | null;
+    source_type: string;
+    verification_status: string;
+  } | null;
+  location?: {
+    id: string;
+    name: string;
+    state: string;
+  } | null;
+  period?: {
+    id: string;
+    name: string;
+    start_year: number;
+    end_year: number | null;
+  } | null;
+}
+
+/* ========================================
+   Helpers
+   ======================================== */
+
+function formatYearRange(start: number, end: number | null): string {
+  const fmt = (y: number) => (y < 0 ? `${Math.abs(y)} BCE` : `${y} CE`);
+  return end != null ? `${fmt(start)}–${fmt(end)}` : `${fmt(start)}–Present`;
 }
 
 /* ========================================
@@ -76,30 +115,46 @@ const categories = [
 function HeritageContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || null;
+  const initialPeriod = searchParams.get("period") || null;
+  const initialState = searchParams.get("state") || null;
 
   const [activeCategory, setActiveCategory] = useState<string | null>(initialCategory);
+  const [activeState, setActiveState] = useState<string | null>(initialState);
+  const [activePeriod, setActivePeriod] = useState<string | null>(initialPeriod);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string>("name");
 
-  const categoryParam = activeCategory ? `?category=${activeCategory}` : "";
+  // Build API query params for server-side filtering
+  const apiParams = useMemo(() => {
+    const params = new URLSearchParams();
+    if (activeCategory) params.set("category", activeCategory);
+    if (activeState) params.set("state", activeState);
+    if (activePeriod) params.set("period", activePeriod);
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
+    params.set("sort", sortBy);
+    const qs = params.toString();
+    return qs ? `?${qs}` : "";
+  }, [activeCategory, activeState, activePeriod, searchQuery, sortBy]);
+
   const { data: heritage, loading, error, refetch } = useApi<HeritageEntity[]>(
-    `/heritage${categoryParam}`
+    `/heritage${apiParams}`
   );
 
-  // Client-side search filter
-  const filteredHeritage = useMemo(() => {
-    if (!heritage) return [];
-    if (!searchQuery.trim()) return heritage;
-    const query = searchQuery.toLowerCase();
-    return heritage.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query)
-    );
-  }, [heritage, searchQuery]);
+  // Fetch periods for the filter dropdown
+  const { data: periods } = useApi<HeritagePeriod[]>("/periods");
+
+  // Display heritage (already server-filtered/sorted)
+  const displayHeritage = useMemo(() => heritage || [], [heritage]);
+
+  // Use state-counts endpoint for state filter options (avoids fetching all heritage)
+  const { data: stateCounts } = useApi<Array<{ state: string; heritage_count: number }>>("/heritage/state-counts");
+  const availableStates = useMemo(() => {
+    if (!stateCounts) return [];
+    return stateCounts.map(s => s.state).sort();
+  }, [stateCounts]);
 
   const groupedHeritage = useMemo(() => {
-    return filteredHeritage.reduce(
+    return displayHeritage.reduce(
       (acc, item) => {
         if (!acc[item.category]) {
           acc[item.category] = [];
@@ -109,15 +164,17 @@ function HeritageContent() {
       },
       {} as Record<string, HeritageEntity[]>
     );
-  }, [filteredHeritage]);
+  }, [displayHeritage]);
 
   // Get unique categories from results
   const activeCategories = useMemo(() => {
     return categories.filter((cat) => groupedHeritage[cat.id]?.length > 0);
   }, [groupedHeritage]);
 
-  const hasResults = filteredHeritage.length > 0;
-  const isSearching = searchQuery.trim().length > 0;
+  const hasResults = displayHeritage.length > 0;
+  const isSearching = searchQuery.trim().length > 0 || activeState !== null || activePeriod !== null || activeCategory !== null;
+
+  const hasActiveFilters = searchQuery.trim().length > 0 || activeCategory || activeState || activePeriod;
 
   return (
     <div className="py-8 sm:py-12">
@@ -135,10 +192,17 @@ function HeritageContent() {
             <p className="text-muted max-w-xl">
               Explore heritage across monuments, people, crafts, traditions, festivals, and more.
             </p>
+            <Link
+              href="/timeline"
+              className="inline-flex items-center gap-1.5 mt-3 text-sm text-terracotta hover:text-terracotta-dark font-medium transition-colors"
+            >
+              <Timer className="h-4 w-4" />
+              View Historical Timeline
+            </Link>
           </div>
         </FadeIn>
 
-        {/* Search and Category Filters */}
+        {/* Search and Filters */}
         <FadeIn delay={0.1}>
           <div className="mb-6 space-y-4">
             {/* Search Input */}
@@ -148,6 +212,9 @@ function HeritageContent() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") e.currentTarget.blur();
+                }}
                 placeholder="Search heritage by name, category, or description..."
                 className="w-full rounded-lg border border-border bg-white pl-10 pr-10 py-2.5 text-sm text-charcoal placeholder:text-warm-gray outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30 transition-colors"
               />
@@ -159,12 +226,13 @@ function HeritageContent() {
                   <X className="h-4 w-4 text-muted" />
                 </button>
               )}
+              <SearchSuggestions query={searchQuery} onSelect={() => setSearchQuery("")} />
             </div>
 
             {/* Category Chips */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
               <button
-                onClick={() => setActiveCategory(null)}
+                onClick={() => { setActiveCategory(null); window.history.replaceState({}, '', '/heritage'); }}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   activeCategory === null
                     ? "bg-terracotta text-white"
@@ -179,7 +247,7 @@ function HeritageContent() {
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
+                    onClick={() => { setActiveCategory(cat.id); window.history.replaceState({}, '', `/heritage?category=${cat.id}`); }}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                       activeCategory === cat.id
                         ? "bg-terracotta text-white"
@@ -195,6 +263,69 @@ function HeritageContent() {
                 );
               })}
             </div>
+
+            {/* State + Period Filters */}
+            <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-4 sm:items-start">
+              {/* State Filter */}
+              {availableStates.length > 0 && (
+                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
+                  <span className="text-xs text-muted mr-1">State:</span>
+                  <button
+                    onClick={() => setActiveState(null)}
+                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                      activeState === null
+                        ? "bg-charcoal text-white"
+                        : "bg-parchment/50 text-muted hover:text-charcoal"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {availableStates.map((state) => (
+                    <button
+                      key={state}
+                      onClick={() => { setActiveState(state); window.history.replaceState({}, '', `/heritage?state=${encodeURIComponent(state)}`); }}
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                        activeState === state
+                          ? "bg-charcoal text-white"
+                          : "bg-parchment/50 text-muted hover:text-charcoal"
+                      }`}
+                    >
+                      {state}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Period Filter */}
+              {periods && periods.length > 0 && (
+                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
+                  <span className="text-xs text-muted mr-1">Period:</span>
+                  <button
+                    onClick={() => setActivePeriod(null)}
+                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                      activePeriod === null
+                        ? "bg-charcoal text-white"
+                        : "bg-parchment/50 text-muted hover:text-charcoal"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {periods.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setActivePeriod(p.id); window.history.replaceState({}, '', `/heritage?period=${p.id}`); }}
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                        activePeriod === p.id
+                          ? "bg-charcoal text-white"
+                          : "bg-parchment/50 text-muted hover:text-charcoal"
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </FadeIn>
 
@@ -207,13 +338,13 @@ function HeritageContent() {
         )}
 
         {/* Empty */}
-        {!loading && !error && filteredHeritage.length === 0 && (
+        {!loading && !error && displayHeritage.length === 0 && (
           <EmptyState
             icon={<Search className="h-8 w-8" />}
             title={isSearching ? "No results found" : "No heritage entries"}
             description={
               isSearching
-                ? `No heritage results found for "${searchQuery}". Try a different search term.`
+                ? `No heritage entries match your current filters. Try adjusting your search or filters.`
                 : activeCategory
                 ? `No heritage entries found in the "${activeCategory}" category.`
                 : "Heritage entries will appear here once they are added to the database."
@@ -224,34 +355,53 @@ function HeritageContent() {
         {/* Results */}
         {!loading && !error && hasResults && (
           <div>
-            {/* Result count */}
-            <div className="mb-6 flex items-center justify-between">
+            {/* Result count + Sort + Clear */}
+            <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-muted">
                 {isSearching ? (
                   <>
-                    Showing <span className="font-medium text-charcoal">{filteredHeritage.length}</span>{" "}
-                    result{filteredHeritage.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
+                    Showing <span className="font-medium text-charcoal">{displayHeritage.length}</span>{" "}
+                    result{displayHeritage.length !== 1 ? "s" : ""}
+                    {searchQuery && <> for &quot;{searchQuery}&quot;</>}
+                    {activeState && <> in {activeState}</>}
+                    {activeCategory && <> · {activeCategory}</>}
+                    {activePeriod && <> · {periods?.find(p => p.id === activePeriod)?.name}</>}
                   </>
                 ) : (
                   <>
-                    Showing <span className="font-medium text-charcoal">{filteredHeritage.length}</span>{" "}
-                    heritage {filteredHeritage.length === 1 ? "entry" : "entries"} across{" "}
+                    Showing <span className="font-medium text-charcoal">{displayHeritage.length}</span>{" "}
+                    heritage {displayHeritage.length === 1 ? "entry" : "entries"} across{" "}
                     <span className="font-medium text-charcoal">{activeCategories.length}</span>{" "}
                     categor{activeCategories.length !== 1 ? "ies" : "y"}
                   </>
                 )}
               </p>
-              {(isSearching || activeCategory) && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setActiveCategory(null);
-                  }}
-                  className="text-xs text-terracotta hover:text-terracotta-dark font-medium transition-colors"
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-xs border border-border rounded-md px-2 py-1 bg-white text-charcoal outline-none focus:border-terracotta"
                 >
-                  Clear all filters
-                </button>
-              )}
+                  <option value="name">Name A–Z</option>
+                  <option value="name-desc">Name Z–A</option>
+                  <option value="state">State</option>
+                  <option value="category">Category</option>
+                </select>
+                {hasActiveFilters && (                    <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setActiveCategory(null);
+                      setActiveState(null);
+                      setActivePeriod(null);
+                      window.history.replaceState({}, '', '/heritage');
+                    }}
+                    className="text-xs text-terracotta hover:text-terracotta-dark font-medium transition-colors"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* All view — grouped by category */}
@@ -283,8 +433,8 @@ function HeritageContent() {
                               }}
                               className="rounded-xl border border-border bg-card overflow-hidden group"
                             >
-                              {/* Image header — linked to heritage detail */}
-                              <Link href={`/heritage/${item.id}`} className="block cursor-pointer">
+                              {/* Image header */}
+                              <Link href={`/heritage/${item.slug || item.id}`} className="block cursor-pointer">
                                 <div className="relative h-24 overflow-hidden">
                                   {heritageImage ? (
                                     <img
@@ -307,22 +457,33 @@ function HeritageContent() {
                                     <ItemIcon className="h-4 w-4 text-terracotta" />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <Link href={`/heritage/${item.id}`} className="block">
-                                      <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
-                                        {item.name}
-                                      </h3>
-                                    </Link>
-                                    {item.location_id && (
-                                      <div className="flex items-center gap-1.5 mt-1">
-                                        <MapPin className="h-3 w-3 text-terracotta" />
-                                        <Link
-                                          href={`/explore/${item.location_id}`}
-                                          className="text-xs text-muted hover:text-terracotta transition-colors"
-                                        >
-                                          View location
-                                        </Link>
+                                    <Link href={`/heritage/${item.slug || item.id}`} className="block">
+                                      <div className="flex items-center gap-1">
+                                        <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
+                                          {item.name}
+                                        </h3>
+                                        <FavoriteButton heritageId={item.id} />
                                       </div>
-                                    )}
+                                    </Link>
+                                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                      {item.location_id && (
+                                        <div className="flex items-center gap-1">
+                                          <MapPin className="h-3 w-3 text-terracotta" />
+                                          <Link
+                                            href={`/explore/${item.location_id}`}
+                                            className="text-xs text-muted hover:text-terracotta transition-colors"
+                                          >
+                                            {item.location?.state || "View location"}
+                                          </Link>
+                                        </div>
+                                      )}
+                                      {item.period && (
+                                        <Badge variant="secondary" className="text-[9px] bg-heritage-gold/10 text-heritage-gold border-heritage-gold/20">
+                                          <Clock className="h-2.5 w-2.5 mr-0.5" />
+                                          {item.period.name}
+                                        </Badge>
+                                      )}
+                                    </div>
                                     <p className="text-xs text-muted mt-1.5 line-clamp-2">
                                       {item.description}
                                     </p>
@@ -342,10 +503,11 @@ function HeritageContent() {
             {/* Category-filtered or search view */}
             {(activeCategory || isSearching) && (
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filteredHeritage.map((item) => {
+                {displayHeritage.map((item) => {
                   const ItemIcon = categoryIcons[item.category] || Landmark;
                   const heritageImage = getHeritageImage(item.name, item.category);
-                  return (                          <StaggerItem key={item.id}>
+                  return (
+                    <StaggerItem key={item.id}>
                       <motion.div
                         whileHover={{
                           y: -2,
@@ -353,8 +515,8 @@ function HeritageContent() {
                         }}
                         className="rounded-xl border border-border bg-card overflow-hidden group"
                       >
-                        {/* Image header — linked to heritage detail */}
-                        <Link href={`/heritage/${item.id}`} className="block cursor-pointer">
+                        {/* Image header */}
+                        <Link href={`/heritage/${item.slug || item.id}`} className="block cursor-pointer">
                           <div className="relative h-24 overflow-hidden">
                             {heritageImage ? (
                               <img
@@ -365,9 +527,9 @@ function HeritageContent() {
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-terracotta-mist to-parchment flex items-center justify-center">
-                              <ItemIcon className="h-8 w-8 text-terracotta/20" />
-                            </div>
-                          )}
+                                <ItemIcon className="h-8 w-8 text-terracotta/20" />
+                              </div>
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
                         </Link>
@@ -377,25 +539,31 @@ function HeritageContent() {
                               <ItemIcon className="h-4 w-4 text-terracotta" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <Link href={`/heritage/${item.id}`} className="block">
-                                <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
-                                  {item.name}
-                                </h3>
-                              </Link>
-                              <Badge variant="outline" className="mt-1 text-[10px] capitalize">
-                                {item.category}
-                              </Badge>
-                              {item.location_id && (
-                                <div className="flex items-center gap-1.5 mt-1">
-                                  <MapPin className="h-3 w-3 text-terracotta" />
-                                  <Link
-                                    href={`/explore/${item.location_id}`}
-                                    className="text-xs text-muted hover:text-terracotta transition-colors"
-                                  >
-                                    View location
-                                  </Link>
+                              <Link href={`/heritage/${item.slug || item.id}`} className="block">
+                                <div className="flex items-center gap-1">
+                                  <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
+                                    {item.name}
+                                  </h3>
+                                  <FavoriteButton heritageId={item.id} />
                                 </div>
-                              )}
+                              </Link>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                <Badge variant="outline" className="text-[10px] capitalize">
+                                  {item.category}
+                                </Badge>
+                                {item.location?.state && (
+                                  <span className="text-[10px] text-muted flex items-center gap-0.5">
+                                    <MapPin className="h-2.5 w-2.5" />
+                                    {item.location.state}
+                                  </span>
+                                )}
+                                {item.period && (
+                                  <Badge variant="secondary" className="text-[9px] bg-heritage-gold/10 text-heritage-gold border-heritage-gold/20">
+                                    <Clock className="h-2.5 w-2.5 mr-0.5" />
+                                    {item.period.name}
+                                  </Badge>
+                                )}
+                              </div>
                               <p className="text-xs text-muted mt-1.5 line-clamp-2">
                                 {item.description}
                               </p>

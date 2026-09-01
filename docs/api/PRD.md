@@ -7,8 +7,10 @@ Dharohar AI is an intelligent cultural and historical knowledge platform focused
 ## 2. Current API Architecture
 
 ```
-Frontend (Next.js)
-  ↓ X-API-Key header
+Browser
+  ↓ Request to /api/proxy/*
+Next.js API Route (/api/proxy/[...path])
+  ↓ Attaches X-API-Key header (server-side)
 Backend (Express.js + TypeScript)
   ↓ API Key Middleware
 Route Handlers
@@ -16,9 +18,11 @@ Route Handlers
 Neon PostgreSQL
 ```
 
-**Base URL:** `http://localhost:3001/api` (development)
+**Base URL:** `http://localhost:3001/api` (direct backend access)
 
-**Authentication:** Development API key via `X-API-Key` header (temporary, will be replaced by JWT in future phases).
+**Proxy URL:** `/api/proxy/*` (frontend routes through Next.js)
+
+**Authentication:** Development API key attached server-side via proxy route (temporary, will be replaced by JWT in future phases).
 
 ## 3. API Endpoints
 
@@ -72,10 +76,11 @@ Invalid query parameters return **400 Bad Request** with `INVALID_QUERY_PARAMETE
 ## 5. Authentication
 
 **Current (Development Phase):**
-- API key passed via `X-API-Key` header
+- API key attached server-side by `/api/proxy` route
 - Key compared against `DEMO_API_KEY` environment variable
 - Constant-time comparison to prevent timing attacks
 - 401 response for missing/invalid keys
+- Frontend no longer needs `NEXT_PUBLIC_DEMO_API_KEY`
 
 **Future (not yet implemented):**
 - JWT-based authentication

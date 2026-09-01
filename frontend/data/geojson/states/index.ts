@@ -194,7 +194,7 @@ export const INDIA_STATES_GEOJSON: GeoJsonFeatureCollection = {
     // ---- Odisha ----
     {
       type: "Feature",
-      properties: { id: "odisha", name: "Odisha", code: "OR", type: "state", region: "East India", capital: "Bhubaneswar" },
+      properties: { id: "odisha", name: "Odisha", code: "OD", type: "state", region: "East India", capital: "Bhubaneswar" },
       geometry: {
         type: "Polygon",
         coordinates: [[

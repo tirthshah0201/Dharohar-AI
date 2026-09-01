@@ -12,6 +12,8 @@ const navLinks = [
   { href: "/explore", label: "Explore" },
   { href: "/timeline", label: "Timeline" },
   { href: "/heritage", label: "Heritage" },
+  { href: "/collections", label: "Collections" },
+  { href: "/favorites", label: "Favorites" },
   { href: "/ai", label: "Ask AI", highlight: true },
   { href: "/about", label: "About" },
 ];

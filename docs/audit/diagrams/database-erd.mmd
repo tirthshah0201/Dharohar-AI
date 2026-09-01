@@ -1,0 +1,141 @@
+%% ============================================
+%% ASTROVA — Database ER Diagram
+%% ============================================
+
+erDiagram
+    %% ---- Core Tables ----
+    
+    locations {
+        uuid id PK
+        varchar name
+        varchar type "state|district|city|village|site|region|river|waterfall|..."
+        text description
+        decimal latitude
+        decimal longitude
+        uuid parent_id FK "self-referencing hierarchy"
+        varchar state
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    heritage_entities {
+        uuid id PK
+        varchar name
+        varchar category "22 categories"
+        text description
+        uuid location_id FK
+        uuid period_id FK
+        text image_url
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    historical_periods {
+        uuid id PK
+        varchar name
+        integer start_year
+        integer end_year
+        text description
+        timestamp created_at
+    }
+
+    %% ---- Relationship Tables ----
+    
+    relationships {
+        uuid id PK
+        uuid source_id FK "heritage_entities"
+        uuid target_id FK "heritage_entities"
+        varchar type "17 relationship types"
+        text description
+        timestamp created_at
+    }
+
+    %% ---- Source & Media ----
+    
+    sources {
+        uuid id PK
+        varchar title
+        varchar author
+        text url
+        date publication_date
+        text notes
+        timestamp created_at
+    }
+
+    media {
+        uuid id PK
+        uuid entity_id FK "heritage_entities"
+        varchar type "image|document|audio|video"
+        text url
+        text caption
+        timestamp created_at
+    }
+
+    %% ---- Chatbot ----
+    
+    supported_states {
+        uuid id PK
+        varchar name
+        varchar code
+        varchar region
+        text description
+        boolean is_primary
+        integer display_order
+        timestamp created_at
+    }
+
+    chatbot_knowledge {
+        uuid id PK
+        varchar state_code FK "supported_states.code"
+        varchar heritage_name
+        varchar heritage_type
+        varchar city
+        varchar historical_period
+        text description
+        text significance
+        text related_event
+        text related_person
+        text related_craft
+        text[] keywords
+        text[] aliases
+        text[] chatbot_question_examples
+        varchar source
+        timestamp created_at
+    }
+
+    conversations {
+        uuid id PK
+        varchar session_id
+        varchar language
+        timestamp created_at
+    }
+
+    conversation_messages {
+        uuid id PK
+        uuid conversation_id FK
+        varchar role "user|assistant"
+        text content
+        varchar intent
+        varchar state_code
+        uuid[] knowledge_ids
+        timestamp created_at
+    }
+
+    %% ---- Relationships ----
+    
+    locations ||--o{ locations : "parent_id (hierarchy)"
+    locations ||--o{ heritage_entities : "location_id"
+    heritage_entities ||--o{ historical_periods : "period_id"
+    heritage_entities ||--o{ relationships : "source_id"
+    heritage_entities ||--o{ relationships : "target_id"
+    heritage_entities ||--o{ media : "entity_id"
+    supported_states ||--o{ chatbot_knowledge : "state_code"
+    conversations ||--o{ conversation_messages : "conversation_id"
+
+    %% ---- Notes ----
+    
+    %% P1 Proposed Extensions:
+    %% 1. Add source_type, verification_status to sources
+    %% 2. Add filename, alt_text, source_id, is_primary to media
+    %% 3. Add slug to locations and heritage_entities
+    %% 4. Add foreign keys from chatbot_knowledge to locations/heritage_entities

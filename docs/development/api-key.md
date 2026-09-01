@@ -1,4 +1,4 @@
-# Development API Key — Dharohar AI
+# Development API Key — Astrova
 
 ## Purpose
 
@@ -6,11 +6,14 @@ The development API key (`DEMO_API_KEY`) is a **temporary mechanism** for establ
 
 ---
 
-## How It Works
+## Architecture (Updated)
 
 ```
-Frontend (Next.js)
-  ↓  Sends X-API-Key header with every API request
+Browser
+  ↓  Sends request to /api/proxy/*
+  ↓
+Next.js API Route (/api/proxy/[...path])
+  ↓  Attaches X-API-Key header (server-side)
   ↓
 Backend (Express)
   ↓  requireDevelopmentApiKey middleware validates the key
@@ -18,8 +21,10 @@ Backend (Express)
 API Endpoint
   ↓  Processes request if key is valid
   ↓
-Response to Frontend
+Response to Browser
 ```
+
+**Security Improvement:** The API key is now **server-side only**. `NEXT_PUBLIC_DEMO_API_KEY` has been removed from the frontend.
 
 ---
 
@@ -39,38 +44,34 @@ node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
 # Backend reads this for validation
 DEMO_API_KEY=your_generated_key_here
 
-# Frontend reads this to send the header
-NEXT_PUBLIC_DEMO_API_KEY=your_generated_key_here
+# Proxy route reads this to forward requests
+API_BASE_URL=http://localhost:3001
 ```
 
-Both values must match.
+### 3. Security Notes
 
-### 3. ⚠️ Security Notes
-
-- `DEMO_API_KEY` — Private, stays on the backend. Never exposed to the browser.
-- `NEXT_PUBLIC_DEMO_API_KEY` — **Not a secret.** It's a temporary dev key that gets embedded in frontend JavaScript. This is acceptable because:
-  - It only works with the backend's CORS-allowed origins
-  - It will be removed when real JWT authentication is implemented
-  - It provides no access to production systems
+- `DEMO_API_KEY` — Server-side only, never exposed to the browser
+- `API_BASE_URL` — Backend URL for the proxy route
+- The frontend no longer needs `NEXT_PUBLIC_DEMO_API_KEY`
 
 **Never put in `NEXT_PUBLIC_`:**
 - `DATABASE_URL`
 - `LLM_API_KEY`
 - `JWT_SECRET`
-- Neon credentials
+- `DEMO_API_KEY`
 - Any real secrets
 
 ---
 
-## Frontend Behavior
+## How the Proxy Works
 
-The frontend API client (`frontend/services/api.ts`) automatically:
+The frontend API client (`frontend/services/api.ts`) routes all requests through `/api/proxy/*`:
 
-1. Reads `NEXT_PUBLIC_DEMO_API_KEY` from environment
-2. Attaches it as `X-API-Key` header on every request
-3. Handles 401 errors with a clear message
-
-If `NEXT_PUBLIC_DEMO_API_KEY` is empty, the header is not sent (allows health checks to work without a key).
+1. Browser calls `/api/proxy/heritage`
+2. Next.js route handler receives the request
+3. Route handler attaches `X-API-Key` from `DEMO_API_KEY` env var
+4. Proxied request sent to backend
+5. Response returned to browser
 
 ---
 
@@ -88,6 +89,7 @@ If `NEXT_PUBLIC_DEMO_API_KEY` is empty, the header is not sent (allows health ch
 | `/api/timeline` | GET | List historical periods |
 | `/api/timeline/eras` | GET | List eras |
 | `/api/search` | GET | Full-text search |
+| `/api/ai/*` | * | AI endpoints |
 
 ### Public Endpoints (no API key required)
 
@@ -131,35 +133,13 @@ The server never reveals what the correct key is.
 
 ---
 
-## Why This Is NOT Production Authentication
-
-| Aspect | DEMO_API_KEY | Production Auth (Future) |
-|--------|-------------|------------------------|
-| Scope | All-or-nothing | Per-user permissions |
-| Identity | None | User identity tracked |
-| Expiry | Never | Token expiry + refresh |
-| Revocation | Change env var | Per-user revocation |
-| Audit trail | None | Full audit log |
-| Multi-tenant | No | Yes |
-
----
-
-## Future Replacement
-
-When the project implements JWT authentication:
-
-1. Remove `DEMO_API_KEY` from `.env`
-2. Remove `NEXT_PUBLIC_DEMO_API_KEY` from `.env`
-3. Remove `requireDevelopmentApiKey` middleware from routes
-4. Replace with JWT verification middleware
-5. Update frontend API client to send `Authorization: Bearer <token>` header
-6. Remove this documentation file or archive it
-
----
-
 ## Testing
 
-### Test with curl
+### Test via Proxy (Frontend)
+
+The frontend automatically routes through the proxy. No manual API key entry needed.
+
+### Test with curl (Direct Backend Access)
 
 ```bash
 # Without key (should return 401)
@@ -187,3 +167,28 @@ Expected:
   "environment": "development"
 }
 ```
+
+---
+
+## Why This Is NOT Production Authentication
+
+| Aspect | DEMO_API_KEY | Production Auth (Future) |
+|--------|-------------|------------------------|
+| Scope | All-or-nothing | Per-user permissions |
+| Identity | None | User identity tracked |
+| Expiry | Never | Token expiry + refresh |
+| Revocation | Change env var | Per-user revocation |
+| Audit trail | None | Full audit log |
+| Multi-tenant | No | Yes |
+
+---
+
+## Future Replacement
+
+When the project implements JWT authentication:
+
+1. Remove `DEMO_API_KEY` from `.env`
+2. Remove `requireDevelopmentApiKey` middleware from routes
+3. Replace with JWT verification middleware
+4. Update frontend to send `Authorization: Bearer <token>` header
+5. Remove this documentation file or archive it

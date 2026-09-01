@@ -106,7 +106,7 @@ export const REGIONS_GEOJSON: RegionFeatureCollection = {
         id: "satkosia_gorge",
         name: "Satkosia Gorge",
         state: "Odisha",
-        stateCode: "OR",
+        stateCode: "OD",
         type: "region",
         category: "natural",
         description: "Dramatic gorge where the Mahanadi River cuts through the Eastern Ghats — surrounded by dense forests, wildlife, and eco-tourism opportunities.",

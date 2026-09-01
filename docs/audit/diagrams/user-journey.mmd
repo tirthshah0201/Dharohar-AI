@@ -1,0 +1,64 @@
+%% ============================================
+%% ASTROVA — User Journey Diagram
+%% ============================================
+
+graph TB
+    START([Start]) --> HOME[Home Page]
+    
+    HOME --> EXPLORE[Explore Page]
+    HOME --> HERITAGE[Heritage Page]
+    HOME --> TIMELINE[Timeline Page]
+    HOME --> AI[AI Chat Page]
+    HOME --> MAP_PAGE[Map Page]
+    
+    EXPLORE --> STATE_SELECT[Select State]
+    STATE_SELECT --> STATE_DETAIL[State Detail Page]
+    STATE_DETAIL --> REGION_EXPLORE[Explore Regions]
+    REGION_EXPLORE --> HERITAGE_LIST[Heritage List]
+    HERITAGE_LIST --> HERITAGE_DETAIL[Heritage Detail Page]
+    
+    HERITAGE --> HERITAGE_FILTER[Filter by Category]
+    HERITAGE_FILTER --> HERITAGE_DETAIL
+    
+    HERITAGE_DETAIL --> ASK_AI[Ask Astrova]
+    HERITAGE_DETAIL --> VIEW_MAP[View on Map]
+    HERITAGE_DETAIL --> RELATED[Related Entities]
+    
+    AI --> ASK_QUESTION[Ask Question]
+    ASK_QUESTION --> AI_RESPONSE[AI Response]
+    AI_RESPONSE --> AI_ACTION[Click Action]
+    AI_ACTION --> NAVIGATE[Navigate to Page]
+    
+    MAP_PAGE --> MAP_INTERACT[Interact with Map]
+    MAP_INTERACT --> MAP_MARKER[Click Marker]
+    MAP_MARKER --> MAP_POPUP[View Popup]
+    MAP_POPUP --> MAP_DETAIL[View Details Page]
+    MAP_POPUP --> MAP_ASK[Ask Astrova]
+    
+    MAP_INTERACT --> MAP_STATE[Select State]
+    MAP_STATE --> MAP_ZOOM[Zoom to State]
+    MAP_ZOOM --> MAP_FILTERED[View Filtered Markers]
+    
+    TIMELINE --> PERIOD_SELECT[Select Period]
+    PERIOD_SELECT --> PERIOD_HERITAGE[View Heritage from Period]
+    PERIOD_HERITAGE --> HERITAGE_DETAIL
+    
+    NAVIGATE --> EXPLORE
+    NAVIGATE --> HERITAGE_DETAIL
+    NAVIGATE --> MAP_PAGE
+    NAVIGATE --> TIMELINE
+    
+    VIEW_MAP --> MAP_PAGE
+    ASK_AI --> AI
+    MAP_ASK --> AI
+    
+    %% Styling
+    classDef start fill:#C8E6C9,stroke:#2E7D32
+    classDef page fill:#E3F2FD,stroke:#1565C0
+    classDef action fill:#FFF3E0,stroke:#E65100
+    classDef navigation fill:#F3E5F5,stroke:#6A1B9A
+
+    class START start
+    class HOME,EXPLORE,HERITAGE,TIMELINE,MAP_PAGE page
+    class STATE_SELECT,STATE_DETAIL,REGION_EXPLORE,HERITAGE_LIST,HERITAGE_FILTER,ASK_QUESTION,AI_RESPONSE,MAP_INTERACT,MAP_MARKER,MAP_POPUP,MAP_STATE,MAP_ZOOM,MAP_FILTERED,PERIOD_SELECT,PERIOD_HERITAGE action
+    class HERITAGE_DETAIL,ASK_AI,VIEW_MAP,RELATED,AI_ACTION,NAVIGATE,MAP_DETAIL,MAP_ASK navigation

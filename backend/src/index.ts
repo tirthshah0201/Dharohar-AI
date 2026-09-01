@@ -11,6 +11,11 @@ import { timelineRouter } from "./routes/timeline";
 import { searchRouter } from "./routes/search";
 import { aiRouter } from "./routes/ai";
 import { systemRouter } from "./routes/system";
+import { sourcesRouter } from "./routes/sources";
+import { mediaRouter } from "./routes/media";
+import { periodsRouter } from "./routes/periods";
+import { collectionsRouter } from "./routes/collections";
+import { adminRouter } from "./routes/admin";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "", 10) || 3001;
@@ -26,6 +31,11 @@ app.use("/api/locations", locationsRouter);
 app.use("/api/heritage", heritageRouter);
 app.use("/api/timeline", timelineRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/sources", sourcesRouter);
+app.use("/api/media", mediaRouter);
+app.use("/api/periods", periodsRouter);
+app.use("/api/collections", collectionsRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/ai", aiRouter);
 
 // ---- 404 Handler ----

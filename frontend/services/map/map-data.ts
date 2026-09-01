@@ -8,6 +8,7 @@ import { api } from "@/services/api";
 export interface MapLocation {
   id: string;
   name: string;
+  slug?: string;
   type: string;
   description: string;
   latitude: number | null;
@@ -19,14 +20,17 @@ export interface MapLocation {
 export interface MapHeritage {
   id: string;
   name: string;
+  slug?: string;
   category: string;
   description: string;
   location_id: string | null;
+  period_id: string | null;
 }
 
 export interface MapFeature {
   id: string;
   name: string;
+  slug?: string;
   state: string;
   region?: string;
   type: string;
@@ -35,6 +39,7 @@ export interface MapFeature {
   description?: string;
   source: "database" | "famous";
   category?: string;
+  period_id?: string | null;
 }
 
 export interface MapDataResult {
@@ -85,6 +90,7 @@ export async function loadMapData(): Promise<MapDataResult> {
     mappableLocations.push({
       id: loc.id,
       name: loc.name,
+      slug: loc.slug,
       state: loc.state,
       type: loc.type,
       latitude: lat,
@@ -107,6 +113,7 @@ export async function loadMapData(): Promise<MapDataResult> {
     heritageFeatures.push({
       id: h.id,
       name: h.name,
+      slug: h.slug,
       state: loc.state,
       type: h.category,
       latitude: lat,
@@ -114,6 +121,7 @@ export async function loadMapData(): Promise<MapDataResult> {
       description: h.description,
       source: "database",
       category: h.category,
+      period_id: h.period_id,
     });
   }
 
