@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { SearchSuggestions } from "@/components/ui/SearchSuggestions";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import { getHeritageImage } from "@/constants/images";
 import { getCategoryIcon } from "@/constants/categories";
 
@@ -104,6 +106,8 @@ const categories = [
    ======================================== */
 
 function HeritageContent() {
+  const { user } = useAuth();
+  const { favorites, isFavorited, toggleFavorite } = useFavorites(!!user, false);
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || null;
   const initialPeriod = searchParams.get("period") || null;
@@ -452,7 +456,7 @@ function HeritageContent() {
                                         <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
                                           {item.name}
                                         </h3>
-                                        <FavoriteButton heritageId={item.id} />
+                                        <FavoriteButton heritageId={item.id} isFavorited={isFavorited(item.id)} onToggle={toggleFavorite} />
                                       </div>
                                     </Link>
                                     <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -533,8 +537,7 @@ function HeritageContent() {
                                 <div className="flex items-center gap-1">
                                   <h3 className="font-semibold text-charcoal font-display text-sm hover:text-terracotta transition-colors">
                                     {item.name}
-                                  </h3>
-                                  <FavoriteButton heritageId={item.id} />
+                                  </h3>                                   <FavoriteButton heritageId={item.id} isFavorited={isFavorited(item.id)} onToggle={toggleFavorite} />
                                 </div>
                               </Link>
                               <div className="flex flex-wrap items-center gap-1.5 mt-1">

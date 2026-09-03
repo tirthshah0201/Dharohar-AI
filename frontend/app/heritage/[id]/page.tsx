@@ -27,6 +27,8 @@ import {
 import { getHeritageImage } from "@/constants/images";
 import { GalleryLightbox } from "@/components/ui/GalleryLightbox";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import { getCategoryIcon, getCategoryColor } from "@/constants/categories";
 
 /* ========================================
@@ -109,6 +111,9 @@ export default function HeritageDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+
+  const { user } = useAuth();
+  const { favorites, isFavorited, toggleFavorite, loaded: favLoaded } = useFavorites(!!user, false);
 
   const { data: heritage, loading, error, refetch } = useApi<HeritageEntity>(`/heritage/${id}`);
   const { data: location } = useApi<Location>(
@@ -195,7 +200,13 @@ export default function HeritageDetailPage({
                         <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white drop-shadow-lg mb-3">
                           {heritage.name}
                         </h1>
-                        <FavoriteButton heritageId={heritage.id} size="md" className="!text-white/80 hover:!text-white" />
+                        <FavoriteButton
+                          heritageId={heritage.id}
+                          isFavorited={isFavorited(heritage.id)}
+                          onToggle={toggleFavorite}
+                          size="md"
+                          className="!text-white/80 hover:!text-white"
+                        />
                       </div>
                       {heritage.period && (
                         <p className="text-sm text-white/70 mt-1">

@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-P1.37 — Admin Portal Final Completion (COMPLETE)
+P1.37 — Favorites Authentication & User Isolation Fix (COMPLETE)
 
 **Status: PASS**
 
-Complete Admin Portal with full CRUD for Heritage, Media, Locations, Sources, Users, Collections, and Historical Periods. Location .toFixed crash fixed. Period CRUD implemented. Media restricted to Image/Video. Muted video support added. 29/29 API tests pass.
+Fixed serious Favorites module bug: anonymous users could create favorites and user data was not properly isolated between authenticated users. Favorites are now exclusively per-user, authenticated-only, with login-required prompt for anonymous users.
 
 ## Architecture
 
@@ -22,10 +22,24 @@ Browser → Next.js Frontend → API Proxy → Express Backend → Neon PostgreS
 - **9 Historical Periods** from Ancient to Modern
 - **Full-text Search** with suggestions
 - **Authentication** — JWT with HttpOnly cookies, bcrypt
-- **Favorites** — persistent for authenticated users, localStorage for anonymous
+- **Favorites** — persistent for authenticated users only (login required)
 - **Admin Portal** — 8-section management dashboard with full CRUD
 - **Chatbot** — Under Construction (infrastructure preserved)
 - **Responsive Design** — mobile-friendly across all pages
+
+## Bugs Fixed
+
+### Favorites Auth/Isolation (P1.37)
+1. **Anonymous favorites**: FavoriteButton now shows login modal instead of creating records
+2. **User data isolation**: useFavorites uses shared auth state, no desync
+3. **localStorage leakage**: Removed anonymous localStorage favorites — backend is sole source of truth
+4. **Cross-user deletion**: Backend enforces user_id ownership on all operations
+
+### Previous P1.37 Fixes
+5. Location `.toFixed()` crash — PostgreSQL decimal as string
+6. Historical Periods read-only → full CRUD
+7. Media type restriction — Image/Video only in Admin
+8. Heritage video not muted — added `<video muted playsInline>`
 
 ## Admin Portal — 8 Sections
 
@@ -40,13 +54,6 @@ Browser → Next.js Frontend → API Proxy → Express Backend → Neon PostgreS
 | Collections | Create, Read, Update, Delete | ✅ |
 | Periods | Create, Read, Update, Delete | ✅ |
 
-## Bugs Fixed in P1.37
-
-1. Location `.toFixed()` crash — PostgreSQL decimal as string
-2. Historical Periods read-only → full CRUD
-3. Media type restriction — Image/Video only in Admin
-4. Heritage video not muted — added `<video muted playsInline>`
-
 ## Database
 
 - **15 tables**, **27 sequential migrations**
@@ -59,10 +66,11 @@ Browser → Next.js Frontend → API Proxy → Express Backend → Neon PostgreS
 - JWT with HttpOnly cookies
 - Route-specific rate limiting
 - CORS, UUID validation, sanitized errors
+- Favorites: requireAuth on all endpoints, user_id from JWT
 
 ## GitHub
 
-Current checkpoint: `0f1b285` (main)
+Current checkpoint: `567afbf` (main)
 Remote: https://github.com/tirthshah0201/Dharohar-AI.git
 
-GitHub push completed: `5cbce57` (main → origin/main)
+GitHub push completed: `567afbf` (main → origin/main)
