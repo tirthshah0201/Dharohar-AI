@@ -146,6 +146,15 @@ Browser → Next.js Frontend (:3000) → API Proxy → Express Backend (:3001) �
 
 Not yet ready for public production due to in-memory rate limiting, no structured logging, no CI/CD, no pagination, and DEMO_API_KEY should be randomized.
 
-## GitHub Status
+## GitHub Checkpoint
 
-NO PUSH PERFORMED (paused unless explicitly requested)
+- **Date:** 2026-09-03
+- **Commit:** `0f1b285`
+- **Branch:** `main`
+- **Remote:** `https://github.com/tirthshah0201/Dharohar-AI.git`
+- **Push status:** SUCCESS
+- **Verification:** Frontend TS ✅ | Backend TS ✅ | Frontend build ✅
+- **Secrets excluded:** .env, .env.local, API keys, DATABASE_URL, JWT_SECRET, ADMIN_TOKEN — all excluded via .gitignore
+- **Files:** 70 files changed, 9,097 insertions, 577 deletions
+
+**GitHub push complete. No further pushes authorized unless explicitly requested.**
