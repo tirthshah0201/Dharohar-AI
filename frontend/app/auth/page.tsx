@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -25,9 +25,15 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // If already logged in, redirect
+  // If already logged in, redirect via effect (not during render)
+  useEffect(() => {
+    if (!loading && user) {
+      router.push("/favorites");
+    }
+  }, [loading, user, router]);
+
+  // Don't render auth UI while redirecting
   if (!loading && user) {
-    router.push("/favorites");
     return null;
   }
 

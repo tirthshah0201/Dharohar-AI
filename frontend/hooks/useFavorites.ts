@@ -37,15 +37,34 @@ function setLocalFavorites(ids: string[]): void {
  * Hook for managing heritage favorites.
  * Uses localStorage for unauthenticated users,
  * backend API for authenticated users.
+ * 
+ * Accepts shared auth state from useAuth to avoid
+ * duplicate/independent auth checks that can desync.
  */
-export function useFavorites() {
+export function useFavorites(sharedAuthenticated?: boolean, isAuthLoading?: boolean) {
   const [favorites, setFavoritesState] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
-  // Check auth state
+  // Use shared auth state when available; fall back to independent check only if needed
   useEffect(() => {
+    // If shared auth state is provided and still loading, wait
+    if (isAuthLoading === true) return;
+
+    if (sharedAuthenticated !== undefined) {
+      // Use shared auth state — no independent check needed
+      setAuthenticated(sharedAuthenticated);
+      if (sharedAuthenticated) {
+        loadBackendFavorites();
+      } else {
+        setFavoritesState(getLocalFavorites());
+      }
+      setLoaded(true);
+      return;
+    }
+
+    // Fallback: independent check (only if shared auth not provided)
     async function checkAuth() {
       try {
         const res = await fetch("/api/proxy/auth/me", { credentials: "include" });
@@ -53,7 +72,6 @@ export function useFavorites() {
           const json = await res.json();
           if (json.success && json.data) {
             setAuthenticated(true);
-            // Load from backend
             await loadBackendFavorites();
           } else {
             setAuthenticated(false);
@@ -70,7 +88,7 @@ export function useFavorites() {
       setLoaded(true);
     }
     checkAuth();
-  }, []);
+  }, [sharedAuthenticated, isAuthLoading]);
 
   const loadBackendFavorites = useCallback(async () => {
     try {

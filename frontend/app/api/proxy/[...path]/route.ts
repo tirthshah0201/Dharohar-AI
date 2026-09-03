@@ -53,6 +53,12 @@ async function proxyRequest(
     headers.set("Authorization", authHeader);
   }
 
+  // Forward admin token if present
+  const adminToken = request.headers.get("x-admin-token");
+  if (adminToken) {
+    headers.set("X-Admin-Token", adminToken);
+  }
+
   // Forward cookies (for auth session)
   const cookieHeader = request.headers.get("cookie");
   if (cookieHeader) {

@@ -158,14 +158,26 @@ export default function HeritageDetailPage({
               const heroSrc = primaryMedia?.url || heritage.image_url || null;
               const heroAlt = primaryMedia?.alt_text || `${heritage.name} - ${heritage.category}`;
               const heroImage = heroSrc ? { src: heroSrc, alt: heroAlt } : getHeritageImage(heritage.name, heritage.category);
+              const isVideo = primaryMedia?.type === 'video' || heroSrc?.match(/\.mp4|\.webm|\.ogg|video/i);
               return heroImage ? (
                 <div className="relative rounded-2xl overflow-hidden mb-10 h-72 sm:h-96 lg:h-[28rem]">
-                  <img
-                    src={heroImage.src}
-                    alt={heroImage.alt}
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                  />
+                  {isVideo ? (
+                    <video
+                      src={heroImage.src}
+                      className="w-full h-full object-cover"
+                      muted
+                      playsInline
+                      loop
+                      controls={false}
+                    />
+                  ) : (
+                    <img
+                      src={heroImage.src}
+                      alt={heroImage.alt}
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10">
                     <div className="max-w-3xl">
@@ -419,7 +431,7 @@ export default function HeritageDetailPage({
             )}
 
             {/* Sources & References */}
-            {heritage.source && (
+            {heritage.source && heritage.source.id && (
               <div className="mb-16">
                 <div className="max-w-3xl mx-auto">
                   <div className="flex items-center gap-2 mb-6">
@@ -437,19 +449,21 @@ export default function HeritageDetailPage({
                           <Badge variant="secondary" className="text-xs">
                             {heritage.source.source_type}
                           </Badge>
-                          <Badge
-                            variant="secondary"
-                            className={`text-xs flex items-center gap-1 ${
-                              heritage.source.verification_status === "VERIFIED"
-                                ? "bg-green-100 text-green-700"
-                                : heritage.source.verification_status === "REVIEWED"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {heritage.source.verification_status === "VERIFIED" && <CheckCircle className="h-3 w-3" />}
-                            {heritage.source.verification_status.toLowerCase()}
-                          </Badge>
+                          {heritage.source.verification_status ? (
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs flex items-center gap-1 ${
+                                heritage.source.verification_status === "VERIFIED"
+                                  ? "bg-green-100 text-green-700"
+                                  : heritage.source.verification_status === "REVIEWED"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {heritage.source.verification_status === "VERIFIED" && <CheckCircle className="h-3 w-3" />}
+                              {heritage.source.verification_status.toLowerCase()}
+                            </Badge>
+                          ) : null}
                         </div>
                         <div className="space-y-1 text-sm text-muted">
                           {heritage.source.author && (

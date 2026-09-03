@@ -19,7 +19,7 @@ import { collectionsRouter } from "./routes/collections";
 import { adminRouter } from "./routes/admin";
 import { authRouter } from "./routes/auth";
 import { favoritesRouter } from "./routes/favorites";
-import { authRateLimit, chatRateLimit, favoritesRateLimit } from "./middleware/rateLimit";
+import { chatRateLimit, favoritesRateLimit } from "./middleware/rateLimit";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "", 10) || 3001;
@@ -61,7 +61,7 @@ app.use("/api/media", mediaRouter);
 app.use("/api/periods", periodsRouter);
 app.use("/api/collections", collectionsRouter);
 app.use("/api/admin", adminRouter);
-app.use("/api/auth", authRateLimit, authRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/favorites", favoritesRateLimit, favoritesRouter);
 app.use("/api/ai", chatRateLimit, aiRouter);
 

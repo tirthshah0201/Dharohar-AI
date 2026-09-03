@@ -1,17 +1,12 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { ChatBot } from "@/components/ai/ChatBot";
 import { useApi } from "@/hooks/useApi";
-import { Sparkles, Globe, Database, MapPin, MessageCircle } from "lucide-react";
+import { Sparkles, Globe, Database, MapPin, Wrench } from "lucide-react";
 
 function AIPageContent() {
-  const searchParams = useSearchParams();
-  const initialQuestion = searchParams.get("question") || undefined;
   const { data: heritage } = useApi<Array<{ id: string }>>("/heritage");
   const heritageCount = heritage?.length ?? 74;
 
@@ -42,11 +37,41 @@ function AIPageContent() {
           </div>
         </div>
 
-        {/* Chat Interface */}
+        {/* Under Construction State */}
         <div className="max-w-3xl mx-auto">
           <Card className="overflow-hidden border-cream shadow-lg shadow-terracotta/5">
-            <CardContent className="p-0">
-              <ChatBot initialQuestion={initialQuestion} />
+            <CardContent className="p-8 sm:p-12 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-heritage-gold/10 mx-auto mb-6">
+                <Wrench className="h-8 w-8 text-heritage-gold" />
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-3">
+                Astrova AI is Under Construction
+              </h2>
+              <p className="text-stone text-base sm:text-lg max-w-lg mx-auto mb-6">
+                Our multilingual heritage AI assistant is being crafted with care.{' '}
+                It will soon help you explore India&apos;s cultural treasures across{' '}
+                6 languages.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <div className="h-2 w-2 rounded-full bg-heritage-gold animate-pulse" />
+                  Multilingual AI
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <div className="h-2 w-2 rounded-full bg-terracotta animate-pulse" />
+                  Heritage Knowledge
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <div className="h-2 w-2 rounded-full bg-heritage-gold animate-pulse" />
+                  6 Languages
+                </div>
+              </div>
+              <p className="text-xs text-warm-gray">
+                In the meantime, explore our{' '}
+                <a href="/explore" className="text-terracotta hover:underline">heritage collection</a>,{' '}
+                <a href="/timeline" className="text-terracotta hover:underline">timeline</a>, and{' '}
+                <a href="/collections" className="text-terracotta hover:underline">curated collections</a>.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -57,7 +82,7 @@ function AIPageContent() {
             Supported States
           </h3>
           <div className="flex flex-wrap gap-2 justify-center">
-            {            ["Gujarat", "Rajasthan", "Punjab", "Goa", "Tamil Nadu", "Maharashtra", "Madhya Pradesh", "Delhi", "Kerala", "Jammu & Kashmir", "Assam", "Odisha"].map(
+            {["Gujarat", "Rajasthan", "Punjab", "Goa", "Tamil Nadu", "Maharashtra", "Madhya Pradesh", "Delhi", "Kerala", "Jammu & Kashmir", "Assam", "Odisha"].map(
               (state) => (
                 <Badge key={state} variant="outline" className="border-cream text-stone">
                   {state}
@@ -72,18 +97,5 @@ function AIPageContent() {
 }
 
 export default function AIPage() {
-  return (
-    <Suspense fallback={
-      <div className="py-8 sm:py-12">
-        <Container>
-          <div className="text-center py-20">
-            <div className="inline-flex h-6 w-6 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted mt-3">Loading...</p>
-          </div>
-        </Container>
-      </div>
-    }>
-      <AIPageContent />
-    </Suspense>
-  );
+  return <AIPageContent />;
 }

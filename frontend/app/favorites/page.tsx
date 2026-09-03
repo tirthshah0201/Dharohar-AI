@@ -40,8 +40,11 @@ interface HeritageEntity {
    ======================================== */
 
 export default function FavoritesPage() {
-  const { favorites, loaded, authenticated, syncing, removeFavorite, count, syncToBackend } = useFavorites();
   const { user, loading: authLoading } = useAuth();
+  const { favorites, loaded, authenticated, syncing, removeFavorite, count, syncToBackend } = useFavorites(
+    user !== null,
+    authLoading
+  );
   const [allHeritage, setAllHeritage] = useState<HeritageEntity[]>([]);
   const [loading, setLoading] = useState(true);
 

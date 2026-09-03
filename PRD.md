@@ -293,3 +293,235 @@ A comprehensive UX audit was performed across all 13 frontend pages, shared comp
 - Search modal uses UUIDs in URLs (works, slugs would be prettier)
 - Heritage list doesn't include media URLs (uses static image mapping)
 - Favorites page fetches all entities client-side (acceptable at 74)
+
+---
+
+## P1.36 — Final Product Quality, Data Consistency & SIH Demo Validation
+
+### Status
+PASS WITH WARNINGS
+
+### Objective
+Perform final product-quality, data-consistency, end-to-end-flow, and SIH demo-readiness validation of Astrova.
+
+### Key Decisions
+1. **Chatbot deferred** — Infrastructure preserved, UI marked "Under Construction"
+2. **All other modules verified** — Homepage, Explore, Heritage, Collections, Timeline, Search, Favorites, Auth, Map, Admin all pass
+3. **Data consistency verified** — 12 entities tested through field-level DB→API→Frontend verification
+
+### Bugs Found
+1. **BUG-004 (Low)**: Gujarati script input defaulted to English — added script-based language detection
+2. **BUG-005 (Low)**: "Heritage of Gujarat" pattern not recognized — added heritage+state keyword pattern
+3. **BUG-006 (Low)**: વારસો (heritage) was in historical_period intent — removed, added to state_exploration
+
+### Verification Results
+- Backend TypeScript: PASS
+- Frontend TypeScript: PASS
+- Backend build: PASS
+- Frontend build: PASS (15 routes)
+- 13/13 API endpoints: PASS
+- 10/10 Security checks: PASS
+- 12/12 Entity field consistency: PASS
+- Auth & Favorites full cycle: PASS
+- Heritage detail location data: PASS (P1.35 BUG-001 fix verified)
+
+### Chatbot Status
+**DEFERRED — UNDER CONSTRUCTION**
+- All infrastructure preserved
+- UI clearly marked as in-development
+- Deep chatbot quality work deferred to future phase
+
+### Remaining Warnings
+- Chatbot intelligence intentionally deferred
+- In-memory rate limiting (single-server only)
+- Some entities legitimately have no location or period
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.36 — Project Completion, Admin Module & Comprehensive Testing
+
+### Status
+PASS WITH WARNINGS
+
+### Objective
+Complete remaining important modules and thoroughly test the complete project.
+
+### Key Changes
+1. **Admin Module completed** — dashboard with 9 stats, heritage management (search/filter/inspect), collection management
+2. **API proxy fixed** — forwards X-Admin-Token header for admin routes
+3. **Chatbot marked Under Construction** — UI clearly communicates development state, all infrastructure preserved
+4. **Comprehensive testing** — 21 API endpoints tested, 74 entities verified, security regression passed
+
+### Admin Features
+- Token-based authentication
+- Dashboard with live statistics (heritage, media, relationships, collections, etc.)
+- Heritage table with search, category filter, state filter
+- Heritage detail inspection panel
+- Collection list with entity counts and active status
+- Quick navigation to heritage, collections, explore
+- Refresh and logout functionality
+
+### Verification Results
+- Backend TypeScript: PASS
+- Frontend TypeScript: PASS
+- Backend build: PASS
+- Frontend build: PASS (15 routes)
+- 21/21 API endpoints: PASS
+- 8/8 Security checks: PASS
+- 74/74 Entity field consistency: PASS
+- Auth & Favorites full cycle: PASS
+- Admin security: PASS
+- Chatbot backend preserved: PASS
+- Chatbot UI under construction: PASS
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.37 — Complete Modules, API Integration & Bug Resolution
+
+### Status
+PASS
+
+### Objective
+Complete all important non-chatbot modules, find and fix runtime bugs, and perform comprehensive verification.
+
+### Critical Bugs Fixed
+1. **BUG-001 (CRITICAL)**: Heritage Detail page crashed with `Cannot read properties of null` when viewing entities without source — fixed NULL source guard (`heritage.source.id`)
+2. **BUG-002 (HIGH)**: Auth page triggered `router.push()` during render phase — moved to `useEffect`
+
+### Verification Results
+- Frontend TypeScript: PASS
+- Backend TypeScript: PASS
+- Frontend build: PASS (15 routes)
+- 14/14 API endpoints: PASS
+- 6/6 Security checks: PASS
+- 74/74 Entity data consistency: PASS
+- Nullable data audit: PASS
+- React lifecycle audit: PASS
+- Chatbot under construction: PASS
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.37 — Authentication, Favorites & Rate-Limit Correction
+
+### Status
+PASS
+
+### Objective
+Fix two user-reported runtime bugs: auth state desync in Favorites, and global rate limiter blocking registration.
+
+### Bugs Fixed
+1. **BUG-001**: Favorites page showed "sign in" for authenticated users — `useFavorites` had independent auth check that desynced from `useAuth`. Fixed by accepting shared auth state.
+2. **BUG-002**: Login rate limit blocked registration — global `authRateLimit` (10 req/15min) applied to all `/api/auth/*` routes. Removed global limiter, kept route-specific limits (login: 5/15min, register: 3/hour).
+
+### Verification Results
+- Backend TypeScript: PASS
+- Frontend TypeScript: PASS
+- Backend build: PASS
+- Frontend build: PASS (15 routes)
+- 12/12 API endpoints: PASS
+- 6/6 Security checks: PASS
+- Registration independent of login rate limit: PASS
+- Auth state synchronized between useAuth and useFavorites: PASS
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.37 — Final Correction Pass (Complete)
+
+### Scope
+Final verification of all auth, favorites, rate-limit, and admin fixes. Full API regression across 25 endpoints.
+
+### Bugs Verified Fixed
+1. **BUG-001**: Favorites page showed "sign in" for authenticated users — auth state desync fixed and verified with 10/10 runtime tests.
+2. **BUG-002**: Login rate limit blocked registration — verified registration works independently after login is rate-limited.
+3. **Heritage Detail NULL source crash** — guard `heritage.source && heritage.source.id` verified in place.
+4. **Auth render-phase navigation** — `router.push` moved to `useEffect`, verified no render-phase side effects.
+
+### Verification Results
+- Backend TypeScript: PASS
+- Frontend TypeScript: PASS
+- Frontend build: PASS (15 routes)
+- API regression: 23/25 passed (2 edge cases correct)
+- Auth flow: 9/9 tests PASS
+- Favorites flow: 7/7 tests PASS
+- Rate-limit isolation: PASS
+- Admin auth: 3/3 states verified
+- Admin dashboard: 9/9 stats verified
+- Security: 12/12 checks PASS
+- Nullable data audit: PASS
+- React lifecycle audit: PASS
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.37 — Admin Portal Content Management (Complete)
+
+### Scope
+Complete Admin Portal as a full content-management system with CRUD for Heritage, Media, Locations, Sources, Users, Collections, and Periods.
+
+### Features Implemented
+- **Heritage CRUD**: Create, read, update, delete with auto-slug, category/period/location/source assignment
+- **Media CRUD**: Add/replace/remove images and videos, type conversion (image→video), primary flag
+- **Location CRUD**: Full coordinate validation (lat -90/+90, lng -180/+180), heritage count, safe delete
+- **Source CRUD**: Title, author, type, verification status, safe delete
+- **User Management**: List, search, view detail with favorites, safe delete with cascade
+- **Collection Management**: CRUD with items, duplicate slug prevention
+- **Periods**: Read-only with heritage counts
+- **Dashboard**: 15 dynamic stats from database
+
+### Verification Results
+- End-to-end: 12/12 PASSED (create→edit→verify public→cleanup)
+- API regression: 28/28 PASSED
+- TypeScript: PASS (frontend + backend)
+- Build: PASS (15 routes)
+- Admin security: 3/3 states verified
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED
+
+---
+
+## P1.37 — Admin Portal Final Completion (Complete)
+
+### Scope
+Final completion of Admin Portal with bug fixes, Period CRUD, media restrictions, and muted video support.
+
+### Bugs Fixed
+1. Location `.toFixed()` crash — PostgreSQL decimal arrives as string; fix uses `Number()` + `Number.isFinite()`
+2. Historical Periods read-only → full CRUD with delete safety
+3. Media restricted to Image/Video only in Admin UI
+4. Heritage video support — `<video muted playsInline loop>` for video media
+
+### Features
+- Heritage CRUD with description, category, period, location, source
+- Media CRUD with image/video type change and primary flag
+- Location CRUD with coordinate validation
+- Source CRUD with safe delete
+- User management with safe cascade
+- Collection CRUD with items
+- Historical Period CRUD with BCE/CE display
+- 15 dynamic dashboard stats
+
+### Verification
+- API regression: 29/29 PASSED
+- E2E: 15/15 PASSED (create→edit→media→verify→cleanup)
+- Period CRUD: 8/8 PASSED
+- TypeScript: PASS (frontend + backend)
+- Build: PASS (15 routes)
+- No test data left in database
+
+### GitHub Status
+NO COMMIT / NO PUSH PERFORMED

@@ -97,6 +97,18 @@ class ApiClient {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: "DELETE" });
   }
+
+  /**
+   * Request with custom headers (e.g. X-Admin-Token)
+   */
+  async requestWithHeaders<T>(
+    endpoint: string,
+    method: string,
+    headers: Record<string, string>,
+    body?: unknown
+  ): Promise<T> {
+    return this.request<T>(endpoint, { method, headers, body });
+  }
 }
 
 export const api = new ApiClient();

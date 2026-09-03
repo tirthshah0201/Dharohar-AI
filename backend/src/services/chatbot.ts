@@ -35,6 +35,32 @@ const ROMANIZED_PUNJABI_PATTERN =
 
 export type DetectedLanguage = "en" | "gu" | "hi" | "mr" | "ta" | "pa";
 
+/**
+ * Detect language from Unicode script (non-Latin characters).
+ * Returns the script's language code if dominant script is non-Latin,
+ * or null if the text is predominantly Latin/ASCII.
+ */
+function detectScriptLanguage(message: string): DetectedLanguage | null {
+  let gu = 0, hi = 0, ta = 0, pa = 0;
+  for (const ch of message) {
+    const cp = ch.codePointAt(0)!;
+    if (cp >= 0x0A80 && cp <= 0x0AFF) gu++;       // Gujarati
+    else if (cp >= 0x0900 && cp <= 0x097F) hi++;   // Devanagari (Hindi/Marathi)
+    else if (cp >= 0x0B80 && cp <= 0x0BFF) ta++;   // Tamil
+    else if (cp >= 0x0A00 && cp <= 0x0A7F) pa++;   // Gurmukhi (Punjabi)
+  }
+  const total = gu + hi + ta + pa;
+  if (total < 3) return null; // Need at least a few non-Latin chars
+  // Devanagari is shared by Hindi and Marathi — default to Hindi
+  if (gu > hi && gu > ta && gu > pa) return "gu";
+  if (hi > gu && hi > ta && hi > pa) return "hi";
+  if (ta > gu && ta > hi && ta > pa) return "ta";
+  if (pa > gu && pa > hi && pa > ta) return "pa";
+  if (hi > 0) return "hi"; // Devanagari tie-break
+  if (gu > 0) return "gu";
+  return null;
+}
+
 function detectRomanizedLanguage(message: string): DetectedLanguage {
   const lower = message.toLowerCase();
   // Check Romanized patterns in order of specificity
@@ -214,6 +240,15 @@ function detectIntent(message: string): Intent {
   if (/\b(waterfall|river|forest|wildlife|mountain|beach|backwater|gorge|lake|eco.?tourism|adventure|trekking|sanctuary|national.?park|natural)\b/i.test(lower))
     return "state_exploration";
 
+  // "Heritage of [State]" / "[State] heritage" patterns -> state exploration
+  if (/\b(heritage|virasat|varasat|itihas|vārasat|vaarasat)\b/.test(lower) && state_code_in_message(lower))
+    return "state_exploration";
+  if (/\b(heritage|virasat|varasat)\b/.test(lower))
+    return "state_exploration";
+  // Non-Latin heritage keywords (Gujarati: વારસો, વિરાસત)
+  if (/વારસો|વિરાસત/i.test(message))
+    return "state_exploration";
+
   // Heritage sites: temples, forts, monuments, etc.
   if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog|satra|monastery|vav|ni vav|ki vav)\b/i.test(lower))
     return "heritage_information";
@@ -255,7 +290,7 @@ function detectIntent(message: string): Intent {
   if (/\b(period|era|dynasty|century|ancient|medieval|colonial|modern|history|historical|samay|yug)\b/i.test(lower))
     return "historical_period";
   // Non-Latin history keywords (Hindi: इतिहास, Gujarati: ઇતિહાસ, Tamil: வரலாறு, Punjabi: ਇਤਿਹਾਸ)
-  if (/ઇતિહાસ|ઇતિહાસ|વારસો|વર્ષ|इतिहास|ઇतिहास|वंश|वरलारू|ਇਤਿਹਾਸ|ਵਰਲਾਰੂ|varalaru|itihas/i.test(message))
+  if (/ઇતિહાસ|ઇતિહાસ|વર્ષ|इतिहास|ઇतिहास|वंश|वरलारू|ਇਤਿਹਾਸ|ਵਰਲਾਰੂ|varalaru|itihas/i.test(message))
     return "historical_period";
 
   // State exploration: match specific heritage/state keywords
@@ -298,6 +333,14 @@ function detectState(message: string): SupportedStateCode | null {
     if (lower.includes(keyword)) return code;
   }
   return null;
+}
+
+/** Check if a lowercased message contains any state keyword. */
+function state_code_in_message(lower: string): boolean {
+  for (const keyword of Object.keys(STATE_KEYWORDS)) {
+    if (lower.includes(keyword)) return true;
+  }
+  return false;
 }
 
 function extractKeywords(message: string): string[] {
@@ -770,8 +813,14 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   const { message, language } = req;
   const isRG = isRomanizedGujarati(message);
   const wantsRoman = wantsRomanizedResponse(message);
-  // Determine response language: RG input -> Gujarati, unless user wants Romanized
-  const langCode = (isValidLanguage(language) ? language : (isRG ? "gu" : "en"));
+  // Determine response language: 
+  // 1. If user explicitly selected a non-default language, use it
+  // 2. If non-Latin script detected, use that language
+  // 3. If Romanized Gujarati detected, use Gujarati
+  // 4. Default to English
+  const scriptLang = detectScriptLanguage(message);
+  const userChoseLanguage = isValidLanguage(language) && language !== "en";
+  const langCode = userChoseLanguage ? language : (scriptLang || (isRG ? "gu" : "en"));
   
   // Try ML-based intent detection first, fall back to regex
   const mlResult = await predictIntentWithML(message, langCode);
