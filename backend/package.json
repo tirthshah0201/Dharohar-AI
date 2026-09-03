@@ -1,8 +1,8 @@
 {
-  "name": "dharohar-ai-backend",
+  "name": "astrova-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Dharohar AI Backend API",
+  "description": "Astrova Backend API",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
@@ -12,14 +12,20 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.23.1",
     "eslint": "^9",

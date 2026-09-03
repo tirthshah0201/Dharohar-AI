@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI Backend — Types
+   Astrova Backend — Types
    ======================================== */
 
 export interface ApiResponse<T = unknown> {

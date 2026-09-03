@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — API Key Middleware
+   Astrova — API Key Middleware
    ========================================
 
    Development-only API key validation.

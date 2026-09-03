@@ -6,6 +6,7 @@
 
 import { Router } from "express";
 import { requireDevelopmentApiKey } from "../middleware/apiKey";
+import { validateUUID } from "../middleware/validate";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
 
@@ -56,7 +57,7 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
  *
  * Get a single source by ID.
  */
-router.get("/:id", requireDevelopmentApiKey, async (req, res) => {
+router.get("/:id", requireDevelopmentApiKey, validateUUID("id"), async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
     const { rows } = await query(

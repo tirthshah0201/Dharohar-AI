@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Language Configuration
+   Astrova — Language Configuration
    ========================================
    Centralized language definitions for chatbot support.
    All language references throughout the codebase should
@@ -21,11 +21,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "English",
     nativeName: "English",
     welcomeMessage:
-      "Welcome to **Heritage Atlas** — your intelligent heritage guide.\n\nExplore India's cultural heritage across 12 states and 6 languages. Discover temples, forts, crafts, waterfalls, forests, wildlife, food, traditions, and stories.",
+      "Welcome to **Astrova** — your intelligent heritage guide.\n\nExplore India's cultural heritage across 12 states and 6 languages. Discover temples, forts, crafts, waterfalls, forests, wildlife, food, traditions, and stories.",
     unknownIntentResponse:
       "I couldn't find verified information about that topic. Try asking about a specific heritage site, craft, or historical figure from one of our supported states.",
     greetingResponses: [
-      "Hello! I'm Dharohar AI, your heritage guide. Ask me about India's cultural heritage — temples, forts, crafts, traditions, or historical figures.",
+      "Hello! I'm Astrova, your heritage guide. Ask me about India's cultural heritage — temples, forts, crafts, traditions, or historical figures.",
       "Namaste! I can tell you about Gujarat, Rajasthan, Punjab, Goa, Tamil Nadu, Maharashtra, Madhya Pradesh, Delhi, Kerala, Jammu & Kashmir, Assam, or Odisha heritage.",
       "Welcome! Ask me about heritage sites, crafts, traditions, or historical figures across India.",
     ],
@@ -35,11 +35,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Gujarati",
     nativeName: "ગુજરાતી",
     welcomeMessage:
-      "**Heritage Atlas** માં આપનું સ્વાગત છે — ભારતના સાંસ્કૃતિક વારસાનો તમારો બુદ્ધિશાળી માર્ગદર્શક.\n\n12 રાજ્યો અને 6 ભાષાઓમાં ભારતના સાંસ્કૃતિક વારસાને શોધો. મંદિરો, કિલ્લાઓ, હસ્તકલા, પ્રકૃતિ, ખોરાક અને પરંપરાઓ વિશે પૂછો.",
+      "**Astrova** માં આપનું સ્વાગત છે — ભારતના સાંસ્કૃતિક વારસાનો તમારો બુદ્ધિશાળી માર્ગદર્શક.\n\n12 રાજ્યો અને 6 ભાષાઓમાં ભારતના સાંસ્કૃતિક વારસાને શોધો. મંદિરો, કિલ્લાઓ, હસ્તકલા, પ્રકૃતિ, ખોરાક અને પરંપરાઓ વિશે પૂછો.",
     unknownIntentResponse:
       "હજુ સુધી એ વિષય વિશે મારી પાસે પૂરતી ચકાસાયેલ માહિતી નથી. કોઈ ચોક્કસ વારસા સ્થળ, હસ્તકલા અથવા ઐતિહાસિક વ્યક્તિ વિશે પૂછો.",
     greetingResponses: [
-      "નમસ્તે! હું ધરોહર AI છું, તમારો વારસા માર્ગદર્શક. ભારતના સાંસ્કૃતિક વારસા વિશે મને પૂછો — મંદિરો, કિલ્લાઓ, હસ્તકલા, પરંપરાઓ.",
+      "નમસ્તે! હું એસ્ટ્રોવા છું, તમારો વારસા માર્ગદર્શક. ભારતના સાંસ્કૃતિક વારસા વિશે મને પૂછો — મંદિરો, કિલ્લાઓ, હસ્તકલા, પરંપરાઓ.",
       "નમસ્તે! મને મંદિરો, કિલ્લાઓ, હસ્તકલા અથવા પરંપરાઓ વિશે પૂછો.",
     ],
   },
@@ -48,11 +48,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Hindi",
     nativeName: "हिन्दी",
     welcomeMessage:
-      "**Heritage Atlas** में आपका स्वागत है — भारत की सांस्कृतिक विरासत का आपका बुद्धिमान गाइड.\n\n12 राज्यों और 6 भाषाओं में भारत की विरासत की खोज करें. मंदिरों, किलों, जलप्रपातों, वन्यजीवों, खाने और परंपराओं के बारे में पूछें.",
+      "**Astrova** में आपका स्वागत है — भारत की सांस्कृतिक विरासत का आपका बुद्धिमान गाइड.\n\n12 राज्यों और 6 भाषाओं में भारत की विरासत की खोज करें. मंदिरों, किलों, जलप्रपातों, वन्यजीवों, खाने और परंपराओं के बारे में पूछें.",
     unknownIntentResponse:
       "उस विषय के बारे में मेरे पास अभी पर्याप्त सत्यापित जानकारी नहीं है. किसी विशिष्ट विरासत स्थल, शिल्प या ऐतिहासिक व्यक्ति के बारे में पूछें.",
     greetingResponses: [
-      "नमस्ते! मैं धरोहर AI हूं, आपका विरासत गाइड. भारत की सांस्कृतिक विरासत के बारे में मुझसे पूछें।",
+      "नमस्ते! मैं एस्ट्रोवा हूं, आपका विरासत गाइड. भारत की सांस्कृतिक विरासत के बारे में मुझसे पूछें।",
       "नमस्ते! मंदिरों, किलों, शिल्पों या परंपराओं के बारे में मुझसे पूछें।",
     ],
   },
@@ -61,11 +61,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Marathi",
     nativeName: "मराठी",
     welcomeMessage:
-      "**Heritage Atlas** मध्ये आपले स्वागत आहे — भारताच्या सांस्कृतिक वारशाचा आपला बुद्धिमान मार्गदर्शक.\n\n12 राज्यांमध्ये भारताच्या वारशाचा शोध घ्या. मंदिरे, किल्ले, झरे, वन्यजीवे, अन्न आणि परंपरांबद्दल विचारा.",
+      "**Astrova** मध्ये आपले स्वागत आहे — भारताच्या सांस्कृतिक वारशाचा आपला बुद्धिमान मार्गदर्शक.\n\n12 राज्यांमध्ये भारताच्या वारशाचा शोध घ्या. मंदिरे, किल्ले, झरे, वन्यजीवे, अन्न आणि परंपरांबद्दल विचारा.",
     unknownIntentResponse:
       "त्या विषयाबद्दल माझ्याकडे अजून पुरेसी चकासलेली माहिती नाही. कोणत्याही विशिष्ट वारसा स्थळाबद्दल विचारा.",
     greetingResponses: [
-      "नमस्कार! मी धरोहर AI आहे, तुमचा वारसा मार्गदर्शक. भारताच्या सांस्कृतिक वारशाबद्दल मला विचारा.",
+      "नमस्कार! मी एस्ट्रोवा आहे, तुमचा वारसा मार्गदर्शक. भारताच्या सांस्कृतिक वारशाबद्दल मला विचारा.",
     ],
   },
   ta: {
@@ -73,11 +73,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Tamil",
     nativeName: "தமிழ்",
     welcomeMessage:
-      "**Heritage Atlas**-க்கு வரவேற்கிறோம் — இந்தியாவின் கலாச்சார பாரம்பரியத்தின் உங்கள் புத்திசாலி வழிகாட்டி.\n\n12 மாநிலங்களில் இந்தியாவின் பாரம்பரியத்தை ஆராயுங்கள். கோவில்கள், கோட்டைகள், நீர்வீழ்ச்சிகள், உணவு மற்றும் பண்பாடு பற்றி கேளுங்கள்.",
+      "**Astrova**-க்கு வரவேற்கிறோம் — இந்தியாவின் கலாச்சார பாரம்பரியத்தின் உங்கள் புத்திசாலி வழிகாட்டி.\n\n12 மாநிலங்களில் இந்தியாவின் பாரம்பரியத்தை ஆராயுங்கள். கோவில்கள், கோட்டைகள், நீர்வீழ்ச்சிகள், உணவு மற்றும் பண்பாடு பற்றி கேளுங்கள்.",
     unknownIntentResponse:
       "அந்த தலைப்பு பற்றி எனக்கு இன்னும் போதுமான சரிபார்க்கப்பட்ட தகவல் இல்லை. ஒரு குறிப்பிட்ட பாரம்பரிய தளம் பற்றி கேட்க முடியுமா?",
     greetingResponses: [
-      "வணக்கம்! நான் தரோகர் AI, உங்கள் பாரம்பரிய வழிகாட்டி. இந்தியாவின் கலாச்சார பாரம்பரியம் பற்றி கேளுங்கள்.",
+      "வணக்கம்! நான் ஏஸ்ட்ரோவா, உங்கள் பாரம்பரிய வழிகாட்டி. இந்தியாவின் கலாச்சார பாரம்பரியம் பற்றி கேளுங்கள்.",
     ],
   },
   pa: {
@@ -85,11 +85,11 @@ export const SUPPORTED_LANGUAGES: Record<string, Language> = {
     name: "Punjabi",
     nativeName: "ਪੰਜਾਬੀ",
     welcomeMessage:
-      "**Heritage Atlas** ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ — ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਦਾ ਤੁਹਾਡਾ ਸਮਝਦਾਰ ਗਾਈਡ.\n\n12 ਰਾਜਾਂ ਵਿੱਚ ਭਾਰਤ ਦੀ ਵਿਰਾਸਤ ਦੀ ਖੋਜ ਕਰੋ. ਮੰਦਿਰਾਂ, ਕਿਲ੍ਹਿਆਂ, ਝਰਨਿਆਂ, ਜੰਗਲਾਂ, ਖਾਣੇ ਜਾਂ ਪਰੰਪਰਾਵਾਂ ਬਾਰੇ ਪੁੱਛੋ.",
+      "**Astrova** ਵਿੱਚ ਤੁਹਾਡਾ ਸਵਾਗਤ ਹੈ — ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਦਾ ਤੁਹਾਡਾ ਸਮਝਦਾਰ ਗਾਈਡ.\n\n12 ਰਾਜਾਂ ਵਿੱਚ ਭਾਰਤ ਦੀ ਵਿਰਾਸਤ ਦੀ ਖੋਜ ਕਰੋ. ਮੰਦਿਰਾਂ, ਕਿਲ੍ਹਿਆਂ, ਝਰਨਿਆਂ, ਜੰਗਲਾਂ, ਖਾਣੇ ਜਾਂ ਪਰੰਪਰਾਵਾਂ ਬਾਰੇ ਪੁੱਛੋ.",
     unknownIntentResponse:
       "ਉਸ ਵਿਸ਼ੇ ਬਾਰੇ ਮੇਰੇ ਕੋਲ ਅਜੇ ਲੋੜੀਂਦੀ ਤਸਦੀਕ ਕੀਤੀ ਜਾਣਕਾਰੀ ਨਹੀਂ ਹੈ. ਕਿਸੇ ਖਾਸ ਵਿਰਾਸਤੀ ਥਾਂ ਜਾਂ ਹੁਣਰ ਬਾਰੇ ਪੁੱਛੋ.",
     greetingResponses: [
-      "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਧਰੋਹਰ AI ਹਾਂ, ਤੁਹਾਡਾ ਵਿਰਾਸਤ ਗਾਈਡ. ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਬਾਰੇ ਪੁੱਛੋ.",
+      "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਏਸਟ੍ਰੋਵਾ ਹਾਂ, ਤੁਹਾਡਾ ਵਿਰਾਸਤ ਗਾਈਡ. ਭਾਰਤ ਦੀ ਸੱਭਿਆਚਾਰਕ ਵਿਰਾਸਤ ਬਾਰੇ ਪੁੱਛੋ.",
     ],
   },
 };

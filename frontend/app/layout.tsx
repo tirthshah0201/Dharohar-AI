@@ -3,6 +3,7 @@ import { Playfair_Display, Manrope, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SearchModalProvider } from "@/components/ui/SearchModal";
+import { AuthProvider } from "@/hooks/useAuth";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -55,11 +56,13 @@ export default function RootLayout({
       className={`${playfair.variable} ${manrope.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <SearchModalProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </SearchModalProvider>
+        <AuthProvider>
+          <SearchModalProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </SearchModalProvider>
+        </AuthProvider>
       </body>
     </html>
   );

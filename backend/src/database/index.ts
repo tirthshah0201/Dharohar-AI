@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Database Connection
+   Astrova — Database Connection
    ========================================
 
    Neon PostgreSQL connection pool.

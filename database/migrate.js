@@ -1,5 +1,5 @@
 /**
- * Dharohar AI — Database Migration Runner (JS)
+ *   Astrova — Database Migration Runner (JS)
  *
  * Usage:
  *   node database/migrate.js migrate   — Run all pending migrations
@@ -161,7 +161,7 @@ async function main() {
         await showStatus();
         break;
       default:
-        console.log('Dharohar AI — Database Migration Tool');
+        console.log('Astrova — Database Migration Tool');
         console.log('Usage:');
         console.log('  node database/migrate.js migrate  — Run migrations');
         console.log('  node database/migrate.js seed     — Run seeds');

@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Timeline Routes
+   Astrova — Timeline Routes
    ======================================== */
 
 import { Router } from "express";
@@ -18,23 +18,11 @@ const router = Router();
 router.get("/", requireDevelopmentApiKey, async (_req, res) => {
   if (!requireDatabase(res)) return;
   try {
-    // Get periods with their associated heritage entities
-    const { rows: periods } = await query(`
-      SELECT
-        hp.id,
-        hp.name,
-        hp.start_year,
-        hp.end_year,
-        hp.description
-      FROM historical_periods hp
-      ORDER BY hp.start_year ASC
-    `);
-
-    // For each period, fetch its heritage entities
-    const result = [];
-    for (const period of periods) {
-      const { rows: entities } = await query(`
-        SELECT he.id, he.name, he.slug, he.category, he.description,
+    // Single query: periods with aggregated entity data via LEFT JOIN LATERAL
+    const { rows } = await query(`
+      WITH period_entities AS (
+        SELECT
+          he.id, he.name, he.slug, he.category, he.description, he.period_id,
           CASE WHEN l.id IS NOT NULL THEN json_build_object(
             'name', l.name, 'state', l.state
           ) ELSE NULL END as location,
@@ -42,21 +30,31 @@ router.get("/", requireDevelopmentApiKey, async (_req, res) => {
           (SELECT m.alt_text FROM media m WHERE m.entity_id = he.id AND m.is_primary = true LIMIT 1) as media_alt
         FROM heritage_entities he
         LEFT JOIN locations l ON he.location_id = l.id
-        WHERE he.period_id = $1
-        ORDER BY he.name ASC
-      `, [period.id]);
-
-      result.push({
-        ...period,
-        entity_count: entities.length,
-        entities,
-      });
-    }
+      )
+      SELECT
+        hp.id,
+        hp.name,
+        hp.start_year,
+        hp.end_year,
+        hp.description,
+        COALESCE(
+          (SELECT json_agg(json_build_object(
+            'id', pe.id, 'name', pe.name, 'slug', pe.slug,
+            'category', pe.category, 'description', pe.description,
+            'location', pe.location, 'media_url', pe.media_url, 'media_alt', pe.media_alt
+          ) ORDER BY pe.name)
+          FROM period_entities pe WHERE pe.period_id = hp.id),
+          '[]'::json
+        ) as entities,
+        (SELECT COUNT(*)::int FROM heritage_entities he WHERE he.period_id = hp.id) as entity_count
+      FROM historical_periods hp
+      ORDER BY hp.start_year ASC
+    `);
 
     res.json({
       success: true,
-      data: result,
-      total: result.length,
+      data: rows,
+      total: rows.length,
     });
   } catch (err) {
     console.error("[Timeline] Query error:", (err as Error).message);

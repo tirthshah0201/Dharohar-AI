@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Validation Utilities
+   Astrova — Validation Utilities
    ========================================
 
    Reusable validation functions for API input.

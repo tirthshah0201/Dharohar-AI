@@ -4,6 +4,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { healthRouter } from "./routes/health";
 import { locationsRouter } from "./routes/locations";
 import { heritageRouter } from "./routes/heritage";
@@ -16,13 +17,37 @@ import { mediaRouter } from "./routes/media";
 import { periodsRouter } from "./routes/periods";
 import { collectionsRouter } from "./routes/collections";
 import { adminRouter } from "./routes/admin";
+import { authRouter } from "./routes/auth";
+import { favoritesRouter } from "./routes/favorites";
+import { authRateLimit, chatRateLimit, favoritesRateLimit } from "./middleware/rateLimit";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "", 10) || 3001;
 
+// Trust loopback proxy (Next.js proxy → Express on same machine)
+// Also safe behind reverse proxies that set X-Forwarded-For
+app.set("trust proxy", "loopback");
+
 // ---- Middleware ----
-app.use(cors({ origin: process.env.NODE_ENV === "production" ? false : true }));
-app.use(express.json());
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+  : ["http://localhost:3000"];
+
+app.use(cors({
+  origin: process.env.NODE_ENV === "production"
+    ? (origin, callback) => {
+        // Allow requests with no origin (server-to-server, curl, mobile apps)
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      }
+    : true,
+  credentials: true,
+}));
+app.use(express.json({ limit: "1mb" }));
+app.use(cookieParser());
 
 // ---- Routes ----
 app.use("/api/health", healthRouter);
@@ -36,7 +61,9 @@ app.use("/api/media", mediaRouter);
 app.use("/api/periods", periodsRouter);
 app.use("/api/collections", collectionsRouter);
 app.use("/api/admin", adminRouter);
-app.use("/api/ai", aiRouter);
+app.use("/api/auth", authRateLimit, authRouter);
+app.use("/api/favorites", favoritesRateLimit, favoritesRouter);
+app.use("/api/ai", chatRateLimit, aiRouter);
 
 // ---- 404 Handler ----
 app.use((_req, res) => {
@@ -46,7 +73,7 @@ app.use((_req, res) => {
   });
 });
 
-// ---- Error Handler ----
+// ---- Error Handler (no stack trace or sensitive info in response) ----
 app.use(
   (
     err: Error,
@@ -54,17 +81,22 @@ app.use(
     res: express.Response,
     _next: express.NextFunction
   ) => {
-    console.error("Unhandled error:", err);
+    // Log internally with detail (but never log secrets)
+    console.error("[Error]", err.message);
+    // Never expose stack traces, SQL errors, or internals to client
     res.status(500).json({
       success: false,
-      message: "Internal server error",
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "An unexpected error occurred.",
+      },
     });
   }
 );
 
 // ---- Start Server ----
 app.listen(PORT, () => {
-  console.log(`🏛️  Dharohar AI API running on http://localhost:${PORT}`);
+  console.log(`🏛️  Astrova API running on http://localhost:${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health`);
   console.log(
     `   Connectivity: http://localhost:${PORT}/api/system/connectivity`

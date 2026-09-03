@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Utility Functions
+   Astrova — Utility Functions
    ======================================== */
 
 /**

@@ -1,5 +1,5 @@
 /**
- * Dharohar AI — Database Migration Runner
+ *   Astrova — Database Migration Runner
  *
  * Usage:
  *   npx ts-node database/migrate.ts migrate   — Run all pending migrations
@@ -144,7 +144,7 @@ async function main() {
         await showStatus();
         break;
       default:
-        console.log("Dharohar AI — Database Migration Tool");
+        console.log("Astrova — Database Migration Tool");
         console.log("Usage:");
         console.log("  npx ts-node database/migrate.ts migrate  — Run migrations");
         console.log("  npx ts-node database/migrate.ts seed     — Run seeds");

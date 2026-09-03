@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Shared Types
+   Astrova — Shared Types
    ======================================== */
 
 // ---- Locations ----

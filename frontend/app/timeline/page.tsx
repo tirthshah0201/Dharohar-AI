@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { getHeritageImage } from "@/constants/images";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -72,29 +73,7 @@ function getDuration(start: number, end: number | null): string {
   return `${years} years`;
 }
 
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark,
-  craft: Palette,
-  person: Users,
-  festival: Calendar,
-  architecture: Landmark,
-  event: Clock,
-  food: UtensilsCrossed,
-  community: Theater,
-  tradition: BookOpen,
-  natural_landmark: MapPin,
-  waterfall: MapPin,
-  lake: MapPin,
-  river: MapPin,
-  mountain: MapPin,
-  gorge: MapPin,
-  beach: MapPin,
-  backwater: MapPin,
-  cultural_site: Landmark,
-  wildlife: MapPin,
-  eco_tourism: MapPin,
-  adventure: MapPin,
-};
+
 
 const CORE_CATEGORIES = ["monument", "craft", "person", "festival", "architecture", "event", "food", "community", "tradition"];
 
@@ -322,7 +301,7 @@ function TimelineContent() {
                           </h3>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {period.entities.map((entity) => {
-                              const EntityIcon = categoryIcons[entity.category] || Landmark;
+                              const EntityIcon = getCategoryIcon(entity.category);
                               const heroImage =
                                 entity.media_url ||
                                 getHeritageImage(entity.name, entity.category)?.src ||

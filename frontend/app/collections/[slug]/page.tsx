@@ -24,6 +24,7 @@ import {
   Compass,
   ArrowLeft,
 } from "lucide-react";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -65,29 +66,7 @@ interface RelatedCollection {
    Helpers
    ======================================== */
 
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark,
-  craft: Palette,
-  person: Users,
-  festival: Calendar,
-  architecture: Landmark,
-  event: Clock,
-  food: Users,
-  community: Users,
-  tradition: BookOpen,
-  natural_landmark: Compass,
-  waterfall: Compass,
-  lake: Compass,
-  river: Compass,
-  mountain: Compass,
-  gorge: Compass,
-  beach: Compass,
-  backwater: Compass,
-  cultural_site: Landmark,
-  wildlife: Compass,
-  eco_tourism: Compass,
-  adventure: Compass,
-};
+
 
 /* ========================================
    Page Component
@@ -154,8 +133,7 @@ export default function CollectionDetailPage({
             {/* Entities Grid */}
             {collection.entities.length > 0 ? (
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-                {collection.entities.map((entity) => {
-                  const EntityIcon = categoryIcons[entity.category] || Landmark;
+                {collection.entities.map((entity) => {                   const EntityIcon = getCategoryIcon(entity.category);
                   const fallback = entity.media_url
                     ? { src: entity.media_url, alt: entity.media_alt || entity.name }
                     : getHeritageImage(entity.name, entity.category);

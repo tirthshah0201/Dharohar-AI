@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Locations Routes
+   Astrova — Locations Routes
    ======================================== */
 
 import { Router } from "express";

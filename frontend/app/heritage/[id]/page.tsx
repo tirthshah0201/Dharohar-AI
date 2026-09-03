@@ -21,10 +21,13 @@ import {
   BookOpen,
   ExternalLink,
   Sparkles,
+  Shield,
+  CheckCircle,
 } from "lucide-react";
 import { getHeritageImage } from "@/constants/images";
 import { GalleryLightbox } from "@/components/ui/GalleryLightbox";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
+import { getCategoryIcon, getCategoryColor } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -94,29 +97,7 @@ interface Location {
    Helpers
    ======================================== */
 
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark,
-  craft: Palette,
-  person: Users,
-  festival: Calendar,
-  architecture: Landmark,
-  event: Clock,
-  food: UtensilsCrossed,
-  community: Users,
-  tradition: BookOpen,
-};
 
-const categoryColors: Record<string, string> = {
-  monument: "bg-terracotta/10 text-terracotta",
-  craft: "bg-heritage-gold/10 text-heritage-gold",
-  person: "bg-terracotta-dark/10 text-terracotta-dark",
-  festival: "bg-terracotta-light/10 text-terracotta-dark",
-  architecture: "bg-terracotta/10 text-terracotta",
-  event: "bg-terracotta-dark/10 text-terracotta-dark",
-  food: "bg-heritage-gold/10 text-heritage-gold",
-  community: "bg-terracotta-light/10 text-terracotta-dark",
-  tradition: "bg-heritage-gold/10 text-heritage-gold",
-};
 
 /* ========================================
    Page Component
@@ -138,8 +119,8 @@ export default function HeritageDetailPage({
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
-  const Icon = categoryIcons[heritage?.category || "monument"] || Landmark;
-  const colorClass = categoryColors[heritage?.category || "monument"] || "bg-terracotta/10 text-terracotta";
+  const Icon = getCategoryIcon(heritage?.category || "monument");
+  const colorClass = getCategoryColor(heritage?.category || "monument");
 
   return (
     <div className="min-h-screen">
@@ -204,9 +185,16 @@ export default function HeritageDetailPage({
                         </h1>
                         <FavoriteButton heritageId={heritage.id} size="md" className="!text-white/80 hover:!text-white" />
                       </div>
-                      <p className="text-base sm:text-lg text-white/90 max-w-2xl leading-relaxed">
-                        {heritage.description.substring(0, 200)}...
-                      </p>
+                      {heritage.period && (
+                        <p className="text-sm text-white/70 mt-1">
+                          {heritage.period.name}
+                          {heritage.period.start_year != null && (
+                            <span className="ml-1">
+                              · {heritage.period.start_year < 0 ? `${Math.abs(heritage.period.start_year)} BCE` : `${heritage.period.start_year} CE`}
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -226,9 +214,16 @@ export default function HeritageDetailPage({
                     <h1 className="font-display text-4xl sm:text-5xl text-charcoal mb-3">
                       {heritage.name}
                     </h1>
-                    <p className="text-lg text-muted leading-relaxed">
-                      {heritage.description.substring(0, 200)}...
-                    </p>
+                    {heritage.period && (
+                      <p className="text-sm text-muted mt-1">
+                        {heritage.period.name}
+                        {heritage.period.start_year != null && (
+                          <span className="ml-1">
+                            · {heritage.period.start_year < 0 ? `${Math.abs(heritage.period.start_year)} BCE` : `${heritage.period.start_year} CE`}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
@@ -423,31 +418,28 @@ export default function HeritageDetailPage({
               </div>
             )}
 
-            {/* Sources */}
+            {/* Sources & References */}
             {heritage.source && (
               <div className="mb-16">
                 <div className="max-w-3xl mx-auto">
-                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-6">Sources</h2>
-                  <div className="p-6 bg-cream/30 rounded-2xl">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-heritage-gold/10 shrink-0">
-                        <BookOpen className="h-5 w-5 text-heritage-gold" />
+                  <div className="flex items-center gap-2 mb-6">
+                    <Shield className="h-5 w-5 text-heritage-gold" />
+                    <h2 className="font-display text-2xl sm:text-3xl text-charcoal">Sources & References</h2>
+                  </div>
+                  <div className="p-6 bg-cream/30 rounded-2xl border border-cream">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-heritage-gold/10 shrink-0">
+                        <BookOpen className="h-6 w-6 text-heritage-gold" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-charcoal mb-1">{heritage.source.title || "Unknown Source"}</h3>
-                        {heritage.source.publisher && (
-                          <p className="text-sm text-muted">Publisher: {heritage.source.publisher}</p>
-                        )}
-                        {heritage.source.author && (
-                          <p className="text-sm text-muted">Author: {heritage.source.author}</p>
-                        )}
-                        <div className="flex items-center gap-2 mt-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-charcoal text-lg mb-1">{heritage.source.title || "Unknown Source"}</h3>
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
                           <Badge variant="secondary" className="text-xs">
                             {heritage.source.source_type}
                           </Badge>
                           <Badge
                             variant="secondary"
-                            className={`text-xs ${
+                            className={`text-xs flex items-center gap-1 ${
                               heritage.source.verification_status === "VERIFIED"
                                 ? "bg-green-100 text-green-700"
                                 : heritage.source.verification_status === "REVIEWED"
@@ -455,17 +447,29 @@ export default function HeritageDetailPage({
                                 : "bg-gray-100 text-gray-600"
                             }`}
                           >
+                            {heritage.source.verification_status === "VERIFIED" && <CheckCircle className="h-3 w-3" />}
                             {heritage.source.verification_status.toLowerCase()}
                           </Badge>
+                        </div>
+                        <div className="space-y-1 text-sm text-muted">
+                          {heritage.source.author && (
+                            <p>Author: <span className="text-charcoal font-medium">{heritage.source.author}</span></p>
+                          )}
+                          {heritage.source.publisher && (
+                            <p>Publisher: <span className="text-charcoal">{heritage.source.publisher}</span></p>
+                          )}
+                          {heritage.source.publication_date && (
+                            <p>Published: {heritage.source.publication_date}</p>
+                          )}
                         </div>
                         {heritage.source.url && (
                           <a
                             href={heritage.source.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 mt-3 text-sm text-terracotta hover:text-terracotta-dark font-medium"
+                            className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg bg-terracotta/5 border border-terracotta/15 text-sm text-terracotta hover:bg-terracotta/10 hover:border-terracotta/25 font-medium transition-colors"
                           >
-                            View source <ExternalLink className="h-3 w-3" />
+                            View Reference <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         )}
                       </div>
@@ -479,7 +483,7 @@ export default function HeritageDetailPage({
             {heritage.related && heritage.related.length > 0 && (
               <div className="mb-16">
                 <div className="max-w-3xl mx-auto">
-                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-2">Related Heritage</h2>
+                  <h2 className="font-display text-2xl sm:text-3xl text-charcoal mb-2">You May Also Explore</h2>
                   <p className="text-sm text-muted mb-6">Discover connections across India&apos;s heritage traditions</p>
                   {(() => {
                     // Group by relationship type
@@ -505,34 +509,52 @@ export default function HeritageDetailPage({
                             </h3>
                             <div className="space-y-3">
                               {rels.map((rel) => {
-                                const RelIcon = categoryIcons[rel.category] || Landmark;
-                                const relColor = categoryColors[rel.category] || "bg-terracotta/10 text-terracotta";
+                                const RelIcon = getCategoryIcon(rel.category);
+                                const relColor = getCategoryColor(rel.category);
                                 const relTypeLabel = rel.relationship_type
                                   .replace(/_/g, ' ')
                                   .toLowerCase()
                                   .replace(/\b\w/g, l => l.toUpperCase());
                                 return (
                                   <Link key={rel.id} href={`/heritage/${rel.slug || rel.id}`}>
-                                    <div className="group p-5 bg-cream/30 rounded-xl hover:bg-cream/60 transition-all border border-transparent hover:border-terracotta/15 hover:shadow-sm">
-                                      <div className="flex items-start gap-4">
-                                        <div className={`flex h-11 w-11 items-center justify-center rounded-xl shrink-0 ${relColor} group-hover:scale-105 transition-transform`}>
-                                          <RelIcon className="h-5 w-5" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-semibold text-charcoal truncate group-hover:text-terracotta transition-colors">{rel.name}</h3>
-                                            <Badge variant="outline" className="text-[10px] capitalize shrink-0">
-                                              {relTypeLabel}
-                                            </Badge>
+                                    <div className="group bg-cream/30 rounded-xl overflow-hidden hover:bg-cream/60 transition-all border border-transparent hover:border-terracotta/15 hover:shadow-sm">
+                                      {/* Image */}
+                                      {(() => {
+                                        const relImage = getHeritageImage(rel.name, rel.category);
+                                        return relImage ? (
+                                          <div className="relative h-24 overflow-hidden">
+                                            <img
+                                              src={relImage.src}
+                                              alt={relImage.alt}
+                                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                              loading="lazy"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                           </div>
-                                          <p className="text-xs text-muted capitalize mb-1.5">{rel.category}</p>
-                                          {rel.relationship_description && (
-                                            <p className="text-sm text-charcoal/70 line-clamp-2 leading-relaxed">{rel.relationship_description}</p>
-                                          )}
+                                        ) : null;
+                                      })()}
+                                      <div className="p-4">
+                                        <div className="flex items-start gap-3">
+                                          <div className={`flex h-9 w-9 items-center justify-center rounded-lg shrink-0 ${relColor} group-hover:scale-105 transition-transform`}>
+                                            <RelIcon className="h-4 w-4" />
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                              <h3 className="font-semibold text-charcoal text-sm truncate group-hover:text-terracotta transition-colors">{rel.name}</h3>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                              <Badge variant="outline" className="text-[9px] capitalize">
+                                                {rel.category}
+                                              </Badge>
+                                              <Badge variant="secondary" className="text-[9px] bg-heritage-gold/10 text-heritage-gold">
+                                                {relTypeLabel}
+                                              </Badge>
+                                            </div>
+                                            {rel.relationship_description && (
+                                              <p className="text-xs text-charcoal/60 mt-1.5 line-clamp-2 leading-relaxed">{rel.relationship_description}</p>
+                                            )}
+                                          </div>
                                         </div>
-                                        <span className="text-terracotta/0 group-hover:text-terracotta/60 transition-colors text-sm shrink-0 self-center">
-                                          →
-                                        </span>
                                       </div>
                                     </div>
                                   </Link>

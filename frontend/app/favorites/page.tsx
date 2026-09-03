@@ -9,10 +9,11 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
-import { useApi } from "@/hooks/useApi";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import { getHeritageImage } from "@/constants/images";
-import { Landmark, MapPin, Clock, Heart, Trash2 } from "lucide-react";
+import { Landmark, MapPin, Heart, Trash2, LogIn, UserPlus } from "lucide-react";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -32,24 +33,24 @@ interface HeritageEntity {
    Helpers
    ======================================== */
 
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark, craft: Landmark, person: Landmark,
-  festival: Landmark, architecture: Landmark, event: Landmark,
-  food: Landmark, community: Landmark, tradition: Landmark,
-  natural_landmark: Landmark, waterfall: Landmark, lake: Landmark,
-  river: Landmark, mountain: Landmark, gorge: Landmark,
-  beach: Landmark, backwater: Landmark, cultural_site: Landmark,
-  wildlife: Landmark, eco_tourism: Landmark, adventure: Landmark,
-};
+
 
 /* ========================================
    Page Component
    ======================================== */
 
 export default function FavoritesPage() {
-  const { favorites, loaded, removeFavorite, count } = useFavorites();
+  const { favorites, loaded, authenticated, syncing, removeFavorite, count, syncToBackend } = useFavorites();
+  const { user, loading: authLoading } = useAuth();
   const [allHeritage, setAllHeritage] = useState<HeritageEntity[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Sync localStorage favorites to backend if just logged in
+  useEffect(() => {
+    if (authenticated && count > 0) {
+      syncToBackend();
+    }
+  }, [authenticated]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -58,7 +59,6 @@ export default function FavoritesPage() {
       return;
     }
 
-    // Fetch all heritage and filter to favorites
     setLoading(true);
     fetch("/api/proxy/heritage", {
       headers: { "Content-Type": "application/json" },
@@ -73,6 +73,48 @@ export default function FavoritesPage() {
       .catch(() => setLoading(false));
   }, [favorites, loaded]);
 
+  // Show login prompt for unauthenticated users
+  if (loaded && !authenticated && !authLoading) {
+    return (
+      <div className="py-8 sm:py-12">
+        <Container>
+          <FadeIn>
+            <div className="max-w-md mx-auto text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-16 w-16 rounded-full bg-terracotta/10 flex items-center justify-center">
+                  <Heart className="h-8 w-8 text-terracotta" />
+                </div>
+              </div>
+              <h1 className="font-display text-3xl text-charcoal mb-2">Your Favorites</h1>
+              <p className="text-muted mb-6">
+                Sign in to save heritage sites and access them from any device.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/auth">
+                  <Button className="bg-terracotta hover:bg-terracotta-dark text-white w-full sm:w-auto">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/auth">
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Create Account
+                  </Button>
+                </Link>
+              </div>
+              {count > 0 && (
+                <p className="text-xs text-muted mt-4">
+                  You have {count} local {count === 1 ? "favorite" : "favorites"} that can be synced after sign in.
+                </p>
+              )}
+            </div>
+          </FadeIn>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className="py-8 sm:py-12">
       <Container>
@@ -82,6 +124,9 @@ export default function FavoritesPage() {
             <div className="flex items-center gap-2 mb-2">
               <Heart className="h-5 w-5 text-terracotta" />
               <span className="text-sm font-medium text-terracotta">My Favorites</span>
+              {authenticated && (
+                <Badge variant="outline" className="text-[10px] ml-1">Synced</Badge>
+              )}
             </div>
             <h1 className="font-display text-3xl sm:text-4xl text-charcoal mb-2">
               Favorite Heritage
@@ -95,10 +140,10 @@ export default function FavoritesPage() {
         </FadeIn>
 
         {/* Loading */}
-        {loading && <LoadingState message="Loading favorites..." />}
+        {(loading || syncing) && <LoadingState message={syncing ? "Syncing favorites..." : "Loading favorites..."} />}
 
         {/* Empty */}
-        {!loading && count === 0 && (
+        {!loading && !syncing && count === 0 && (
           <>
             <EmptyState
               icon={<Heart className="h-8 w-8" />}
@@ -116,10 +161,10 @@ export default function FavoritesPage() {
         )}
 
         {/* Favorites Grid */}
-        {!loading && allHeritage.length > 0 && (
+        {!loading && !syncing && allHeritage.length > 0 && (
           <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {allHeritage.map((entity) => {
-              const Icon = categoryIcons[entity.category] || Landmark;
+              const Icon = getCategoryIcon(entity.category);
               const heritageImage = getHeritageImage(entity.name, entity.category);
 
               return (

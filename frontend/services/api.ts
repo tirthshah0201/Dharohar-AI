@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — API Client
+   Astrova — API Client
    ========================================
 
    Central API client for all backend communication.
@@ -54,6 +54,7 @@ class ApiClient {
         "Content-Type": "application/json",
         ...headers,
       },
+      credentials: "include", // Send cookies for auth session
     };
 
     if (body) {

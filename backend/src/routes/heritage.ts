@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Heritage Routes
+   Astrova — Heritage Routes
    ======================================== */
 
 import { Router } from "express";
@@ -185,6 +185,10 @@ router.get(
             'url', s.url, 'source_type', s.source_type, 'verification_status', s.verification_status,
             'publication_date', s.publication_date, 'retrieved_date', s.retrieved_date
           ) as source,
+          CASE WHEN l.id IS NOT NULL THEN json_build_object(
+            'id', l.id, 'name', l.name, 'slug', l.slug, 'type', l.type,
+            'latitude', l.latitude, 'longitude', l.longitude, 'state', l.state
+          ) ELSE NULL END as location,
           CASE WHEN hp.id IS NOT NULL THEN json_build_object(
             'id', hp.id, 'name', hp.name, 'start_year', hp.start_year, 'end_year', hp.end_year, 'description', hp.description
           ) ELSE NULL END as period`;
@@ -194,6 +198,7 @@ router.get(
         sql = `SELECT ${baseSelect}
           FROM heritage_entities he
           LEFT JOIN sources s ON he.source_id = s.id
+          LEFT JOIN locations l ON he.location_id = l.id
           LEFT JOIN historical_periods hp ON he.period_id = hp.id
           WHERE he.id = $1`;
         params = [identifier];
@@ -202,6 +207,7 @@ router.get(
         sql = `SELECT ${baseSelect}
           FROM heritage_entities he
           LEFT JOIN sources s ON he.source_id = s.id
+          LEFT JOIN locations l ON he.location_id = l.id
           LEFT JOIN historical_periods hp ON he.period_id = hp.id
           WHERE he.slug = $1`;
         params = [identifier];

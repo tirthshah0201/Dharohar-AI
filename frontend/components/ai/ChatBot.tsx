@@ -18,6 +18,7 @@ import {
   Landmark,
   Clock,
   Palette,
+  Bookmark,
 } from "lucide-react";
 
 /* ---- Types ---- */
@@ -28,6 +29,15 @@ interface Language {
   nativeName: string;
 }
 
+interface HeritageCard {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  state: string;
+  description: string;
+}
+
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -35,6 +45,7 @@ interface ChatMessage {
   intent?: string;
   actions?: ChatAction[];
   choices?: SuggestionItem[];
+  heritageCards?: HeritageCard[];
   timestamp: Date;
 }
 
@@ -60,6 +71,7 @@ interface ChatResponseData {
     suggestions: SuggestionItem[];
     actions: ChatAction[];
     choices: SuggestionItem[];
+    heritage_results: HeritageCard[];
   };
 }
 
@@ -203,6 +215,7 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
         intent: res.data.intent,
         actions: res.data.actions || [],
         choices: res.data.choices || [],
+        heritageCards: res.data.heritage_results || [],
         timestamp: new Date(),
       };
 
@@ -381,6 +394,44 @@ export function ChatBot({ initialQuestion }: { initialQuestion?: string }) {
                 <div className={msg.role === "user" ? "text-white" : "text-charcoal"}>
                   {formatContent(msg.content)}
                 </div>
+                {/* Heritage entity cards */}
+                {msg.heritageCards && msg.heritageCards.length > 0 && msg.role === "assistant" && (
+                  <div className="mt-3 space-y-2">
+                    {msg.heritageCards.map((card) => (
+                      <Link
+                        key={card.id}
+                        href={`/heritage/${card.slug}`}
+                        className="block rounded-lg border border-border/60 bg-ivory p-3 hover:border-terracotta/30 hover:bg-terracotta/5 transition-colors group"
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-terracotta/8">
+                            <Landmark className="h-4 w-4 text-terracotta" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="text-sm font-semibold text-charcoal group-hover:text-terracotta transition-colors truncate">
+                                {card.name}
+                              </h4>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-terracotta/10 text-terracotta font-medium capitalize shrink-0">
+                                {card.category}
+                              </span>
+                            </div>
+                            {card.state && (
+                              <p className="text-[10px] text-muted mt-0.5 flex items-center gap-1">
+                                <MapPin className="h-2.5 w-2.5" />
+                                {card.state}
+                              </p>
+                            )}
+                            {card.description && (
+                              <p className="text-xs text-stone mt-1 line-clamp-2">{card.description}</p>
+                            )}
+                          </div>
+                          <Bookmark className="h-3.5 w-3.5 text-muted group-hover:text-terracotta shrink-0 mt-0.5" />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
                 {/* Action buttons */}
                 {msg.actions && msg.actions.length > 0 && msg.role === "assistant" && (
                   <div className="flex flex-wrap gap-1.5 mt-3 pt-2 border-t border-border/50">

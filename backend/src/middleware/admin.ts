@@ -6,6 +6,7 @@
    ======================================== */
 
 import { Request, Response, NextFunction } from "express";
+import crypto from "crypto";
 
 /**
  * Middleware that validates admin authorization.
@@ -43,7 +44,11 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
     return;
   }
 
-  if (providedToken !== configuredToken) {
+  // Timing-safe comparison to prevent timing attacks
+  const providedBuf = Buffer.from(providedToken, "utf8");
+  const configuredBuf = Buffer.from(configuredToken, "utf8");
+
+  if (providedBuf.length !== configuredBuf.length || !crypto.timingSafeEqual(providedBuf, configuredBuf)) {
     res.status(403).json({
       success: false,
       error: {

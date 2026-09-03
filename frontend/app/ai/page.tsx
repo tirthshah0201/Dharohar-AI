@@ -1,16 +1,19 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ChatBot } from "@/components/ai/ChatBot";
+import { useApi } from "@/hooks/useApi";
 import { Sparkles, Globe, Database, MapPin, MessageCircle } from "lucide-react";
 
 function AIPageContent() {
   const searchParams = useSearchParams();
   const initialQuestion = searchParams.get("question") || undefined;
+  const { data: heritage } = useApi<Array<{ id: string }>>("/heritage");
+  const heritageCount = heritage?.length ?? 74;
 
   return (
     <div className="py-8 sm:py-12">
@@ -31,7 +34,7 @@ function AIPageContent() {
               <Globe className="h-3 w-3 mr-1" /> 6 Languages
             </Badge>
             <Badge variant="secondary" className="bg-terracotta-mist text-stone border-cream">
-              <Database className="h-3 w-3 mr-1" /> 52 Heritage Records
+              <Database className="h-3 w-3 mr-1" /> {heritageCount} Heritage Records
             </Badge>
             <Badge variant="outline" className="border-cream text-stone">
               <MapPin className="h-3 w-3 mr-1" /> 12 States

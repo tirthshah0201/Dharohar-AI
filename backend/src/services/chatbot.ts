@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Chatbot Service
+   Astrova — Chatbot Service
    ========================================
    Project-grounded response pipeline with
    Romanized Gujarati support, geocoding,
@@ -215,7 +215,7 @@ function detectIntent(message: string): Intent {
     return "state_exploration";
 
   // Heritage sites: temples, forts, monuments, etc.
-  if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog|satra|monastery)\b/i.test(lower))
+  if (/\b(temple|mosque|church|monument|fort|palace|stepwell|stupa|cave|killo|kovil|masjid|mandir|kila|durg|surya mandir|ashram|haveli|ruins|archaeolog|satra|monastery|vav|ni vav|ki vav)\b/i.test(lower))
     return "heritage_information";
   // Non-Latin heritage keywords by script
   if (/મંદિર|કિલ્લો|મસ્જિદ|દુર્ગ|ગુંફ|ભવન/i.test(message)) return "heritage_information";  // Gujarati
@@ -334,7 +334,7 @@ async function geocodeLocation(query_text: string): Promise<GeoResult[]> {
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query_text + ", India")}&format=json&limit=3&addressdetails=1`;
     const response = await fetch(url, {
-      headers: { "User-Agent": "DharoharAI/1.0 (heritage-platform)" },
+      headers: { "User-Agent": "Astrova/1.0 (heritage-platform)" },
       signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) return [];
@@ -434,7 +434,7 @@ async function getStateOverview(stateCode: string, language: string = "en"): Pro
   const langs = language === "en" ? ["en"] : [language, "en"];
   for (const lang of langs) {
     const { rows } = await query(
-      `SELECT heritage_name, heritage_type, city, description, significance, source, state_code
+      `SELECT id, heritage_name, heritage_type, city, description, significance, source, state_code
        FROM chatbot_knowledge WHERE state_code = $1 AND language = $2 ORDER BY heritage_name LIMIT 8`, [stateCode, lang]
     );
     if (rows.length > 0) return rows as unknown as KnowledgeResult[];
@@ -721,9 +721,49 @@ export interface ChatRequest {
   message: string; language: string; sessionId?: string;
 }
 
+/* ---- Heritage Entity Lookup (for chatbot cards) ---- */
+
+export interface HeritageChatResult {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  state: string;
+  description: string;
+}
+
+async function lookupHeritageEntities(names: string[]): Promise<HeritageChatResult[]> {
+  if (names.length === 0) return [];
+  try {
+    const nameConditions = names.map((_, i) => `he.name ILIKE $${i + 1}`).join(" OR ");
+    const params: unknown[] = names.map((n) => `%${n}%`);
+    const { rows } = await query(
+      `SELECT he.id, he.name, he.slug, he.category,
+              COALESCE(l.state, '') AS state,
+              he.description
+       FROM heritage_entities he
+       LEFT JOIN locations l ON he.location_id = l.id
+       WHERE ${nameConditions}
+       LIMIT 5`,
+      params
+    );
+    return (rows as unknown as HeritageChatResult[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug || r.id,
+      category: r.category,
+      state: r.state,
+      description: (r.description || "").substring(0, 120),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export interface ChatResponse {
   reply: string; intent: string; stateCode: string | null; knowledgeIds: string[];
   suggestions: ChatSuggestion[]; actions: ChatAction[]; choices: { text: string; category: string }[];
+  heritageResults: HeritageChatResult[];
 }
 
 export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
@@ -832,7 +872,32 @@ export async function handleChat(req: ChatRequest): Promise<ChatResponse> {
   const actions = buildActions(intent, stateCode, knowledgeIds, langCode);
   const choices = buildGuidedChoices(intent, stateCode, langCode);
 
-  return { reply, intent, stateCode, knowledgeIds, suggestions, actions, choices };
+  // Look up heritage entity IDs for proper action links and card rendering
+  let heritageResults: HeritageChatResult[] = [];
+  if (knowledgeIds.length > 0) {
+    try {
+      const { rows: kbRows } = await query(
+        `SELECT heritage_name FROM chatbot_knowledge WHERE id = ANY($1) LIMIT 5`,
+        [knowledgeIds]
+      );
+      const kbNames = (kbRows as Array<{ heritage_name: string }>).map(r => r.heritage_name).filter(Boolean);
+      if (kbNames.length > 0) {
+        heritageResults = await lookupHeritageEntities(kbNames);
+      }
+    } catch (err) {
+      console.error("[Chat] Heritage lookup error:", (err as Error).message);
+    }
+
+    // Fix action links to use heritage entity slugs instead of chatbot_knowledge IDs
+    if (heritageResults.length === 1) {
+      const detailAction = actions.find(a => a.type === "view_heritage");
+      if (detailAction) {
+        detailAction.target = "/heritage/" + heritageResults[0].slug;
+      }
+    }
+  }
+
+  return { reply, intent, stateCode, knowledgeIds, suggestions, actions, choices, heritageResults };
 }
 
 export { detectIntent, detectState, isRomanizedGujarati, wantsRomanizedResponse };

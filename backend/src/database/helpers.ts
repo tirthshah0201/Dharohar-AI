@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — Database Helpers
+   Astrova — Database Helpers
    ========================================
 
    Utility functions for database-aware route handlers.

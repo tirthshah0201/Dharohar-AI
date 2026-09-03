@@ -53,6 +53,12 @@ async function proxyRequest(
     headers.set("Authorization", authHeader);
   }
 
+  // Forward cookies (for auth session)
+  const cookieHeader = request.headers.get("cookie");
+  if (cookieHeader) {
+    headers.set("Cookie", cookieHeader);
+  }
+
   try {
     const response = await fetch(url, {
       method: request.method,
@@ -66,13 +72,35 @@ async function proxyRequest(
     // Get response body
     const data = await response.text();
 
-    // Forward response with original status
+    // Build response headers
+    const responseHeaders: Record<string, string> = {
+      "Content-Type": response.headers.get("Content-Type") || "application/json",
+    };
+
+    // Forward Set-Cookie headers from backend to browser
+    let setCookies: string[] = [];
+    try {
+      setCookies = response.headers.getSetCookie?.() || [];
+    } catch {
+      const single = response.headers.get("Set-Cookie");
+      if (single) setCookies = [single];
+    }
+    if (setCookies.length > 0) {
+      const nextResponse = new NextResponse(data, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: responseHeaders,
+      });
+      for (const cookie of setCookies) {
+        nextResponse.headers.append("Set-Cookie", cookie);
+      }
+      return nextResponse;
+    }
+
     return new NextResponse(data, {
       status: response.status,
       statusText: response.statusText,
-      headers: {
-        "Content-Type": response.headers.get("Content-Type") || "application/json",
-      },
+      headers: responseHeaders,
     });
   } catch (error) {
     console.error("[Proxy] Backend request failed:", error);

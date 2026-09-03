@@ -4,24 +4,35 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Search, ChevronRight } from "lucide-react";
+import { Menu, X, Search, ChevronRight, LogIn, User, LogOut } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { openSearchModal } from "@/components/ui/SearchModal";
+import { useAuth } from "@/hooks/useAuth";
 
-const navLinks = [
+interface NavLink {
+  href: string;
+  label: string;
+  highlight?: boolean;
+}
+
+const navLinks: NavLink[] = [
   { href: "/explore", label: "Explore" },
   { href: "/timeline", label: "Timeline" },
   { href: "/heritage", label: "Heritage" },
   { href: "/collections", label: "Collections" },
-  { href: "/favorites", label: "Favorites" },
   { href: "/ai", label: "Ask AI", highlight: true },
   { href: "/about", label: "About" },
 ];
+
+const authNavLink: NavLink = { href: "/favorites", label: "Favorites" };
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  const allLinks = user ? [...navLinks.slice(0, 4), authNavLink, ...navLinks.slice(4)] : navLinks;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -55,18 +66,17 @@ function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-0.5">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? "text-terracotta bg-terracotta/5"
-                      : "text-stone hover:text-charcoal hover:bg-cream/60"
-                  }`}
+          <nav className="hidden md:flex items-center gap-0.5">                {allLinks.map((link) => {
+                  const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        isActive
+                          ? "text-terracotta bg-terracotta/5"
+                          : "text-stone hover:text-charcoal hover:bg-cream/60"
+                      }`}
                 >
                   {link.label}
                   {link.highlight && (
@@ -84,7 +94,7 @@ function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Search */}
+          {/* Desktop Search + Auth */}
           <div className="hidden md:flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -99,6 +109,34 @@ function Navbar() {
                 ⌘K
               </kbd>
             </motion.button>
+
+            {/* Auth section */}
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/favorites"
+                  className="flex items-center gap-1.5 text-sm text-stone hover:text-terracotta transition-colors"
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span className="hidden lg:inline truncate max-w-20">{user.name}</span>
+                </Link>
+                <button
+                  onClick={() => logout()}
+                  className="p-1.5 rounded text-muted hover:text-red-500 hover:bg-red-50 transition-colors"
+                  aria-label="Logout"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/auth"
+                className="flex items-center gap-1.5 rounded-lg bg-terracotta/10 px-3 py-1.5 text-sm font-medium text-terracotta hover:bg-terracotta/20 transition-colors"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                <span className="hidden lg:inline">Sign In</span>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -145,7 +183,7 @@ function Navbar() {
               className="md:hidden border-t border-cream overflow-hidden"
             >
               <div className="py-3 space-y-0.5">
-                {navLinks.map((link, i) => {
+                {allLinks.map((link, i) => {
                   const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
                   return (
                     <motion.div
@@ -169,6 +207,31 @@ function Navbar() {
                     </motion.div>
                   );
                 })}
+              </div>
+
+              {/* Mobile Auth */}
+              <div className="border-t border-cream mt-2 pt-3">
+                {user ? (
+                  <div className="flex items-center justify-between px-3">
+                    <span className="text-sm text-charcoal font-medium">{user.name}</span>
+                    <button
+                      onClick={() => { logout(); setMobileOpen(false); }}
+                      className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 mx-3 py-2.5 rounded-lg bg-terracotta/10 text-sm font-medium text-terracotta"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign In
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

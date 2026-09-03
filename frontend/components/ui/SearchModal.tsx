@@ -14,6 +14,7 @@ import {
   Globe,
   ArrowRight,
   Command,
+  BookOpen,
 } from "lucide-react";
 
 /* ---- Types ---- */
@@ -35,7 +36,8 @@ interface SearchResponse {
 
 type ResultItem =
   | { type: "heritage"; id: string; name: string; subtitle: string; href: string }
-  | { type: "state"; name: string; subtitle: string; href: string };
+  | { type: "state"; name: string; subtitle: string; href: string }
+  | { type: "collection"; id: string; name: string; subtitle: string; href: string };
 
 /* ---- Component ---- */
 
@@ -117,8 +119,34 @@ export function SearchModal() {
         href: `/explore?state=${encodeURIComponent(s.name)}`,
       }));
 
-      // 3) Merge: states first, then heritage
-      setResults([...stateResults, ...apiResults]);
+      // 3) Search collections
+      const collectionResults: ResultItem[] = [];
+      try {
+        const colRes = await api.get<{ success: boolean; data: Array<{ id: string; name: string; slug: string; description: string; entity_count: number }> }>(
+          "/collections"
+        );
+        if (colRes.data && Array.isArray(colRes.data)) {
+          colRes.data.forEach((col) => {
+            if (
+              col.name.toLowerCase().includes(lower) ||
+              col.description.toLowerCase().includes(lower)
+            ) {
+              collectionResults.push({
+                type: "collection",
+                id: col.id,
+                name: col.name,
+                subtitle: `${col.entity_count} entities · Collection`,
+                href: `/collections/${col.slug}`,
+              });
+            }
+          });
+        }
+      } catch {
+        // Collections API unavailable
+      }
+
+      // 4) Merge: heritage + collections + states
+      setResults([...apiResults, ...collectionResults, ...stateResults]);
       setActiveIndex(0);
     } catch {
       setResults([]);
@@ -231,6 +259,8 @@ export function SearchModal() {
                         const icon =
                           item.type === "state" ? (
                             <MapPin className="h-4 w-4 text-terracotta" />
+                          ) : item.type === "collection" ? (
+                            <BookOpen className="h-4 w-4 text-terracotta" />
                           ) : (
                             <Landmark className="h-4 w-4 text-heritage-gold" />
                           );
@@ -425,7 +455,33 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
         href: `/explore?state=${encodeURIComponent(s.name)}`,
       }));
 
-      setResults([...stateResults, ...apiResults]);
+      // Search collections
+      const collectionResults: ResultItem[] = [];
+      try {
+        const colRes = await api.get<{ success: boolean; data: Array<{ id: string; name: string; slug: string; description: string; entity_count: number }> }>(
+          "/collections"
+        );
+        if (colRes.data && Array.isArray(colRes.data)) {
+          colRes.data.forEach((col) => {
+            if (
+              col.name.toLowerCase().includes(lower) ||
+              col.description.toLowerCase().includes(lower)
+            ) {
+              collectionResults.push({
+                type: "collection",
+                id: col.id,
+                name: col.name,
+                subtitle: `${col.entity_count} entities · Collection`,
+                href: `/collections/${col.slug}`,
+              });
+            }
+          });
+        }
+      } catch {
+        // Collections API unavailable
+      }
+
+      setResults([...apiResults, ...collectionResults, ...stateResults]);
       setActiveIndex(0);
     } catch {
       setResults([]);
@@ -543,6 +599,8 @@ export function SearchModalProvider({ children }: { children: React.ReactNode })
                               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-parchment shrink-0">
                                 {item.type === "state" ? (
                                   <MapPin className="h-4 w-4 text-terracotta" />
+                                ) : item.type === "collection" ? (
+                                  <BookOpen className="h-4 w-4 text-terracotta" />
                                 ) : (
                                   <Landmark className="h-4 w-4 text-heritage-gold" />
                                 )}

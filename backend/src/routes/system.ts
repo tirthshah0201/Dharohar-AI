@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — System Routes
+   Astrova — System Routes
    ========================================
 
    Development-only diagnostic endpoints.

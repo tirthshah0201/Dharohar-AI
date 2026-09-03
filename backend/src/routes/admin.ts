@@ -9,6 +9,7 @@ import { Router } from "express";
 import { requireAdmin } from "../middleware/admin";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
+import { isValidUUID } from "../utils/validation";
 
 const router = Router();
 
@@ -102,6 +103,10 @@ router.put("/heritage/:id", async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
     const id = req.params.id;
+    if (!isValidUUID(id)) {
+      res.status(400).json({ success: false, error: { code: "INVALID_UUID", message: "Invalid heritage ID" } });
+      return;
+    }
     const { name, category, description, period_id, location_id } = req.body;
 
     // Validate
@@ -194,6 +199,10 @@ router.put("/collections/:id", async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
     const id = req.params.id;
+    if (!isValidUUID(id)) {
+      res.status(400).json({ success: false, error: { code: "INVALID_UUID", message: "Invalid collection ID" } });
+      return;
+    }
     const { name, slug, description, display_order, is_active, hero_media_id } = req.body;
 
     const { rows: existing } = await query("SELECT id FROM collections WHERE id = $1", [id]);

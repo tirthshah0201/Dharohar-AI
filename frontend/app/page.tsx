@@ -31,7 +31,9 @@ import {
   Compass,
   BookOpen,
   Map,
+  ImageIcon,
 } from "lucide-react";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -55,22 +57,6 @@ interface HeritageEntity {
   location_id: string | null;
   period_id: string | null;
 }
-
-/* ========================================
-   Category icons mapping
-   ======================================== */
-
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark,
-  craft: Palette,
-  person: Users,
-  festival: Calendar,
-  architecture: Landmark,
-  event: Clock,
-  food: Users,
-  community: Users,
-  tradition: Palette,
-};
 
 const heritageCategories = [
   { name: "Monuments", slug: "monument", icon: Landmark, description: "Architectural landmarks and structures" },
@@ -188,12 +174,16 @@ export default function HomePage() {
           HERO — Astrova India-wide Experience
           ============================================ */}
       <section ref={heroRef} className="relative overflow-hidden">
-        {/* Terracotta gradient background */}
+        {/* Heritage imagery background */}
         <motion.div
           className="absolute inset-0"
           style={{ opacity: heroOpacity, scale: heroScale }}
         >
+          {/* Gradient base */}
           <div className="absolute inset-0 bg-gradient-to-br from-terracotta-deep via-terracotta to-terracotta-dark" />
+          {/* Heritage image mosaic — subtle, atmospheric */}
+          <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: "url(/assets/heritage/ajanta_caves.jpg)", backgroundSize: "cover", backgroundPosition: "center" }} />
+          <div className="absolute inset-0 bg-gradient-to-br from-terracotta-deep/95 via-terracotta/90 to-terracotta-dark/95" />
           {/* Subtle pattern overlay */}
           <div className="absolute inset-0 heritage-pattern opacity-[0.06]" />
           {/* Warm glow accents */}
@@ -264,7 +254,7 @@ export default function HomePage() {
               <Link href="/explore">
                 <Button
                   size="lg"
-                  className="!bg-[#1a237e] !text-white hover:!bg-[#283593] !border-0 shadow-lg shadow-black/20 font-semibold"
+                  className="bg-heritage-gold hover:bg-heritage-gold/90 text-white border-0 shadow-lg shadow-black/20 font-semibold"
                 >
                   <Compass className="h-4 w-4" />
                   Explore Heritage
@@ -418,15 +408,45 @@ export default function HomePage() {
                     </Link>
                   </div>
                 </div>
-                {/* Map preview */}
-                <div className="bg-cream flex items-center justify-center min-h-[240px] relative">
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute inset-0 bg-gradient-to-br from-terracotta-pale to-cream" />
+                {/* Map preview — visual representation */}
+                <div className="bg-cream min-h-[240px] relative overflow-hidden">
+                  {/* Stylized India map silhouette with heritage dots */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-48 h-56">
+                      {/* India silhouette hint */}
+                      <div className="absolute inset-0 bg-terracotta/8 rounded-[40%] rotate-12" />
+                      {/* Heritage location dots */}
+                      {[
+                        { top: "15%", left: "55%", size: "8px", delay: 0 },
+                        { top: "25%", left: "35%", size: "6px", delay: 0.1 },
+                        { top: "35%", left: "60%", size: "7px", delay: 0.2 },
+                        { top: "45%", left: "40%", size: "9px", delay: 0.15 },
+                        { top: "55%", left: "55%", size: "6px", delay: 0.25 },
+                        { top: "65%", left: "30%", size: "7px", delay: 0.3 },
+                        { top: "75%", left: "50%", size: "8px", delay: 0.05 },
+                        { top: "40%", left: "75%", size: "5px", delay: 0.35 },
+                      ].map((dot, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.5 + dot.delay, duration: 0.4, type: "spring" }}
+                          className="absolute rounded-full bg-terracotta shadow-sm"
+                          style={{ top: dot.top, left: dot.left, width: dot.size, height: dot.size }}
+                        />
+                      ))}
+                      {/* Pulsing center dot */}
+                      <motion.div
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0.2, 0.6] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute top-[45%] left-[45%] w-4 h-4 rounded-full bg-heritage-gold/40"
+                      />
+                    </div>
                   </div>
-                  <div className="relative text-center p-6">
-                    <MapPin className="h-12 w-12 text-terracotta mx-auto mb-3 opacity-60" />
-                    <p className="text-sm text-stone font-medium">30+ Heritage Markers</p>
-                    <p className="text-xs text-stone/60 mt-1">{totalStates} States · Interactive Zoom</p>
+                  {/* Bottom info */}
+                  <div className="absolute bottom-4 left-0 right-0 text-center">
+                    <p className="text-sm text-stone font-medium">{totalStates} States · Interactive Map</p>
+                    <p className="text-xs text-stone/60 mt-1">Click markers to explore heritage</p>
                   </div>
                 </div>
               </div>
@@ -687,7 +707,7 @@ export default function HomePage() {
           {!heritageLoading && !heritageError && featuredHeritage.length > 0 && (
             <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredHeritage.map((item) => {
-                const Icon = categoryIcons[item.category] || Landmark;
+                const Icon = getCategoryIcon(item.category);
                 const heritageImage = getHeritageImage(item.name, item.category);
                 return (
                   <StaggerItem key={item.id}>

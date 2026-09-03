@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ========================================
-   HERITAGE ATLAS — Design System
+   Astrova — Design System
    "Contemporary Heritage" Direction
    Terracotta + Sandstone + Museum
    ======================================== */
@@ -253,7 +253,7 @@ html {
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
 
 /* ========================================
-   Heritage Atlas Custom Components
+   Astrova Custom Components
    ======================================== */
 
 /* Heritage card hover */

@@ -29,6 +29,7 @@ import {
 import { SearchSuggestions } from "@/components/ui/SearchSuggestions";
 import { FavoriteButton } from "@/components/ui/FavoriteButton";
 import { getHeritageImage } from "@/constants/images";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -84,17 +85,7 @@ function formatYearRange(start: number, end: number | null): string {
    Category icons
    ======================================== */
 
-const categoryIcons: Record<string, typeof Landmark> = {
-  monument: Landmark,
-  craft: Palette,
-  person: Users,
-  festival: Calendar,
-  architecture: Landmark,
-  event: Clock,
-  food: UtensilsCrossed,
-  community: Theater,
-  tradition: BookOpen,
-};
+
 
 const categories = [
   { id: "monument", label: "Monuments", icon: Landmark },
@@ -421,8 +412,7 @@ function HeritageContent() {
                         </Badge>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {items.map((item) => {
-                          const ItemIcon = categoryIcons[item.category] || Landmark;
+                        {items.map((item) => {                           const ItemIcon = getCategoryIcon(item.category);
                           const heritageImage = getHeritageImage(item.name, item.category);
                           return (
                             <motion.div
@@ -504,7 +494,7 @@ function HeritageContent() {
             {(activeCategory || isSearching) && (
               <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {displayHeritage.map((item) => {
-                  const ItemIcon = categoryIcons[item.category] || Landmark;
+                  const ItemIcon = getCategoryIcon(item.category);
                   const heritageImage = getHeritageImage(item.name, item.category);
                   return (
                     <StaggerItem key={item.id}>

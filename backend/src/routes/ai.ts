@@ -1,5 +1,5 @@
 /* ========================================
-   Dharohar AI — AI / Chat Routes
+   Astrova — AI / Chat Routes
    ======================================== */
 
 import { Router } from "express";
@@ -112,6 +112,7 @@ router.post("/chat", requireDevelopmentApiKey, async (req, res) => {
         suggestions: response.suggestions || [],
         actions: response.actions || [],
         choices: response.choices || [],
+        heritage_results: response.heritageResults || [],
       },
     });
   } catch (err) {

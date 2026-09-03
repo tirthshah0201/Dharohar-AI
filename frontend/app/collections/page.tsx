@@ -12,6 +12,7 @@ import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { useApi } from "@/hooks/useApi";
 import { getHeritageImage } from "@/constants/images";
 import { Landmark, Users, Palette, Calendar, BookOpen, Compass } from "lucide-react";
+import { getCategoryIcon } from "@/constants/categories";
 
 /* ========================================
    Types
@@ -39,6 +40,8 @@ const collectionIcons: Record<string, typeof Landmark> = {
   "ancient-india": Users,
   "first-time-explorers": Calendar,
 };
+// Note: collectionIcons are slug-specific, not category-based.
+// For category-based icons, use getCategoryIcon from @/constants/categories.
 
 /* ========================================
    Page Component

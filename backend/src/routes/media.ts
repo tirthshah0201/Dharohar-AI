@@ -4,6 +4,7 @@
 
 import { Router } from "express";
 import { requireDevelopmentApiKey } from "../middleware/apiKey";
+import { validateUUID } from "../middleware/validate";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
 
@@ -63,7 +64,7 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
  * Get a single media record by ID.
  * Requires: X-API-Key header
  */
-router.get("/:id", requireDevelopmentApiKey, async (req, res) => {
+router.get("/:id", requireDevelopmentApiKey, validateUUID("id"), async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
     const { id } = req.params;
