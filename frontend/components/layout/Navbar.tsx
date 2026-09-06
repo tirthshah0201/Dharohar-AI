@@ -75,12 +75,14 @@ function Navbar() {
                       className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                         isActive
                           ? "text-terracotta bg-terracotta/5"
-                          : "text-stone hover:text-charcoal hover:bg-cream/60"
+                          : link.highlight
+                            ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                            : "text-stone hover:text-charcoal hover:bg-cream/60"
                       }`}
                 >
                   {link.label}
                   {link.highlight && (
-                    <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-terracotta" />
+                    <span className="ml-1 inline-flex h-1.5 w-1.5 rounded-full bg-red-500" />
                   )}
                   {isActive && (
                     <motion.div
@@ -198,7 +200,9 @@ function Navbar() {
                         className={`flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                           isActive
                             ? "text-terracotta bg-terracotta/5"
-                            : "text-stone hover:text-charcoal hover:bg-cream/60"
+                            : link.highlight
+                              ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                              : "text-stone hover:text-charcoal hover:bg-cream/60"
                         }`}
                       >
                         <span>{link.label}</span>

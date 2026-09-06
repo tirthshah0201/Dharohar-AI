@@ -254,7 +254,7 @@ export default function HomePage() {
               <Link href="/explore">
                 <Button
                   size="lg"
-                  className="bg-heritage-gold hover:bg-heritage-gold/90 text-white border-0 shadow-lg shadow-black/20 font-semibold"
+                  className="!bg-blue-600 hover:!bg-blue-700 text-white border-0 shadow-lg shadow-black/20 font-semibold"
                 >
                   <Compass className="h-4 w-4" />
                   Explore Heritage
@@ -280,16 +280,16 @@ export default function HomePage() {
               className="mt-10 flex items-center gap-6 text-white/30 text-xs"
             >
               <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <div className="h-1.5 w-1.5 rounded-full bg-white" />
                 Live Heritage Data
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <div className="h-1.5 w-1.5 rounded-full bg-white" />
                 6 Languages
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                AI-Powered
+                <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="text-red-400">AI-Powered</span>
               </div>
             </motion.div>
           </motion.div>
