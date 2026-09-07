@@ -138,7 +138,7 @@ export default function LocationDetailPage({
             <div className="mb-8">
               {location.latitude && location.longitude ? (
                 <div className="rounded-xl overflow-hidden border border-border">
-                  <AstrovaMap height="350px" />
+                  <AstrovaMap height="350px" focusLocationId={location.id} />
                 </div>
               ) : (
                 <div className="rounded-xl border border-border bg-parchment min-h-[250px] flex items-center justify-center">
@@ -148,6 +148,16 @@ export default function LocationDetailPage({
                   </div>
                 </div>
               )}
+              {/* Link to full explore map */}
+              <div className="mt-3 text-center">
+                <Link
+                  href={`/explore?focus=${location.id}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-terracotta hover:text-terracotta-dark transition-colors"
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  View on Explore Map
+                </Link>
+              </div>
             </div>
 
             {/* Description */}

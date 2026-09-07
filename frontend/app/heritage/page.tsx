@@ -464,7 +464,7 @@ function HeritageContent() {
                                         <div className="flex items-center gap-1">
                                           <MapPin className="h-3 w-3 text-terracotta" />
                                           <Link
-                                            href={`/explore/${item.location_id}`}
+                                            href={`/explore?focus=${item.location_id}`}
                                             className="text-xs text-muted hover:text-terracotta transition-colors"
                                           >
                                             {item.location?.state || "View location"}

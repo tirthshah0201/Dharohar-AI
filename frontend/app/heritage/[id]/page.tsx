@@ -286,7 +286,7 @@ export default function HeritageDetailPage({
 
                   {/* Location */}
                   {location && (
-                    <Link href={`/explore/${location.slug || location.id}`} className="block">
+                    <Link href={`/explore?focus=${location.id}`} className="block">
                       <div className="flex items-center gap-3 p-4 bg-cream/50 rounded-xl hover:bg-cream transition-colors">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-terracotta/10">
                           <MapPin className="h-5 w-5 text-terracotta" />
