@@ -1,0 +1,390 @@
+{
+  "project": "Astrova",
+  "version": "1.0",
+  "date": "2026-09-03",
+  "database": {
+    "tables": [
+      {
+        "name": "heritage_entities",
+        "purpose": "Core heritage data",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "slug", "description", "category", "state", "historical_period_id", "location_id", "source_id", "verification_status", "story", "created_at", "updated_at"],
+        "foreignKeys": [
+          {"column": "historical_period_id", "references": "historical_periods.id"},
+          {"column": "location_id", "references": "locations.id"},
+          {"column": "source_id", "references": "sources.id"}
+        ],
+        "referencedBy": ["media", "collection_items", "heritage_relationships", "user_favorites"],
+        "recordCount": 74
+      },
+      {
+        "name": "locations",
+        "purpose": "Geographic coordinates and place information",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "slug", "type", "state", "district", "latitude", "longitude", "description", "created_at", "updated_at"],
+        "foreignKeys": [],
+        "referencedBy": ["heritage_entities"],
+        "recordCount": 54
+      },
+      {
+        "name": "historical_periods",
+        "purpose": "Time periods for heritage dating",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "slug", "description", "start_year", "end_year", "created_at", "updated_at"],
+        "foreignKeys": [],
+        "referencedBy": ["heritage_entities"],
+        "recordCount": 9
+      },
+      {
+        "name": "media",
+        "purpose": "Images and videos for heritage entities",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "heritage_id", "media_url", "media_type", "caption", "alt_text", "is_primary", "created_at"],
+        "foreignKeys": [
+          {"column": "heritage_id", "references": "heritage_entities.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": 72
+      },
+      {
+        "name": "sources",
+        "purpose": "Reference sources for heritage information",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "url", "description", "verification_status", "created_at"],
+        "foreignKeys": [],
+        "referencedBy": ["heritage_entities"],
+        "recordCount": 18
+      },
+      {
+        "name": "heritage_relationships",
+        "purpose": "Connections between heritage entities",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "source_heritage_id", "target_heritage_id", "relationship_type", "description", "created_at"],
+        "foreignKeys": [
+          {"column": "source_heritage_id", "references": "heritage_entities.id"},
+          {"column": "target_heritage_id", "references": "heritage_entities.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": 49
+      },
+      {
+        "name": "collections",
+        "purpose": "Curated heritage groupings",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "slug", "description", "image_url", "created_at", "updated_at"],
+        "foreignKeys": [],
+        "referencedBy": ["collection_items"],
+        "recordCount": 6
+      },
+      {
+        "name": "collection_items",
+        "purpose": "Junction table for collections and heritage",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "collection_id", "heritage_id", "sort_order", "created_at"],
+        "foreignKeys": [
+          {"column": "collection_id", "references": "collections.id"},
+          {"column": "heritage_id", "references": "heritage_entities.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": 98
+      },
+      {
+        "name": "supported_states",
+        "purpose": "Indian states supported by the platform",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "slug", "description", "image_url", "heritage_count", "created_at"],
+        "foreignKeys": [],
+        "referencedBy": [],
+        "recordCount": 12
+      },
+      {
+        "name": "users",
+        "purpose": "Registered user accounts",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "name", "email", "password_hash", "created_at", "updated_at"],
+        "foreignKeys": [],
+        "referencedBy": ["user_favorites", "conversations"],
+        "recordCount": "2+"
+      },
+      {
+        "name": "user_favorites",
+        "purpose": "Per-user heritage favorites",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "user_id", "heritage_id", "created_at"],
+        "foreignKeys": [
+          {"column": "user_id", "references": "users.id"},
+          {"column": "heritage_id", "references": "heritage_entities.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": "varies",
+        "constraints": ["UNIQUE(user_id, heritage_id)"]
+      },
+      {
+        "name": "chatbot_knowledge",
+        "purpose": "AI chatbot training data",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "category", "subcategory", "question", "answer", "keywords", "language", "heritage_id", "location_id", "period_id", "created_at"],
+        "foreignKeys": [
+          {"column": "heritage_id", "references": "heritage_entities.id"},
+          {"column": "location_id", "references": "locations.id"},
+          {"column": "period_id", "references": "historical_periods.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": 107
+      },
+      {
+        "name": "conversations",
+        "purpose": "Chatbot conversation sessions",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "user_id", "session_id", "language", "created_at", "updated_at"],
+        "foreignKeys": [
+          {"column": "user_id", "references": "users.id"}
+        ],
+        "referencedBy": ["conversation_messages"],
+        "recordCount": 0
+      },
+      {
+        "name": "conversation_messages",
+        "purpose": "Individual chatbot messages",
+        "primaryKey": "id (UUID)",
+        "columns": ["id", "conversation_id", "role", "content", "language", "intent", "confidence", "created_at"],
+        "foreignKeys": [
+          {"column": "conversation_id", "references": "conversations.id"}
+        ],
+        "referencedBy": [],
+        "recordCount": 0
+      }
+    ],
+    "totalRecords": 298241
+  },
+  "api": {
+    "endpoints": [
+      {"method": "GET", "path": "/api/health", "purpose": "Health check", "authentication": "None"},
+      {"method": "GET", "path": "/api/heritage", "purpose": "List heritage entities", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/heritage/:id", "purpose": "Get heritage by ID or slug", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/locations", "purpose": "List locations", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/media", "purpose": "List media", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/sources", "purpose": "List sources", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/periods", "purpose": "List historical periods", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/timeline", "purpose": "Get timeline data", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/collections", "purpose": "List collections", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/collections/:slug", "purpose": "Get collection by slug", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/search", "purpose": "Full-text search", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/search/suggestions", "purpose": "Search suggestions", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/states/counts", "purpose": "State heritage counts", "authentication": "API Key"},
+      {"method": "GET", "path": "/api/ai/welcome", "purpose": "AI welcome message", "authentication": "API Key"},
+      {"method": "POST", "path": "/api/auth/register", "purpose": "User registration", "authentication": "None (rate-limited)"},
+      {"method": "POST", "path": "/api/auth/login", "purpose": "User login", "authentication": "None (rate-limited)"},
+      {"method": "POST", "path": "/api/auth/logout", "purpose": "User logout", "authentication": "None"},
+      {"method": "GET", "path": "/api/auth/me", "purpose": "Get current user", "authentication": "JWT Cookie"},
+      {"method": "GET", "path": "/api/favorites", "purpose": "Get user favorites", "authentication": "JWT Cookie"},
+      {"method": "POST", "path": "/api/favorites/:heritageId", "purpose": "Add favorite", "authentication": "JWT Cookie"},
+      {"method": "DELETE", "path": "/api/favorites/:heritageId", "purpose": "Remove favorite", "authentication": "JWT Cookie"},
+      {"method": "GET", "path": "/api/favorites/:heritageId/status", "purpose": "Check favorite status", "authentication": "JWT Cookie"},
+      {"method": "POST", "path": "/api/favorites/sync", "purpose": "Sync favorites", "authentication": "JWT Cookie"},
+      {"method": "GET", "path": "/api/admin/overview", "purpose": "Admin dashboard stats", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/heritage", "purpose": "Admin heritage list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/heritage", "purpose": "Create heritage", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/heritage/:id", "purpose": "Update heritage", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/heritage/:id", "purpose": "Delete heritage", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/media", "purpose": "Admin media list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/media", "purpose": "Add media", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/media/:id", "purpose": "Update media", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/media/:id", "purpose": "Delete media", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/locations", "purpose": "Admin locations list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/locations", "purpose": "Create location", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/locations/:id", "purpose": "Update location", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/locations/:id", "purpose": "Delete location", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/sources", "purpose": "Admin sources list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/sources", "purpose": "Create source", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/sources/:id", "purpose": "Update source", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/sources/:id", "purpose": "Delete source", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/users", "purpose": "Admin users list", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/users/:id", "purpose": "Get user detail", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/users/:id", "purpose": "Delete user", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/collections", "purpose": "Admin collections list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/collections", "purpose": "Create collection", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/collections/:id", "purpose": "Update collection", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/collections/:id", "purpose": "Delete collection", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/collections/:id/items", "purpose": "Add collection item", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/collections/:id/items/:itemId", "purpose": "Remove collection item", "authentication": "X-Admin-Token"},
+      {"method": "GET", "path": "/api/admin/periods", "purpose": "Admin periods list", "authentication": "X-Admin-Token"},
+      {"method": "POST", "path": "/api/admin/periods", "purpose": "Create period", "authentication": "X-Admin-Token"},
+      {"method": "PUT", "path": "/api/admin/periods/:id", "purpose": "Update period", "authentication": "X-Admin-Token"},
+      {"method": "DELETE", "path": "/api/admin/periods/:id", "purpose": "Delete period", "authentication": "X-Admin-Token"}
+    ],
+    "totalEndpoints": 49
+  },
+  "frontend": {
+    "routes": [
+      {"path": "/", "page": "Homepage", "auth": false},
+      {"path": "/heritage", "page": "Heritage Listing", "auth": false},
+      {"path": "/heritage/[id]", "page": "Heritage Detail", "auth": false},
+      {"path": "/explore", "page": "Explore", "auth": false},
+      {"path": "/map", "page": "Interactive Map", "auth": false},
+      {"path": "/search", "page": "Search", "auth": false},
+      {"path": "/timeline", "page": "Timeline", "auth": false},
+      {"path": "/collections", "page": "Collections", "auth": false},
+      {"path": "/collections/[slug]", "page": "Collection Detail", "auth": false},
+      {"path": "/favorites", "page": "Favorites", "auth": true},
+      {"path": "/auth", "page": "Authentication", "auth": false},
+      {"path": "/admin", "page": "Admin Portal", "auth": "admin-token"},
+      {"path": "/about", "page": "About", "auth": false},
+      {"path": "/ai", "page": "AI Chatbot (Under Construction)", "auth": false},
+      {"path": "/api/proxy/[...path]", "page": "API Proxy", "auth": false}
+    ],
+    "totalRoutes": 15
+  },
+  "actors": [
+    {
+      "name": "Visitor",
+      "description": "Unauthenticated user browsing the platform",
+      "useCases": ["Browse Heritage", "Search Heritage", "Explore Map", "View Heritage Details", "View Timeline", "View Collections", "Register", "Login"]
+    },
+    {
+      "name": "Registered User",
+      "description": "Authenticated user with personalization features",
+      "useCases": ["All Visitor use cases", "Manage Favorites", "View Favorites", "Remove Favorites", "Use AI Chatbot (when available)"]
+    },
+    {
+      "name": "Administrator",
+      "description": "Admin with full content management access",
+      "useCases": ["All Registered User use cases", "Manage Heritage (CRUD)", "Manage Media", "Manage Locations", "Manage Sources", "Manage Historical Periods", "Manage Collections", "Manage Users", "View Dashboard"]
+    }
+  ],
+  "processes": [
+    {"id": "P1", "name": "Authentication", "inputs": ["User credentials"], "outputs": ["JWT token", "Session cookie"], "dataStores": ["users"]},
+    {"id": "P2", "name": "Heritage Discovery", "inputs": ["Filters", "Search queries"], "outputs": ["Heritage list", "Heritage details"], "dataStores": ["heritage_entities", "locations", "historical_periods", "media", "sources"]},
+    {"id": "P3", "name": "Map Exploration", "inputs": ["Map interactions"], "outputs": ["Location markers", "Heritage popups"], "dataStores": ["locations", "heritage_entities"]},
+    {"id": "P4", "name": "Favorites Management", "inputs": ["Heritage ID", "User session"], "outputs": ["Favorites list", "Status"], "dataStores": ["user_favorites", "heritage_entities"]},
+    {"id": "P5", "name": "Admin Management", "inputs": ["Admin token", "CRUD operations"], "outputs": ["Updated data", "Stats"], "dataStores": ["heritage_entities", "media", "locations", "sources", "collections", "users", "historical_periods"]},
+    {"id": "P6", "name": "Search & Discovery", "inputs": ["Search queries"], "outputs": ["Search results", "Suggestions"], "dataStores": ["heritage_entities", "locations"]},
+    {"id": "P7", "name": "Timeline & Collections", "inputs": ["Period filters", "Collection selection"], "outputs": ["Timeline data", "Collection items"], "dataStores": ["historical_periods", "collections", "collection_items"]},
+    {"id": "P8", "name": "AI Chatbot", "inputs": ["User messages"], "outputs": ["AI responses"], "dataStores": ["chatbot_knowledge", "conversations", "conversation_messages"]}
+  ],
+  "dataStores": [
+    {"name": "users", "description": "Registered user accounts"},
+    {"name": "heritage_entities", "description": "Core heritage data"},
+    {"name": "locations", "description": "Geographic locations"},
+    {"name": "historical_periods", "description": "Time periods"},
+    {"name": "media", "description": "Images and videos"},
+    {"name": "sources", "description": "Reference sources"},
+    {"name": "collections", "description": "Curated groupings"},
+    {"name": "collection_items", "description": "Collection-heritage links"},
+    {"name": "user_favorites", "description": "Per-user favorites"},
+    {"name": "heritage_relationships", "description": "Heritage connections"},
+    {"name": "supported_states", "description": "Indian states"},
+    {"name": "chatbot_knowledge", "description": "AI training data"},
+    {"name": "conversations", "description": "Chat sessions"},
+    {"name": "conversation_messages", "description": "Chat messages"}
+  ],
+  "externalEntities": [
+    {"name": "User/Browser", "description": "End user accessing the platform"},
+    {"name": "Neon PostgreSQL", "description": "Serverless database service"},
+    {"name": "OpenStreetMap", "description": "Map tile provider"}
+  ],
+  "classes": [
+    {
+      "name": "AuthProvider",
+      "type": "Frontend Provider",
+      "attributes": ["user", "loading", "error"],
+      "methods": ["login()", "register()", "logout()", "checkAuth()"],
+      "dependencies": ["API Client", "JWT Cookie"]
+    },
+    {
+      "name": "FavoritesProvider",
+      "type": "Frontend Provider",
+      "attributes": ["favorites", "loading", "authenticated"],
+      "methods": ["addFavorite()", "removeFavorite()", "isFavorited()", "loadFavorites()"],
+      "dependencies": ["AuthProvider", "API Client"]
+    },
+    {
+      "name": "API Client",
+      "type": "Frontend Service",
+      "attributes": ["baseUrl", "headers"],
+      "methods": ["request()", "requestWithHeaders()"],
+      "dependencies": ["Next.js API Proxy"]
+    },
+    {
+      "name": "Express App",
+      "type": "Backend Entry",
+      "attributes": ["port", "middleware", "routes"],
+      "methods": ["listen()", "use()"],
+      "dependencies": ["Routes", "Middleware"]
+    },
+    {
+      "name": "Auth Middleware",
+      "type": "Backend Middleware",
+      "attributes": ["jwtSecret"],
+      "methods": ["requireAuth()", "optionalAuth()"],
+      "dependencies": ["JWT Library", "Cookie Parser"]
+    },
+    {
+      "name": "Admin Middleware",
+      "type": "Backend Middleware",
+      "attributes": ["adminToken"],
+      "methods": ["requireAdmin()"],
+      "dependencies": ["Timing-safe comparison"]
+    },
+    {
+      "name": "Heritage Routes",
+      "type": "Backend Route Handler",
+      "attributes": ["router"],
+      "methods": ["list()", "getById()", "getBySlug()"],
+      "dependencies": ["Database Pool", "Auth Middleware"]
+    },
+    {
+      "name": "Favorites Routes",
+      "type": "Backend Route Handler",
+      "attributes": ["router"],
+      "methods": ["list()", "add()", "remove()", "status()", "sync()"],
+      "dependencies": ["Database Pool", "requireAuth"]
+    },
+    {
+      "name": "Admin Routes",
+      "type": "Backend Route Handler",
+      "attributes": ["router"],
+      "methods": ["overview()", "heritage CRUD()", "media CRUD()", "locations CRUD()", "sources CRUD()", "users()", "collections CRUD()", "periods CRUD()"],
+      "dependencies": ["Database Pool", "requireAdmin"]
+    },
+    {
+      "name": "Chatbot Service",
+      "type": "Backend Service",
+      "attributes": ["knowledge", "intents"],
+      "methods": ["detectIntent()", "getResponse()", "analyzeSentiment()"],
+      "dependencies": ["Database Pool", "chatbot_knowledge"]
+    },
+    {
+      "name": "HeritageEntity",
+      "type": "Domain Model",
+      "attributes": ["id", "name", "slug", "description", "category", "state", "historicalPeriod", "location", "source", "verificationStatus", "story"],
+      "methods": [],
+      "dependencies": ["Location", "HistoricalPeriod", "Source"]
+    },
+    {
+      "name": "User",
+      "type": "Domain Model",
+      "attributes": ["id", "name", "email", "passwordHash", "createdAt"],
+      "methods": [],
+      "dependencies": ["UserFavorite"]
+    },
+    {
+      "name": "UserFavorite",
+      "type": "Domain Model",
+      "attributes": ["id", "userId", "heritageId", "createdAt"],
+      "methods": [],
+      "dependencies": ["User", "HeritageEntity"]
+    }
+  ],
+  "activities": [
+    {"name": "Open Astrova", "actor": "User", "next": "Discover Heritage"},
+    {"name": "Discover Heritage", "actor": "User", "decision": "How to explore?", "alternatives": ["Search", "Map", "Browse", "Timeline", "Collections"]},
+    {"name": "Select Heritage", "actor": "User", "next": "View Heritage Story"},
+    {"name": "View Heritage Story", "actor": "User", "next": "Favorite?"},
+    {"name": "Favorite?", "actor": "User", "decision": "Add to favorites?", "alternatives": ["Yes", "No"]},
+    {"name": "Authenticated?", "actor": "System", "decision": "User logged in?", "alternatives": ["Yes → Save Favorite", "No → Login Required"]},
+    {"name": "Save Favorite", "actor": "System", "next": "Continue Exploring"},
+    {"name": "Login Required", "actor": "User", "next": "Login/Register"},
+    {"name": "Continue Exploring", "actor": "User", "next": "End or repeat"}
+  ]
+}
