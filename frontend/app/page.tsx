@@ -263,11 +263,12 @@ export default function HomePage() {
               <Link href="/ai">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10"
+                  variant="ghost"
+                  style={{ backgroundColor: '#dc2626', color: '#ffffff', border: 'none', boxShadow: '0 4px 14px rgba(220,38,38,0.25)' }}
+                  className="font-semibold"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Ask Astrova
+                  Ask Astrova • Under Construction
                 </Button>
               </Link>
             </motion.div>
@@ -771,11 +772,12 @@ export default function HomePage() {
               <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-heritage-gold/5 blur-3xl" />
 
               <div className="relative p-8 sm:p-12 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta/10 mx-auto mb-5">
-                  <Sparkles className="h-7 w-7 text-terracotta" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl mx-auto mb-5" style={{ backgroundColor: '#fee2e2' }}>
+                  <Sparkles className="h-7 w-7" style={{ color: '#ef4444' }} />
                 </div>
                 <h2 className="font-display text-2xl sm:text-3xl text-charcoal">
                   Ask Astrova
+                  <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold align-middle" style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}>Under Construction</span>
                 </h2>
                 <p className="mt-3 text-stone max-w-md mx-auto">
                   Ask questions about India&apos;s heritage in 6 languages. Get grounded, verified answers about monuments, crafts, traditions, and history.
@@ -790,7 +792,7 @@ export default function HomePage() {
                       <Link
                         key={q}
                         href={`/ai?question=${encodeURIComponent(q)}`}
-                        className="rounded-full border border-cream bg-white px-2.5 py-1 text-[11px] text-stone hover:bg-terracotta/5 hover:border-terracotta/30 hover:text-charcoal transition-colors"
+                        className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] text-red-600 hover:bg-red-100 transition-colors"
                       >
                         {q}
                       </Link>
@@ -800,9 +802,9 @@ export default function HomePage() {
 
                 <div className="mt-6">
                   <Link href="/ai">
-                    <Button size="lg" className="bg-terracotta hover:bg-terracotta-dark text-white shadow-lg shadow-terracotta/15">
+                    <Button size="lg" variant="ghost" style={{ backgroundColor: '#dc2626', color: '#ffffff', boxShadow: '0 4px 14px rgba(220,38,38,0.2)' }} className="font-semibold">
                       <Sparkles className="h-4 w-4" />
-                      Open Astrova Guide
+                      Open Astrova Guide • Under Construction
                       <ArrowUpRight className="h-4 w-4" />
                     </Button>
                   </Link>

@@ -65,6 +65,8 @@ interface Props {
   height?: string;
   /** If provided, the map will fly to this location and open its popup */
   focusLocationId?: string | null;
+  /** If provided, the map will fly to this state's center */
+  focusState?: string | null;
 }
 
 /* ---- Map event handler component ---- */
@@ -104,7 +106,7 @@ function FlyToController({
 
 
 /* ---- Main Component ---- */
-export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props) {
+export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusState }: Props) {
   const [selState, setSelState] = useState<string | null>(null);
   const [catFilter, setCatFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState("all");
@@ -153,15 +155,17 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
   }, [loadData]);
 
   // ---- Focus on a specific location when focusLocationId prop changes ----
-  const focusAppliedRef = useRef(false);
+  const prevFocusIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!focusLocationId || loading || focusAppliedRef.current) return;
+    if (!focusLocationId || loading) return;
+    // Skip if same focus ID as last time (prevents double-fire on same click)
+    if (prevFocusIdRef.current === focusLocationId) return;
+    prevFocusIdRef.current = focusLocationId;
 
     // Search in both locations and heritage
     const all = [...locations, ...heritage];
     const feature = all.find((f) => f.id === focusLocationId);
     if (feature && feature.latitude && feature.longitude) {
-      focusAppliedRef.current = true;
       setFlyTarget({
         center: [feature.latitude, feature.longitude],
         zoom: FOCUS_ZOOM,
@@ -169,6 +173,38 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId }: Props
       setFocusFeature(feature);
     }
   }, [focusLocationId, loading, locations, heritage]);
+
+  // Reset prevFocusIdRef when focusLocationId is cleared
+  useEffect(() => {
+    if (!focusLocationId) {
+      prevFocusIdRef.current = null;
+    }
+  }, [focusLocationId]);
+
+  // ---- Focus on a state when focusState prop changes ----
+  const prevStateRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!focusState || loading) return;
+    if (prevStateRef.current === focusState) return;
+    prevStateRef.current = focusState;
+
+    const stateObj = INDIAN_STATES.find(
+      (s) => s.name.toLowerCase() === focusState.toLowerCase()
+    );
+    if (stateObj) {
+      setSelState(stateObj.code);
+      setFlyTarget({ center: stateObj.center, zoom: STATE_ZOOM });
+      setSelectedFeature(null);
+      setFocusFeature(null);
+    }
+  }, [focusState, loading]);
+
+  // Reset prevStateRef when focusState is cleared
+  useEffect(() => {
+    if (!focusState) {
+      prevStateRef.current = null;
+    }
+  }, [focusState]);
 
   // ---- Merge all features for markers ----
   const allFeatures = useMemo(() => {

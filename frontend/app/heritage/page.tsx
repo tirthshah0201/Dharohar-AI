@@ -260,10 +260,10 @@ function HeritageContent() {
             </div>
 
             {/* State + Period Filters */}
-            <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-4 sm:items-start">
+            <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:gap-4 sm:items-start min-w-0">
               {/* State Filter */}
               {availableStates.length > 0 && (
-                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
+                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 max-w-full min-w-0">
                   <span className="text-xs text-muted mr-1">State:</span>
                   <button
                     onClick={() => setActiveState(null)}
@@ -293,7 +293,7 @@ function HeritageContent() {
 
               {/* Period Filter */}
               {periods && periods.length > 0 && (
-                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 sm:overflow-visible sm:pb-0">
+                <div className="flex gap-1.5 items-center overflow-x-auto pb-1 max-w-full min-w-0">
                   <span className="text-xs text-muted mr-1">Period:</span>
                   <button
                     onClick={() => setActivePeriod(null)}

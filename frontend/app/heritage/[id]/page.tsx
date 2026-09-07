@@ -595,22 +595,24 @@ export default function HeritageDetailPage({
               </div>
             )}
 
-            {/* Ask Astrova */}
+            {/* Ask Astrova — Under Construction */}
             <div className="mb-16">
               <div className="max-w-3xl mx-auto">
-                <div className="p-8 bg-gradient-to-br from-terracotta/10 to-heritage-gold/10 rounded-2xl border border-terracotta/10">
+                <div className="p-8 rounded-2xl border" style={{ background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', borderColor: '#fecaca' }}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta/20 shrink-0">
-                      <Sparkles className="h-7 w-7 text-terracotta" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl shrink-0" style={{ backgroundColor: '#fee2e2' }}>
+                      <Sparkles className="h-7 w-7" style={{ color: '#ef4444' }} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-display text-xl text-charcoal mb-2">Want to explore this heritage further?</h3>
+                      <h3 className="font-display text-xl text-charcoal mb-2">Want to explore this heritage further?
+                        <span className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold align-middle" style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}>Under Construction</span>
+                      </h3>
                       <p className="text-muted">Ask Astrova for AI-powered insights about {heritage.name}.</p>
                     </div>
                     <Link href={`/ai?question=Tell me about ${encodeURIComponent(heritage.name)}${location ? ` in ${encodeURIComponent(location.state)}` : ""}`}>
-                      <Button size="lg" className="bg-terracotta hover:bg-terracotta-dark text-white">
+                      <Button size="lg" variant="ghost" style={{ backgroundColor: '#dc2626', color: '#ffffff' }} className="font-semibold">
                         <Sparkles className="h-4 w-4 mr-2" />
-                        Ask Astrova
+                        Ask Astrova • Under Construction
                       </Button>
                     </Link>
                   </div>

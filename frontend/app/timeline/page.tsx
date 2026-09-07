@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -134,6 +134,20 @@ function TimelineContent() {
   const hasFilters = searchQuery || selectedCategory;
   const totalEntities = displayPeriods?.reduce((sum, p) => sum + p.entities.length, 0) ?? 0;
 
+  // Auto-scroll to highlighted period when data loads
+  useEffect(() => {
+    if (highlightPeriod && !loading && periods && periods.length > 0) {
+      // Delay to let FadeIn animation render the DOM element
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`period-${highlightPeriod}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightPeriod, loading, periods]);
+
   return (
     <div className="py-8 sm:py-12">
       <Container>
@@ -242,24 +256,22 @@ function TimelineContent() {
             <div className="space-y-12">
               {displayPeriods.map((period, index) => {
                 const colorClass = periodColors[index % periodColors.length];
-                const isHighlighted = highlightPeriod === period.id;
-
-                return (
-                  <FadeIn
-                    key={period.id}
-                    delay={index * 0.08}
-                    className="relative"
-                  >
-                    {/* Timeline dot */}
-                    <div className="absolute left-4 sm:left-5 top-6 w-4 h-4 rounded-full bg-terracotta border-4 border-white shadow-sm z-10 hidden sm:block" />
-
-                    {/* Period card */}
-                    <div
-                      className={`sm:ml-16 rounded-2xl border bg-gradient-to-br ${colorClass} p-6 sm:p-8 ${
-                        isHighlighted ? "ring-2 ring-terracotta shadow-lg" : ""
-                      }`}
-                      id={`period-${period.id}`}
+                const isHighlighted = highlightPeriod === period.id;                  return (
+                    <FadeIn
+                      key={period.id}
+                      delay={isHighlighted ? 0 : index * 0.08}
+                      className="relative"
                     >
+                      {/* Timeline dot */}
+                      <div className={`absolute left-4 sm:left-5 top-6 w-4 h-4 rounded-full ${isHighlighted ? "bg-terracotta ring-4 ring-terracotta/20" : "bg-terracotta"} border-4 border-white shadow-sm z-10 hidden sm:block`} />
+
+                      {/* Period card */}
+                      <div
+                        className={`sm:ml-16 rounded-2xl border bg-gradient-to-br ${colorClass} p-6 sm:p-8 transition-all ${
+                          isHighlighted ? "ring-2 ring-terracotta shadow-lg scale-[1.02]" : ""
+                        }`}
+                        id={`period-${period.id}`}
+                      >
                       {/* Period header */}
                       <div className="flex flex-wrap items-center gap-3 mb-4">
                         <h2 className="font-display text-2xl sm:text-3xl text-charcoal">

@@ -6,7 +6,7 @@ const footerLinks = {
   explore: [
     { href: "/explore", label: "Explore India" },
     { href: "/timeline", label: "Historical Timeline" },
-    { href: "/heritage", label: "Heritage Directory" },            { href: "/ai", label: "Ask Astrova" },
+    { href: "/heritage", label: "Heritage Directory" },            { href: "/ai", label: "Ask Astrova • Under Construction", highlight: true },
   ],
   project: [            { href: "/about", label: "About Astrova" },
     { href: "/about", label: "Our Mission" },
@@ -43,7 +43,7 @@ function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/40 hover:text-terracotta-light transition-colors"
+                    className={`text-sm transition-colors ${link.highlight ? 'text-red-400 hover:text-red-300' : 'text-white/40 hover:text-terracotta-light'}`}
                   >
                     {link.label}
                   </Link>

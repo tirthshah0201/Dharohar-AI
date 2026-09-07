@@ -32,6 +32,41 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
     const sortBy = (req.query.sort as string) || "name";
     const sortOrder = (req.query.order as string) || "asc";
 
+    // Pagination (BUG-001 fix): apply SQL-level LIMIT/OFFSET when provided.
+    // When no limit is given, all matching rows are returned (backward compatible
+    // with the heritage listing page, which filters/sorts the full set client-side).
+    const MAX_LIMIT = 200;
+    let limit: number | null = null;
+    let offset = 0;
+    if (req.query.limit !== undefined && String(req.query.limit) !== "") {
+      const parsed = Number(req.query.limit);
+      if (!Number.isInteger(parsed) || parsed < 1) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "INVALID_QUERY_PARAMETER",
+            message: "limit must be a positive integer.",
+          },
+        });
+        return;
+      }
+      limit = Math.min(parsed, MAX_LIMIT);
+    }
+    if (req.query.offset !== undefined && String(req.query.offset) !== "") {
+      const parsedOffset = Number(req.query.offset);
+      if (!Number.isInteger(parsedOffset) || parsedOffset < 0) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "INVALID_QUERY_PARAMETER",
+            message: "offset must be a non-negative integer.",
+          },
+        });
+        return;
+      }
+      offset = parsedOffset;
+    }
+
     if (category && !isOneOf(category, VALID_HERITAGE_CATEGORIES)) {
       res.status(400).json({
         success: false,
@@ -109,12 +144,29 @@ router.get("/", requireDevelopmentApiKey, async (req, res) => {
     }
     sql += ` ORDER BY ${orderClause}`;
 
+    // SQL-level pagination + total count (single round-trip window function)
+    if (limit !== null) {
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    }
+
     const { rows } = await query(sql, params);
+
+    // total reflects the full filtered set (ignoring limit/offset) when paginating
+    let total = rows.length;
+    if (limit !== null) {
+      const countSql = `SELECT COUNT(*)::int AS count FROM heritage_entities he
+        LEFT JOIN locations l ON he.location_id = l.id
+        LEFT JOIN historical_periods hp ON he.period_id = hp.id
+        ${conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : ""}`;
+      const { rows: countRows } = await query(countSql, params);
+      total = Number(countRows[0]?.count ?? 0);
+    }
 
     res.json({
       success: true,
       data: rows,
-      total: rows.length,
+      total,
+      ...(limit !== null ? { limit, offset } : {}),
     });
   } catch (err) {
     console.error("[Heritage] Query error:", (err as Error).message);

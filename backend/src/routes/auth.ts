@@ -7,6 +7,7 @@
 
 import { Router } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { query } from "../database";
 import {
   generateToken,
@@ -14,12 +15,19 @@ import {
   clearAuthCookie,
   requireAuth,
   isAuthConfigured,
+  revokeUserTokens,
 } from "../middleware/auth";
 import { registerRateLimit, loginRateLimit } from "../middleware/rateLimit";
 
 const router = Router();
 const SALT_ROUNDS = 10;
 const MAX_NAME_LENGTH = 100;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+/** Whether JWT verification is possible (mirrors middleware config). */
+function JWT_VERIFY_ENABLED(): boolean {
+  return !!JWT_SECRET;
+}
 
 /**
  * POST /api/auth/register
@@ -98,7 +106,8 @@ router.post("/register", registerRateLimit, async (req, res) => {
     const userId = String(user.id);
     const userName = String(user.name);
     const userEmail = String(user.email);
-    const token = generateToken({ id: userId, name: userName, email: userEmail });
+    const tokenVersion = Number((user as Record<string, unknown>).token_version ?? 0);
+    const token = generateToken({ id: userId, name: userName, email: userEmail, tokenVersion });
     setAuthCookie(res, token);
 
     res.status(201).json({
@@ -139,9 +148,9 @@ router.post("/login", loginRateLimit, async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user
+    // Find user (token_version included for revocation-aware JWT)
     const { rows } = await query<Record<string, unknown>>(
-      "SELECT id, name, email, password_hash FROM users WHERE email = $1",
+      "SELECT id, name, email, password_hash, token_version FROM users WHERE email = $1",
       [normalizedEmail]
     );
 
@@ -167,7 +176,8 @@ router.post("/login", loginRateLimit, async (req, res) => {
     const userId = String(user.id);
     const userName = String(user.name);
     const userEmail = String(user.email);
-    const token = generateToken({ id: userId, name: userName, email: userEmail });
+    const tokenVersion = Number(user.token_version ?? 0);
+    const token = generateToken({ id: userId, name: userName, email: userEmail, tokenVersion });
     setAuthCookie(res, token);
 
     res.json({
@@ -185,9 +195,24 @@ router.post("/login", loginRateLimit, async (req, res) => {
 
 /**
  * POST /api/auth/logout
- * Clear the session cookie.
+ * Clear the session cookie AND revoke the current token (BUG-005 fix):
+ * increments the user's token_version so every previously issued JWT
+ * for this user is rejected from now on.
  */
-router.post("/logout", (_req, res) => {
+router.post("/logout", async (req, res) => {
+  try {
+    const token = (req as unknown as { cookies?: Record<string, string> }).cookies?.["astrova_session"]
+      ?? (req.headers.authorization?.startsWith("Bearer ") ? req.headers.authorization.slice(7) : null);
+    if (token && JWT_VERIFY_ENABLED()) {
+      const decoded = jwt.decode(token) as { id?: string } | null;
+      if (decoded?.id) {
+        await revokeUserTokens(decoded.id);
+      }
+    }
+  } catch (err) {
+    // Never fail logout — cookie is cleared regardless
+    console.error("[Auth] Logout revocation error:", (err as Error).message);
+  }
   clearAuthCookie(res);
   res.json({ success: true, message: "Logged out successfully." });
 });

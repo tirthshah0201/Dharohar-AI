@@ -165,15 +165,33 @@ router.get("/heritage/:id", async (req, res) => {
 router.post("/heritage", async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
-    const { name, category, description, period_id, location_id, source_id } = req.body;
+    const { name, category, description, period_id, location_id, source_id, slug: explicitSlug } = req.body;
 
     if (!name || !category) {
       res.status(400).json({ success: false, error: { code: "INVALID_PAYLOAD", message: "name and category are required" } });
       return;
     }
 
-    // Generate slug from name
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    // BUG-004 fix: honor an explicit slug when provided (consistent with PUT).
+    // Normalize it; fall back to name-derived slug when omitted/empty.
+    let slug: string;
+    if (explicitSlug !== undefined && explicitSlug !== null && String(explicitSlug).trim() !== "") {
+      const normalized = String(explicitSlug).toLowerCase().trim().replace(/\s+/g, "-");
+      if (!isValidSlug(normalized)) {
+        const suggestion = normalized.replace(/[^a-z0-9-]+/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+        res.status(400).json({
+          success: false,
+          error: {
+            code: "INVALID_SLUG",
+            message: `Slug must be lowercase alphanumeric with hyphens.${suggestion ? ` Suggested: "${suggestion}".` : ""}`,
+          },
+        });
+        return;
+      }
+      slug = normalized;
+    } else {
+      slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    }
 
     // Check duplicate slug
     const { rows: existing } = await query("SELECT id FROM heritage_entities WHERE slug = $1", [slug]);
@@ -738,7 +756,25 @@ router.delete("/sources/:id", async (req, res) => {
 router.get("/users", async (req, res) => {
   if (!requireDatabase(res)) return;
   try {
+    // BUG-007 fix: strict query-parameter allowlist. Unknown params (e.g. the
+    // incident-prone "search") are rejected instead of silently ignored, so a
+    // mistyped filter can never widen the result set to ALL users.
+    const allowedParams = ["q", "limit"];
+    const unknown = Object.keys(req.query).filter((k) => !allowedParams.includes(k));
+    if (unknown.length > 0) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_QUERY_PARAMETER",
+          message: `Unknown query parameter(s): ${unknown.join(", ")}. Allowed: ${allowedParams.join(", ")}.`,
+        },
+      });
+      return;
+    }
+
     const q = (req.query.q as string) || "";
+    // Cap listing size; never allow unbounded user listing.
+    const maxList = Math.min(Math.max(parseInt(String(req.query.limit ?? "200"), 10) || 200, 1), 500);
 
     let sql = `SELECT u.id, u.name, u.email, u.created_at, u.updated_at,
       (SELECT count(*) FROM user_favorites uf WHERE uf.user_id = u.id)::int as favorite_count
@@ -749,7 +785,7 @@ router.get("/users", async (req, res) => {
       sql += ` WHERE u.name ILIKE $1 OR u.email ILIKE $1`;
       params.push(`%${q}%`);
     }
-    sql += ` ORDER BY u.created_at DESC LIMIT 200`;
+    sql += ` ORDER BY u.created_at DESC LIMIT ${maxList}`;
 
     const { rows } = await query(sql, params);
     res.json({ success: true, data: rows, total: rows.length });
@@ -816,11 +852,30 @@ router.delete("/users/:id", async (req, res) => {
       return;
     }
 
+    // BUG-007 fix: require explicit destructive confirmation tied to the exact
+    // user identity. Prevents scripted/accidental bulk deletion workflows.
+    const confirm = String(req.body?.confirm ?? "");
+    const expected = `DELETE:${existing[0].email}`;
+    if (confirm !== expected) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "CONFIRMATION_REQUIRED",
+          message: `Destructive action requires explicit confirmation. Send { "confirm": "${expected}" } to delete this user.`,
+        },
+      });
+      return;
+    }
+
     // Delete user's favorites first
-    await query("DELETE FROM user_favorites WHERE user_id = $1", [id]);
+    const favResult = await query("DELETE FROM user_favorites WHERE user_id = $1", [id]);
     await query("DELETE FROM users WHERE id = $1", [id]);
 
-    res.json({ success: true, message: `User "${existing[0].name}" (${existing[0].email}) deleted` });
+    res.json({
+      success: true,
+      message: `User "${existing[0].name}" (${existing[0].email}) deleted`,
+      data: { deleted_user_id: id, favorites_removed: favResult.rowCount ?? 0 },
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: { code: "DATABASE_ERROR", message: "Failed to delete user" } });
   }

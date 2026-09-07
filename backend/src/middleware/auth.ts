@@ -36,6 +36,30 @@ export interface AuthUser {
   email: string;
 }
 
+/* ============================================
+   BUG-005 fix — JWT revocation via token version.
+   Each user row stores a token_version; it is embedded in every JWT.
+   Logout increments the version, instantly invalidating all previously
+   issued tokens for that user (denylist-by-version, no token table).
+   ============================================ */
+
+/** Fetch the current token version for a user (0 when unset). */
+async function getTokenVersion(userId: string): Promise<number> {
+  const { rows } = await query<{ token_version: string | number | null }>(
+    "SELECT token_version FROM users WHERE id = $1",
+    [userId]
+  );
+  return Number(rows[0]?.token_version ?? 0);
+}
+
+/** Increment token version, revoking all outstanding tokens. */
+export async function revokeUserTokens(userId: string): Promise<void> {
+  await query(
+    "UPDATE users SET token_version = COALESCE(token_version, 0) + 1 WHERE id = $1",
+    [userId]
+  );
+}
+
 // Extend Express Request to include user
 declare global {
   namespace Express {
@@ -49,7 +73,7 @@ declare global {
  * Generate a JWT token for a user.
  * Throws if JWT_SECRET is not configured — refuse to create insecure tokens.
  */
-export function generateToken(user: AuthUser): string {
+export function generateToken(user: AuthUser & { tokenVersion?: number }): string {
   if (!JWT_SECRET) {
     throw new Error("Cannot generate token: JWT_SECRET is not configured.");
   }
@@ -57,7 +81,7 @@ export function generateToken(user: AuthUser): string {
     expiresIn: 7 * 24 * 60 * 60, // 7 days in seconds
   };
   return jwt.sign(
-    { id: user.id, name: user.name, email: user.email },
+    { id: user.id, name: user.name, email: user.email, ver: user.tokenVersion ?? 0 },
     JWT_SECRET,
     options
   );
@@ -109,15 +133,21 @@ export async function optionalAuth(
       next();
       return;
     }
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser & { ver?: number };
     
     // Verify user still exists
     const { rows } = await query<Record<string, unknown>>(
-      "SELECT id, name, email FROM users WHERE id = $1",
+      "SELECT id, name, email, token_version FROM users WHERE id = $1",
       [decoded.id]
     );
     
     if (rows.length > 0) {
+      // BUG-005: reject tokens issued before the latest revocation
+      const currentVersion = Number(rows[0].token_version ?? 0);
+      if (Number(decoded.ver ?? 0) !== currentVersion) {
+        next();
+        return;
+      }
       req.user = {
         id: String(rows[0].id),
         name: String(rows[0].name),
@@ -158,11 +188,11 @@ export async function requireAuth(
       });
       return;
     }
-    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthUser & { ver?: number };
     
-    // Verify user still exists
+    // Verify user still exists and token version matches (revocation check)
     const { rows } = await query<Record<string, unknown>>(
-      "SELECT id, name, email FROM users WHERE id = $1",
+      "SELECT id, name, email, token_version FROM users WHERE id = $1",
       [decoded.id]
     );
     
@@ -174,7 +204,18 @@ export async function requireAuth(
       });
       return;
     }
-    
+
+    const currentVersion = Number(rows[0].token_version ?? 0);
+    if (Number(decoded.ver ?? 0) !== currentVersion) {
+      // Token predates a logout/revocation — treat as invalid session
+      clearAuthCookie(res);
+      res.status(401).json({
+        success: false,
+        error: { code: "TOKEN_REVOKED", message: "Session has been revoked. Please log in again." },
+      });
+      return;
+    }
+
     req.user = {
       id: String(rows[0].id),
       name: String(rows[0].name),

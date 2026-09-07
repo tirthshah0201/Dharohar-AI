@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { openSearchModal } from "@/components/ui/SearchModal";
 import { motion } from "motion/react";
 import { Container } from "@/components/ui/Container";
@@ -94,17 +94,10 @@ const locationTypeIcons: Record<string, typeof Building2> = {
 function ExploreContent() {
   const router = useRouter();
 
-  // Read URL search params client-side to avoid Suspense suspension
-  const [selectedState, setSelectedState] = useState("");
-  const [focusLocationId, setFocusLocationId] = useState<string | null>(null);
-  const [urlInitialized, setUrlInitialized] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSelectedState(params.get("state") || "");
-    setFocusLocationId(params.get("focus") || null);
-    setUrlInitialized(true);
-  }, []);
+  // Read URL search params reactively — updates when URL changes via Link navigation
+  const searchParams = useSearchParams();
+  const selectedState = searchParams.get("state") || "";
+  const focusLocationId = searchParams.get("focus") || null;
 
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,9 +125,8 @@ function ExploreContent() {
     );
   }, [locations, selectedState]);
 
-  // Update URL when state changes
+  // Update URL when state changes (selectedState is derived from searchParams)
   const handleStateChange = (state: string) => {
-    setSelectedState(state);
     if (state) {
       router.push(`/explore?state=${encodeURIComponent(state)}`, { scroll: false });
     } else {
@@ -192,8 +184,7 @@ function ExploreContent() {
               {focusLocationId ? (
                 <>
                   Location highlighted on the map below.
-                  <button
-                    onClick={() => { setFocusLocationId(null); window.history.replaceState({}, '', '/explore'); }}
+                  <button                     onClick={() => { router.push('/explore', { scroll: false }); }}
                     className="inline-flex items-center gap-1 ml-2 text-terracotta font-medium hover:text-terracotta-dark transition-colors"
                   >
                     <X className="h-3 w-3" /> Clear focus
@@ -226,15 +217,17 @@ function ExploreContent() {
               </div>
               <a
                 href="/ai"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-terracotta text-white text-xs font-semibold rounded-lg hover:bg-terracotta-dark transition-colors"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-semibold rounded-lg transition-colors"
+                style={{ backgroundColor: '#dc2626' }}
               >
                 <Bot className="h-3.5 w-3.5" />
-                Ask AI
+                Ask AI • Under Construction
               </a>
             </div>
             <AstrovaMap
               height="520px"
               focusLocationId={focusLocationId}
+              focusState={selectedState || null}
               onAskAI={(ctx) => {
                 window.location.href = `/ai?question=Tell me about ${encodeURIComponent(ctx.name)} in ${ctx.state}`;
               }}

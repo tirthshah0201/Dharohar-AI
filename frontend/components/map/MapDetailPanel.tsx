@@ -189,11 +189,11 @@ export function MapDetailPanel({
                 })
               }
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5
-                         bg-terracotta text-white text-sm font-semibold rounded-lg
-                         hover:bg-terracotta-dark transition-colors"
+                         text-white text-sm font-semibold rounded-lg transition-colors"
+                         style={{ backgroundColor: '#dc2626' }}
             >
               <Sparkles className="h-4 w-4" />
-              Ask Astrova about {feature.name}
+              Ask Astrova • Under Construction
             </button>
 
             {/* Entity detail link */}
@@ -218,11 +218,11 @@ export function MapDetailPanel({
             <a
               href={`/ai?question=Tell me about ${encodeURIComponent(feature.name)} in ${encodeURIComponent(feature.state)}`}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5
-                         border border-border text-charcoal text-sm font-medium rounded-lg
-                         hover:bg-parchment transition-colors"
+                         text-sm font-medium rounded-lg transition-colors"
+                         style={{ border: '1px solid #fecaca', color: '#dc2626' }}
             >
               <Sparkles className="h-4 w-4" />
-              Ask in chat
+              Ask in chat • Under Construction
             </a>
           </div>
 

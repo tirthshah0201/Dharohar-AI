@@ -15,8 +15,8 @@ function AIPageContent() {
       <Container>
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta/10 mx-auto mb-4">
-            <Sparkles className="h-7 w-7 text-terracotta" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 mx-auto mb-4">
+            <Sparkles className="h-7 w-7 text-red-500" />
           </div>
           <h1 className="font-display text-3xl sm:text-4xl text-charcoal">
             Astrova Guide
@@ -25,7 +25,7 @@ function AIPageContent() {
             Ask about India&apos;s heritage across 12 states in 6 languages.
           </p>
           <div className="flex flex-wrap gap-2 justify-center mt-3">
-            <Badge variant="default" className="bg-terracotta text-white">
+            <Badge variant="default" className="bg-red-600 text-white">
               <Globe className="h-3 w-3 mr-1" /> 6 Languages
             </Badge>
             <Badge variant="secondary" className="bg-terracotta-mist text-stone border-cream">
@@ -54,15 +54,15 @@ function AIPageContent() {
               </p>
               <div className="flex flex-wrap gap-3 justify-center mb-6">
                 <div className="flex items-center gap-2 text-sm text-muted">
-                  <div className="h-2 w-2 rounded-full bg-heritage-gold animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                   Multilingual AI
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted">
-                  <div className="h-2 w-2 rounded-full bg-terracotta animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-red-400 animate-pulse" />
                   Heritage Knowledge
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted">
-                  <div className="h-2 w-2 rounded-full bg-heritage-gold animate-pulse" />
+                  <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                   6 Languages
                 </div>
               </div>
