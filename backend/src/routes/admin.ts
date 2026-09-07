@@ -7,15 +7,159 @@
    ======================================== */
 
 import { Router } from "express";
+import bcrypt from "bcrypt";
 import { requireAdmin } from "../middleware/admin";
 import { query } from "../database";
 import { requireDatabase } from "../database/helpers";
 import { isValidUUID } from "../utils/validation";
 import { isValidSlug } from "../utils/slug";
+import { generateToken, setAuthCookie, optionalAuth } from "../middleware/auth";
 
 const router = Router();
 
-// All admin routes require admin authorization
+// ============================================================
+// ADMIN LOGIN (before requireAdmin middleware)
+// ============================================================
+
+/**
+ * POST /api/admin/auth/login
+ * Admin username + password authentication.
+ */
+router.post("/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Validate input
+    if (!username || !password) {
+      res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "Username and password are required." },
+      });
+      return;
+    }
+
+    // Find user by email (username = email for admin)
+    const { rows } = await query<{
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      password_hash: string;
+      token_version: number | string | null;
+    }>(
+      "SELECT id, name, email, role, password_hash, token_version FROM users WHERE email = $1",
+      [username]
+    );
+
+    if (rows.length === 0) {
+      // Generic error — don't reveal whether username exists
+      res.status(401).json({
+        success: false,
+        error: { code: "INVALID_CREDENTIALS", message: "Invalid username or password." },
+      });
+      return;
+    }
+
+    const user = rows[0];
+
+    // Check admin role
+    if (user.role !== "admin") {
+      res.status(403).json({
+        success: false,
+        error: { code: "FORBIDDEN", message: "Admin access required." },
+      });
+      return;
+    }
+
+    // Verify password
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      res.status(401).json({
+        success: false,
+        error: { code: "INVALID_CREDENTIALS", message: "Invalid username or password." },
+      });
+      return;
+    }
+
+    // Generate JWT with role
+    const tokenVersion = Number(user.token_version ?? 0);
+    const token = generateToken({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      tokenVersion,
+    });
+
+    // Set secure HttpOnly cookie
+    setAuthCookie(res, token);
+
+    // Return safe user info
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error("[Admin Auth] Login error:", err);
+    res.status(500).json({
+      success: false,
+      error: { code: "INTERNAL_ERROR", message: "An unexpected error occurred." },
+    });
+  }
+});
+
+/**
+ * POST /api/admin/auth/logout
+ * Admin logout — revokes current session.
+ */
+router.post("/auth/logout", optionalAuth, async (req, res) => {
+  try {
+    const user = req.user as { id: string } | undefined;
+    if (user?.id) {
+      // Increment token version to revoke all tokens for this user
+      await query(
+        "UPDATE users SET token_version = COALESCE(token_version, 0) + 1 WHERE id = $1",
+        [user.id]
+      );
+    }
+    // Clear cookie
+    res.cookie("astrova_session", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("[Admin Auth] Logout error:", err);
+    res.json({ success: true }); // Still succeed for UX
+  }
+});
+
+/**
+ * GET /api/admin/auth/me
+ * Check current admin session.
+ */
+router.get("/auth/me", optionalAuth, async (req, res) => {
+  const user = req.user as { id: string; name: string; email: string; role?: string } | undefined;
+  if (!user) {
+    res.status(401).json({ success: false, error: { code: "UNAUTHORIZED", message: "Not authenticated." } });
+    return;
+  }
+  if (user.role !== "admin") {
+    res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Admin access required." } });
+    return;
+  }
+  res.json({ success: true, data: { id: user.id, name: user.name, email: user.email, role: user.role } });
+});
+
+// All admin routes below require admin authorization
 router.use(requireAdmin);
 
 // ============================================================

@@ -32,17 +32,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
+      // Try regular user session first
       const res = await fetch("/api/proxy/auth/me", { credentials: "include" });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
           setUser(json.data);
-        } else {
-          setUser(null);
+          return;
         }
-      } else {
-        setUser(null);
       }
+      // Fallback: try admin session
+      const adminRes = await fetch("/api/proxy/admin/auth/me", { credentials: "include" });
+      if (adminRes.ok) {
+        const adminJson = await adminRes.json();
+        if (adminJson.success && adminJson.data) {
+          setUser(adminJson.data);
+          return;
+        }
+      }
+      setUser(null);
     } catch {
       setUser(null);
     }
@@ -51,6 +59,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check session on mount
   useEffect(() => {
     refresh().finally(() => setLoading(false));
+  }, [refresh]);
+
+  // Re-check session when the page becomes visible (covers admin login → navigate back)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refresh();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [refresh]);
+
+  // Also re-check on focus (covers tab switch after login)
+  useEffect(() => {
+    const handleFocus = () => refresh();
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [refresh]);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -83,12 +109,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Try regular user logout
       await fetch("/api/proxy/auth/logout", {
         method: "POST",
         credentials: "include",
       });
     } catch {
-      // Logout should clear client state even if server call fails
+      // Ignore errors
+    }
+    try {
+      // Also try admin logout
+      await fetch("/api/proxy/admin/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore errors
     }
     setUser(null);
   }, []);

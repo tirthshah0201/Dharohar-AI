@@ -34,6 +34,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  role?: string;
 }
 
 /* ============================================
@@ -81,7 +82,7 @@ export function generateToken(user: AuthUser & { tokenVersion?: number }): strin
     expiresIn: 7 * 24 * 60 * 60, // 7 days in seconds
   };
   return jwt.sign(
-    { id: user.id, name: user.name, email: user.email, ver: user.tokenVersion ?? 0 },
+    { id: user.id, name: user.name, email: user.email, role: user.role ?? "user", ver: user.tokenVersion ?? 0 },
     JWT_SECRET,
     options
   );
@@ -137,7 +138,7 @@ export async function optionalAuth(
     
     // Verify user still exists
     const { rows } = await query<Record<string, unknown>>(
-      "SELECT id, name, email, token_version FROM users WHERE id = $1",
+      "SELECT id, name, email, role, token_version FROM users WHERE id = $1",
       [decoded.id]
     );
     
@@ -152,6 +153,7 @@ export async function optionalAuth(
         id: String(rows[0].id),
         name: String(rows[0].name),
         email: String(rows[0].email),
+        role: String(rows[0].role ?? "user"),
       };
     }
     
@@ -192,7 +194,7 @@ export async function requireAuth(
     
     // Verify user still exists and token version matches (revocation check)
     const { rows } = await query<Record<string, unknown>>(
-      "SELECT id, name, email, token_version FROM users WHERE id = $1",
+      "SELECT id, name, email, role, token_version FROM users WHERE id = $1",
       [decoded.id]
     );
     
@@ -220,6 +222,7 @@ export async function requireAuth(
       id: String(rows[0].id),
       name: String(rows[0].name),
       email: String(rows[0].email),
+      role: String(rows[0].role ?? "user"),
     };
     
     next();

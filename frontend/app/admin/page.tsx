@@ -13,6 +13,7 @@ import {
   ChevronLeft, MapPin, Calendar, Layers, AlertTriangle,
 } from "lucide-react";
 import { api } from "@/services/api";
+import { useAuth } from "@/hooks/useAuth";
 
 /* ========================================
    Types
@@ -125,26 +126,31 @@ type AdminTab = "overview" | "heritage" | "media" | "locations" | "sources" | "u
    Auth Gate
    ======================================== */
 
-function AdminLogin({ onAuth }: { onAuth: (token: string) => void }) {
-  const [token, setToken] = useState("");
+function AdminLogin({ onAuth }: { onAuth: () => void }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { refresh } = useAuth();
 
   const handleLogin = async () => {
-    if (!token.trim()) return;
+    if (!username.trim() || !password.trim()) return;
     setLoading(true);
     setError("");
     try {
-      const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-        "/admin/overview", "GET", { "X-Admin-Token": token }
-      );
-      if (res.success) {
-        onAuth(token);
+      const res = await api.requestWithHeaders<{
+        success: boolean;
+        data?: { id: string; name: string; email: string; role: string };
+        error?: { message: string };
+      }>("/admin/auth/login", "POST", {}, { username: username.trim(), password });
+      if (res.success && res.data) {
+        await refresh(); // Sync useAuth so Navbar shows logged-in state
+        onAuth();
       } else {
-        setError(res.error?.message || "Invalid admin token");
+        setError(res.error?.message || "Invalid username or password.");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to verify token");
+      setError(err instanceof Error ? err.message : "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -159,17 +165,30 @@ function AdminLogin({ onAuth }: { onAuth: (token: string) => void }) {
               <Shield className="h-7 w-7 text-terracotta" />
             </div>
             <h1 className="font-display text-2xl sm:text-3xl text-charcoal mb-2">Admin Portal</h1>
-            <p className="text-muted mb-6">Enter your admin token to access the management dashboard.</p>
+            <p className="text-muted mb-6">Sign in with your admin credentials to access the management dashboard.</p>
             <div className="max-w-sm mx-auto">
               <div className="relative mb-3">
                 <input
-                  type="password"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                  placeholder="Enter admin token"
+                  placeholder="Username (email)"
                   className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-charcoal placeholder:text-warm-gray outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30"
-                  aria-label="Admin token"
+                  aria-label="Admin username"
+                  autoComplete="username"
+                />
+              </div>
+              <div className="relative mb-3">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  placeholder="Password"
+                  className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-charcoal placeholder:text-warm-gray outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/30"
+                  aria-label="Admin password"
+                  autoComplete="current-password"
                 />
               </div>
               {error && (
@@ -180,10 +199,10 @@ function AdminLogin({ onAuth }: { onAuth: (token: string) => void }) {
               )}
               <button
                 onClick={handleLogin}
-                disabled={loading || !token.trim()}
+                disabled={loading || !username.trim() || !password.trim()}
                 className="w-full rounded-lg bg-terracotta hover:bg-terracotta-dark text-white py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
               >
-                {loading ? "Verifying..." : "Access Dashboard"}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </div>
           </div>
@@ -282,7 +301,7 @@ function OverviewTab({ overview }: { overview: OverviewData }) {
    Heritage Tab
    ======================================== */
 
-function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function HeritageTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [heritage, setHeritage] = useState<HeritageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -310,11 +329,11 @@ function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast:
       if (stateFilter) params.set("state", stateFilter);
       const qs = params.toString();
       const res = await api.requestWithHeaders<{ success: boolean; data: HeritageItem[] }>(
-        `/admin/heritage${qs ? `?${qs}` : ""}`, "GET", { "X-Admin-Token": adminToken }
+        `/admin/heritage${qs ? `?${qs}` : ""}`, "GET", 
       );
       if (res.success) setHeritage(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken, search, categoryFilter, stateFilter]);
+  }, [search, categoryFilter, stateFilter]);
 
   useEffect(() => { fetchHeritage(); }, [fetchHeritage]);
 
@@ -322,16 +341,16 @@ function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast:
   useEffect(() => {
     const loadDropdowns = async () => {
       const [locRes, perRes, srcRes] = await Promise.all([
-        api.requestWithHeaders<{ success: boolean; data: LocationItem[] }>("/admin/locations", "GET", { "X-Admin-Token": adminToken }),
-        api.requestWithHeaders<{ success: boolean; data: PeriodItem[] }>("/admin/periods", "GET", { "X-Admin-Token": adminToken }),
-        api.requestWithHeaders<{ success: boolean; data: SourceItem[] }>("/admin/sources", "GET", { "X-Admin-Token": adminToken }),
+        api.requestWithHeaders<{ success: boolean; data: LocationItem[] }>("/admin/locations", "GET", ),
+        api.requestWithHeaders<{ success: boolean; data: PeriodItem[] }>("/admin/periods", "GET", ),
+        api.requestWithHeaders<{ success: boolean; data: SourceItem[] }>("/admin/sources", "GET", ),
       ]);
       if (locRes.success) setLocations(locRes.data || []);
       if (perRes.success) setPeriods(perRes.data || []);
       if (srcRes.success) setSources(srcRes.data || []);
     };
     loadDropdowns();
-  }, [adminToken]);
+  }, []);
 
   const startEdit = (item: HeritageItem) => {
     setEditing(item);
@@ -356,13 +375,13 @@ function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast:
     try {
       if (creating) {
         const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          "/admin/heritage", "POST", { "X-Admin-Token": adminToken }, form
+          "/admin/heritage", "POST", form
         );
         if (res.success) { showToast("Heritage created", "success"); setCreating(false); fetchHeritage(); }
         else { showToast(res.error?.message || "Create failed", "error"); }
       } else if (editing) {
         const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          `/admin/heritage/${editing.id}`, "PUT", { "X-Admin-Token": adminToken }, form
+          `/admin/heritage/${editing.id}`, "PUT", form
         );
         if (res.success) { showToast("Heritage updated", "success"); setEditing(null); fetchHeritage(); }
         else { showToast(res.error?.message || "Update failed", "error"); }
@@ -374,7 +393,7 @@ function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast:
     if (!deleteTarget) return;
     try {
       const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-        `/admin/heritage/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken }
+        `/admin/heritage/${deleteTarget.id}`, "DELETE", 
       );
       if (res.success) { showToast("Heritage deleted", "success"); setDeleteTarget(null); fetchHeritage(); }
       else { showToast(res.error?.message || "Delete failed", "error"); }
@@ -537,7 +556,7 @@ function HeritageTab({ adminToken, showToast }: { adminToken: string; showToast:
    Media Tab
    ======================================== */
 
-function MediaTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function MediaTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("");
@@ -552,31 +571,31 @@ function MediaTab({ adminToken, showToast }: { adminToken: string; showToast: (m
     try {
       const qs = typeFilter ? `?type=${typeFilter}` : "";
       const res = await api.requestWithHeaders<{ success: boolean; data: MediaItem[] }>(
-        `/admin/media${qs}`, "GET", { "X-Admin-Token": adminToken }
+        `/admin/media${qs}`, "GET", 
       );
       if (res.success) setMedia(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken, typeFilter]);
+  }, [typeFilter]);
 
   useEffect(() => { fetchMedia(); }, [fetchMedia]);
 
   useEffect(() => {
     api.requestWithHeaders<{ success: boolean; data: HeritageItem[] }>(
-      "/admin/heritage", "GET", { "X-Admin-Token": adminToken }
+      "/admin/heritage", "GET", 
     ).then((r) => { if (r.success) setHeritageList(r.data || []); });
-  }, [adminToken]);
+  }, []);
 
   const handleSave = async () => {
     try {
       if (creating) {
         const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          "/admin/media", "POST", { "X-Admin-Token": adminToken }, form
+          "/admin/media", "POST", form
         );
         if (res.success) { showToast("Media added", "success"); setCreating(false); fetchMedia(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
         const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          `/admin/media/${editing.id}`, "PUT", { "X-Admin-Token": adminToken }, form
+          `/admin/media/${editing.id}`, "PUT", form
         );
         if (res.success) { showToast("Media updated", "success"); setEditing(null); fetchMedia(); }
         else { showToast(res.error?.message || "Failed", "error"); }
@@ -587,7 +606,7 @@ function MediaTab({ adminToken, showToast }: { adminToken: string; showToast: (m
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const res = await api.requestWithHeaders<{ success: boolean }>(
-      `/admin/media/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken }
+      `/admin/media/${deleteTarget.id}`, "DELETE", 
     );
     if (res.success) { showToast("Media deleted", "success"); setDeleteTarget(null); fetchMedia(); }
   };
@@ -721,7 +740,7 @@ function MediaTab({ adminToken, showToast }: { adminToken: string; showToast: (m
    Locations Tab
    ======================================== */
 
-function LocationsTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function LocationsTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -739,11 +758,11 @@ function LocationsTab({ adminToken, showToast }: { adminToken: string; showToast
       if (typeFilter) params.set("type", typeFilter);
       const qs = params.toString();
       const res = await api.requestWithHeaders<{ success: boolean; data: LocationItem[] }>(
-        `/admin/locations${qs ? `?${qs}` : ""}`, "GET", { "X-Admin-Token": adminToken }
+        `/admin/locations${qs ? `?${qs}` : ""}`, "GET", 
       );
       if (res.success) setLocations(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken, search, typeFilter]);
+  }, [search, typeFilter]);
 
   useEffect(() => { fetchLocations(); }, [fetchLocations]);
 
@@ -751,10 +770,10 @@ function LocationsTab({ adminToken, showToast }: { adminToken: string; showToast
     const payload = { ...form, latitude: form.latitude ? parseFloat(form.latitude) : null, longitude: form.longitude ? parseFloat(form.longitude) : null };
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/locations", "POST", { "X-Admin-Token": adminToken }, payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/locations", "POST", payload);
         if (res.success) { showToast("Location created", "success"); setCreating(false); fetchLocations(); } else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${editing.id}`, "PUT", { "X-Admin-Token": adminToken }, payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${editing.id}`, "PUT", payload);
         if (res.success) { showToast("Location updated", "success"); setEditing(null); fetchLocations(); } else { showToast(res.error?.message || "Failed", "error"); }
       }
     } catch { showToast("Request failed", "error"); }
@@ -762,7 +781,7 @@ function LocationsTab({ adminToken, showToast }: { adminToken: string; showToast
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken });
+    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${deleteTarget.id}`, "DELETE", );
     if (res.success) { showToast("Location deleted", "success"); setDeleteTarget(null); fetchLocations(); }
     else { showToast(res.error?.message || "Cannot delete — location is in use", "error"); }
   };
@@ -901,7 +920,7 @@ function LocationsTab({ adminToken, showToast }: { adminToken: string; showToast
    Sources Tab
    ======================================== */
 
-function SourcesTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function SourcesTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [sources, setSources] = useState<SourceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -914,20 +933,20 @@ function SourcesTab({ adminToken, showToast }: { adminToken: string; showToast: 
     setLoading(true);
     try {
       const qs = search ? `?q=${encodeURIComponent(search)}` : "";
-      const res = await api.requestWithHeaders<{ success: boolean; data: SourceItem[] }>(`/admin/sources${qs}`, "GET", { "X-Admin-Token": adminToken });
+      const res = await api.requestWithHeaders<{ success: boolean; data: SourceItem[] }>(`/admin/sources${qs}`, "GET", );
       if (res.success) setSources(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken, search]);
+  }, [search]);
 
   useEffect(() => { fetchSources(); }, [fetchSources]);
 
   const handleSave = async () => {
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/sources", "POST", { "X-Admin-Token": adminToken }, form);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/sources", "POST", form);
         if (res.success) { showToast("Source created", "success"); setCreating(false); fetchSources(); } else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/sources/${editing.id}`, "PUT", { "X-Admin-Token": adminToken }, form);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/sources/${editing.id}`, "PUT", form);
         if (res.success) { showToast("Source updated", "success"); setEditing(null); fetchSources(); } else { showToast(res.error?.message || "Failed", "error"); }
       }
     } catch { showToast("Request failed", "error"); }
@@ -935,7 +954,7 @@ function SourcesTab({ adminToken, showToast }: { adminToken: string; showToast: 
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/sources/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken });
+    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/sources/${deleteTarget.id}`, "DELETE", );
     if (res.success) { showToast("Source deleted", "success"); setDeleteTarget(null); fetchSources(); }
     else { showToast(res.error?.message || "Cannot delete — source is in use", "error"); }
   };
@@ -1064,7 +1083,7 @@ function SourcesTab({ adminToken, showToast }: { adminToken: string; showToast: 
    Users Tab
    ======================================== */
 
-function UsersTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function UsersTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -1075,21 +1094,21 @@ function UsersTab({ adminToken, showToast }: { adminToken: string; showToast: (m
     setLoading(true);
     try {
       const qs = search ? `?q=${encodeURIComponent(search)}` : "";
-      const res = await api.requestWithHeaders<{ success: boolean; data: UserItem[] }>(`/admin/users${qs}`, "GET", { "X-Admin-Token": adminToken });
+      const res = await api.requestWithHeaders<{ success: boolean; data: UserItem[] }>(`/admin/users${qs}`, "GET", );
       if (res.success) setUsers(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken, search]);
+  }, [search]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const viewUser = async (user: UserItem) => {
-    const res = await api.requestWithHeaders<{ success: boolean; data: UserItem }>(`/admin/users/${user.id}`, "GET", { "X-Admin-Token": adminToken });
+    const res = await api.requestWithHeaders<{ success: boolean; data: UserItem }>(`/admin/users/${user.id}`, "GET", );
     if (res.success) setSelectedUser(res.data);
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/users/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken });
+    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/users/${deleteTarget.id}`, "DELETE", );
     if (res.success) { showToast("User deleted", "success"); setDeleteTarget(null); setSelectedUser(null); fetchUsers(); }
     else { showToast(res.error?.message || "Failed", "error"); }
   };
@@ -1185,17 +1204,17 @@ function UsersTab({ adminToken, showToast }: { adminToken: string; showToast: (m
    Collections Tab
    ======================================== */
 
-function CollectionsTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function CollectionsTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [collections, setCollections] = useState<CollectionItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCollections = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.requestWithHeaders<{ success: boolean; data: CollectionItem[] }>("/admin/collections", "GET", { "X-Admin-Token": adminToken });
+      const res = await api.requestWithHeaders<{ success: boolean; data: CollectionItem[] }>("/admin/collections", "GET", );
       if (res.success) setCollections(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken]);
+  }, []);
 
   useEffect(() => { fetchCollections(); }, [fetchCollections]);
 
@@ -1237,7 +1256,7 @@ function CollectionsTab({ adminToken, showToast }: { adminToken: string; showToa
    Periods Tab
    ======================================== */
 
-function PeriodsTab({ adminToken, showToast }: { adminToken: string; showToast: (msg: string, type: "success" | "error") => void }) {
+function PeriodsTab({ showToast }: { showToast: (msg: string, type: "success" | "error") => void }) {
   const [periods, setPeriods] = useState<PeriodItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -1248,10 +1267,10 @@ function PeriodsTab({ adminToken, showToast }: { adminToken: string; showToast: 
   const fetchPeriods = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.requestWithHeaders<{ success: boolean; data: PeriodItem[] }>("/admin/periods", "GET", { "X-Admin-Token": adminToken });
+      const res = await api.requestWithHeaders<{ success: boolean; data: PeriodItem[] }>("/admin/periods", "GET", );
       if (res.success) setPeriods(res.data || []);
     } catch { /* ignore */ } finally { setLoading(false); }
-  }, [adminToken]);
+  }, []);
 
   useEffect(() => { fetchPeriods(); }, [fetchPeriods]);
 
@@ -1269,11 +1288,11 @@ function PeriodsTab({ adminToken, showToast }: { adminToken: string; showToast: 
     };
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/periods", "POST", { "X-Admin-Token": adminToken }, payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/periods", "POST", payload);
         if (res.success) { showToast("Period created", "success"); setCreating(false); fetchPeriods(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${editing.id}`, "PUT", { "X-Admin-Token": adminToken }, payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${editing.id}`, "PUT", payload);
         if (res.success) { showToast("Period updated", "success"); setEditing(null); fetchPeriods(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       }
@@ -1282,7 +1301,7 @@ function PeriodsTab({ adminToken, showToast }: { adminToken: string; showToast: 
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${deleteTarget.id}`, "DELETE", { "X-Admin-Token": adminToken });
+    const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${deleteTarget.id}`, "DELETE", );
     if (res.success) { showToast("Period deleted", "success"); setDeleteTarget(null); fetchPeriods(); }
     else { showToast(res.error?.message || "Cannot delete: period is in use", "error"); }
   };
@@ -1383,8 +1402,8 @@ function PeriodsTab({ adminToken, showToast }: { adminToken: string; showToast: 
    ======================================== */
 
 export default function AdminPage() {
-  const [adminToken, setAdminToken] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
@@ -1392,26 +1411,52 @@ export default function AdminPage() {
 
   const showToast = (message: string, type: "success" | "error") => setToast({ message, type });
 
-  const fetchOverview = useCallback(async (token: string) => {
+  // Check existing session on mount
+  useEffect(() => {
+    api
+      .requestWithHeaders<{ success: boolean; data?: { id: string; role: string } }>("/admin/auth/me", "GET", {})
+      .then((res) => {
+        if (res.success && res.data?.role === "admin") {
+          setAuthenticated(true);
+          fetchOverview();
+        }
+      })
+      .catch(() => { /* not authenticated */ })
+      .finally(() => setChecking(false));
+  }, []);
+
+  const fetchOverview = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.requestWithHeaders<{ success: boolean; data: OverviewData }>("/admin/overview", "GET", { "X-Admin-Token": token });
+      const res = await api.requestWithHeaders<{ success: boolean; data: OverviewData }>("/admin/overview", "GET", {});
       if (res.success) setOverview(res.data);
     } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
-  const handleAuth = (token: string) => {
-    setAdminToken(token);
+  const handleAuth = () => {
     setAuthenticated(true);
-    fetchOverview(token);
+    fetchOverview();
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await api.requestWithHeaders<{ success: boolean }>("/admin/auth/logout", "POST", {});
+    } catch { /* ignore */ }
     setAuthenticated(false);
-    setAdminToken("");
     setOverview(null);
     setActiveTab("overview");
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-muted">
+          <div className="h-5 w-5 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm">Checking session...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!authenticated) return <AdminLogin onAuth={handleAuth} />;
 
@@ -1441,7 +1486,7 @@ export default function AdminPage() {
             <h1 className="font-display text-2xl sm:text-3xl text-charcoal">Management Dashboard</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => fetchOverview(adminToken)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted hover:text-charcoal transition-colors" title="Refresh">
+            <button onClick={() => fetchOverview()} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted hover:text-charcoal transition-colors" title="Refresh">
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
             <button onClick={handleLogout} className="px-3 py-1.5 rounded-lg border border-border text-sm text-muted hover:text-red-600 hover:border-red-300 transition-colors">
@@ -1469,13 +1514,13 @@ export default function AdminPage() {
         {loading && activeTab === "overview" ? <LoadingState /> : (
           <>
             {activeTab === "overview" && overview && <OverviewTab overview={overview} />}
-            {activeTab === "heritage" && <HeritageTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "media" && <MediaTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "locations" && <LocationsTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "sources" && <SourcesTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "users" && <UsersTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "collections" && <CollectionsTab adminToken={adminToken} showToast={showToast} />}
-            {activeTab === "periods" && <PeriodsTab adminToken={adminToken} showToast={showToast} />}
+            {activeTab === "heritage" && <HeritageTab showToast={showToast} />}
+            {activeTab === "media" && <MediaTab showToast={showToast} />}
+            {activeTab === "locations" && <LocationsTab showToast={showToast} />}
+            {activeTab === "sources" && <SourcesTab showToast={showToast} />}
+            {activeTab === "users" && <UsersTab showToast={showToast} />}
+            {activeTab === "collections" && <CollectionsTab showToast={showToast} />}
+            {activeTab === "periods" && <PeriodsTab showToast={showToast} />}
           </>
         )}
       </Container>

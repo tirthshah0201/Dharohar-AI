@@ -1,63 +1,162 @@
 /* ========================================
    Astrova — Admin Authorization Middleware
    ========================================
-   Simple token-based admin authorization.
-   Uses ADMIN_TOKEN environment variable.
+   JWT + role-based admin authorization.
+   Requires authenticated user with role='admin'.
    ======================================== */
 
 import { Request, Response, NextFunction } from "express";
-import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { query } from "../database";
+
+const COOKIE_NAME = "astrova_session";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
- * Middleware that validates admin authorization.
+ * Admin authorization middleware.
  *
- * Reads X-Admin-Token from request headers
- * and compares against configured ADMIN_TOKEN from env.
+ * 1. Extracts JWT from cookie or Authorization header
+ * 2. Verifies JWT signature
+ * 3. Checks user exists and has role='admin'
+ * 4. Attaches user to req.user
  *
- * This is a lightweight admin auth system.
- * In production, replace with JWT/session-based auth.
+ * Rejects with:
+ * - 401 if no token / invalid token / user not found
+ * - 403 if user is not an admin
  */
-export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
-  const configuredToken = process.env.ADMIN_TOKEN;
+export async function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  // Extract token from cookie or Authorization header
+  const token = extractToken(req);
 
-  if (!configuredToken) {
-    res.status(503).json({
-      success: false,
-      error: {
-        code: "ADMIN_NOT_CONFIGURED",
-        message: "Admin authorization is not configured on the server.",
-      },
-    });
-    return;
-  }
-
-  const providedToken = req.headers["x-admin-token"];
-
-  if (!providedToken || typeof providedToken !== "string") {
+  if (!token) {
     res.status(401).json({
       success: false,
       error: {
         code: "UNAUTHORIZED",
-        message: "Admin authorization required.",
+        message: "Admin authentication required.",
       },
     });
     return;
   }
 
-  // Timing-safe comparison to prevent timing attacks
-  const providedBuf = Buffer.from(providedToken, "utf8");
-  const configuredBuf = Buffer.from(configuredToken, "utf8");
-
-  if (providedBuf.length !== configuredBuf.length || !crypto.timingSafeEqual(providedBuf, configuredBuf)) {
-    res.status(403).json({
+  if (!JWT_SECRET) {
+    res.status(503).json({
       success: false,
       error: {
-        code: "FORBIDDEN",
-        message: "Invalid admin token.",
+        code: "AUTH_NOT_CONFIGURED",
+        message: "Authentication is not configured on the server.",
       },
     });
     return;
   }
 
-  next();
+  try {
+    // Verify JWT
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: string;
+      name: string;
+      email: string;
+      role?: string;
+      ver?: number;
+    };
+
+    // Verify user exists and check role
+    const { rows } = await query<{
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      token_version: number | string | null;
+    }>(
+      "SELECT id, name, email, role, token_version FROM users WHERE id = $1",
+      [decoded.id]
+    );
+
+    if (rows.length === 0) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: "USER_NOT_FOUND",
+          message: "User account no longer exists.",
+        },
+      });
+      return;
+    }
+
+    const user = rows[0];
+
+    // Check token version (revocation)
+    const currentVersion = Number(user.token_version ?? 0);
+    if (Number(decoded.ver ?? 0) !== currentVersion) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: "TOKEN_REVOKED",
+          message: "Session has been revoked. Please log in again.",
+        },
+      });
+      return;
+    }
+
+    // Check admin role
+    if (user.role !== "admin") {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: "FORBIDDEN",
+          message: "Admin access required.",
+        },
+      });
+      return;
+    }
+
+    // Attach user to request
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    next();
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError) {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: "TOKEN_EXPIRED",
+          message: "Session has expired. Please log in again.",
+        },
+      });
+      return;
+    }
+    res.status(401).json({
+      success: false,
+      error: {
+        code: "INVALID_TOKEN",
+        message: "Invalid authentication session.",
+      },
+    });
+  }
+}
+
+/**
+ * Extract JWT token from cookie or Authorization header.
+ */
+function extractToken(req: Request): string | null {
+  // Try cookie first
+  const cookieToken = (req as any).cookies?.[COOKIE_NAME];
+  if (cookieToken) return cookieToken;
+
+  // Try Authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice(7);
+  }
+
+  return null;
 }
