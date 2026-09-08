@@ -14,6 +14,7 @@ import { requireDatabase } from "../database/helpers";
 import { isValidUUID } from "../utils/validation";
 import { isValidSlug } from "../utils/slug";
 import { generateToken, setAuthCookie, optionalAuth } from "../middleware/auth";
+import { uploadMedia, getMediaUrl, deleteMediaFile, extractFilenameFromUrl, getMediaType } from "../utils/upload";
 
 const router = Router();
 
@@ -504,6 +505,115 @@ router.post("/media", async (req, res) => {
     res.status(201).json({ success: true, data: { id: rows[0].id } });
   } catch (err) {
     res.status(500).json({ success: false, error: { code: "DATABASE_ERROR", message: "Failed to add media" } });
+  }
+});
+
+/**
+ * POST /api/admin/media/upload
+ * Upload a local media file and create a media record.
+ * Admin-only endpoint with file validation.
+ */
+router.post("/media/upload", uploadMedia.single("file"), async (req, res) => {
+  if (!requireDatabase(res)) return;
+  
+  // Handle multer errors
+  if (!req.file) {
+    res.status(400).json({
+      success: false,
+      error: { code: "NO_FILE", message: "No file uploaded. Please select a file." },
+    });
+    return;
+  }
+
+  try {
+    const { entity_id, caption, alt_text, credit, is_primary, display_order } = req.body;
+    const file = req.file;
+
+    // Validate entity_id
+    if (!entity_id) {
+      // Delete uploaded file if no entity_id
+      deleteMediaFile(file.filename);
+      res.status(400).json({
+        success: false,
+        error: { code: "INVALID_PAYLOAD", message: "entity_id is required." },
+      });
+      return;
+    }
+
+    if (!isValidUUID(entity_id)) {
+      deleteMediaFile(file.filename);
+      res.status(400).json({
+        success: false,
+        error: { code: "INVALID_UUID", message: "Invalid entity ID." },
+      });
+      return;
+    }
+
+    // Check entity exists
+    const { rows: entity } = await query("SELECT id FROM heritage_entities WHERE id = $1", [entity_id]);
+    if (entity.length === 0) {
+      deleteMediaFile(file.filename);
+      res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Heritage entity not found." },
+      });
+      return;
+    }
+
+    // Generate public URL
+    const mediaUrl = getMediaUrl(file.filename);
+
+    // Determine media type from MIME
+    const mediaType = getMediaType(file.mimetype);
+
+    // If marking as primary, unset other primary for this entity
+    if (is_primary === "true" || is_primary === true) {
+      await query("UPDATE media SET is_primary = false WHERE entity_id = $1", [entity_id]);
+    }
+
+    // Create media record
+    const { rows } = await query(
+      `INSERT INTO media (entity_id, type, url, caption, alt_text, credit, is_primary, display_order)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, url, type, caption, alt_text, credit, is_primary, display_order`,
+      [
+        entity_id,
+        mediaType,
+        mediaUrl,
+        caption || "",
+        alt_text || file.originalname,
+        credit || "",
+        is_primary === "true" || is_primary === true,
+        parseInt(String(display_order)) || 0,
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: rows[0].id,
+        url: rows[0].url,
+        type: rows[0].type,
+        caption: rows[0].caption,
+        alt_text: rows[0].alt_text,
+        credit: rows[0].credit,
+        is_primary: rows[0].is_primary,
+        display_order: rows[0].display_order,
+        filename: file.filename,
+        originalname: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype,
+      },
+    });
+  } catch (err) {
+    // Delete uploaded file on error
+    if (req.file) {
+      deleteMediaFile(req.file.filename);
+    }
+    console.error("[Admin Media Upload] Error:", err);
+    res.status(500).json({
+      success: false,
+      error: { code: "UPLOAD_ERROR", message: "Failed to upload media. Please try again." },
+    });
   }
 });
 

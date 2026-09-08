@@ -590,6 +590,7 @@ NO PUSH PERFORMED — documentation only
 | Authentication | ✅ Complete (JWT + HttpOnly) |
 | Favorites | ✅ Complete (per-user isolated) |
 | Admin Portal | ✅ Complete (8 tabs, full CRUD) |
+| Admin Media Upload | ✅ Complete (Image + Video) |
 | About | ✅ Complete |
 | AI Chatbot | ⏸ Under Construction |
 | Documentation | ✅ Complete |

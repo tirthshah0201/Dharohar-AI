@@ -71,3 +71,7 @@ exports/*.xlsx
 
 # Freebuff
 .freebuff/
+
+# Upload directory (runtime files)
+backend/uploads/
+

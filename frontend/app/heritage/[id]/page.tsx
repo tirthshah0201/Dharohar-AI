@@ -412,19 +412,28 @@ export default function HeritageDetailPage({
                           aria-label={`Open image ${idx + 1}: ${m.alt_text || m.caption || heritage.name}`}
                         >
                           <div className={`relative overflow-hidden ${idx === 0 ? 'h-48 sm:h-72' : 'h-32 sm:h-40'}`}>
-                            <img
-                              src={m.url}
-                              alt={m.alt_text || `${heritage.name} - image ${idx + 1}`}
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
-                              onError={(e) => {
-                                const img = e.currentTarget;
-                                const fallback = getHeritageImage(heritage.name, heritage.category);
-                                if (fallback && img.src !== fallback.src) {
-                                  img.src = fallback.src;
-                                }
-                              }}
-                            />
+                            {m.type === 'video' ? (
+                              <video
+                                src={m.url}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                muted
+                                onError={() => {}}
+                              />
+                            ) : (
+                              <img
+                                src={m.url}
+                                alt={m.alt_text || `${heritage.name} - image ${idx + 1}`}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                loading="lazy"
+                                onError={(e) => {
+                                  const img = e.currentTarget;
+                                  const fallback = getHeritageImage(heritage.name, heritage.category);
+                                  if (fallback && img.src !== fallback.src) {
+                                    img.src = fallback.src;
+                                  }
+                                }}
+                              />
+                            )}
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                           </div>
                           {(m.caption || m.credit) && (

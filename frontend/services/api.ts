@@ -104,7 +104,7 @@ class ApiClient {
   async requestWithHeaders<T>(
     endpoint: string,
     method: string,
-    headers: Record<string, string>,
+    headers: Record<string, string> = {},
     body?: unknown
   ): Promise<T> {
     return this.request<T>(endpoint, { method, headers, body });

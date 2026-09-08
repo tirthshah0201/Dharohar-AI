@@ -89,7 +89,7 @@ export function FavoriteButton({
         disabled={loading || authLoading}
         className={`p-1.5 rounded-full transition-colors ${loading ? "opacity-50" : ""} ${
           favorited
-            ? "text-red-500 hover:text-red-600 bg-red-50"
+            ? "text-red-600 hover:text-red-700 bg-red-50"
             : "text-muted hover:text-red-400 hover:bg-red-50/50"
         } ${className}`}
         aria-label={favorited ? "Remove from favorites" : "Add to favorites"}

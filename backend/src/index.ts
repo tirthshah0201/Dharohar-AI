@@ -3,6 +3,7 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 import express from "express";
+import fs from "fs";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { healthRouter } from "./routes/health";
@@ -49,6 +50,13 @@ app.use(cors({
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
+// ---- Static File Serving ----
+const uploadsDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/api/uploads", express.static(uploadsDir));
+
 // ---- Routes ----
 app.use("/api/health", healthRouter);
 app.use("/api/system", systemRouter);
@@ -83,6 +91,41 @@ app.use(
   ) => {
     // Log internally with detail (but never log secrets)
     console.error("[Error]", err.message);
+
+    // Handle multer errors specifically
+    if (err.message && err.message.includes("Unexpected field")) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "INVALID_FILE_FIELD",
+          message: "Invalid file field name. Expected 'file'.",
+        },
+      });
+      return;
+    }
+
+    if (err.message && err.message.includes("File too large")) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "FILE_TOO_LARGE",
+          message: "Image exceeds the allowed file size of 5MB.",
+        },
+      });
+      return;
+    }
+
+    if (err.message && err.message.includes("Unsupported file type")) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "UNSUPPORTED_FILE_TYPE",
+          message: err.message,
+        },
+      });
+      return;
+    }
+
     // Never expose stack traces, SQL errors, or internals to client
     res.status(500).json({
       success: false,

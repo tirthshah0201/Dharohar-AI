@@ -147,13 +147,21 @@ export function GalleryLightbox({
           </button>
         )}
 
-        {/* Image */}
+        {/* Image or Video */}
         <div className="flex items-center justify-center w-full h-full px-12 sm:px-16 py-4">
           {imgError[currentIndex] ? (
             <div className="text-center text-white/50">
               <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Image unavailable</p>
+              <p className="text-sm">Media unavailable</p>
             </div>
+          ) : current.type === "video" ? (
+            <video
+              src={current.url}
+              className="max-w-full max-h-full object-contain select-none"
+              controls
+              muted
+              onError={() => setImgError((prev) => ({ ...prev, [currentIndex]: true }))}
+            />
           ) : (
             <img
               src={current.url}
@@ -213,6 +221,13 @@ export function GalleryLightbox({
                     <div className="w-full h-full bg-white/10 flex items-center justify-center">
                       <ImageIcon className="h-3 w-3 text-white/40" />
                     </div>
+                  ) : m.type === "video" ? (
+                    <video
+                      src={m.url}
+                      className="w-full h-full object-cover"
+                      muted
+                      onError={() => setImgError((prev) => ({ ...prev, [idx]: true }))}
+                    />
                   ) : (
                     <img
                       src={m.url}

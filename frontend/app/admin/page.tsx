@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -565,6 +565,14 @@ function MediaTab({ showToast }: { showToast: (msg: string, type: "success" | "e
   const [deleteTarget, setDeleteTarget] = useState<MediaItem | null>(null);
   const [heritageList, setHeritageList] = useState<HeritageItem[]>([]);
   const [form, setForm] = useState({ entity_id: "", type: "image", url: "", caption: "", alt_text: "", credit: "", is_primary: false });
+  
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchMedia = useCallback(async () => {
     setLoading(true);
@@ -588,19 +596,135 @@ function MediaTab({ showToast }: { showToast: (msg: string, type: "success" | "e
   const handleSave = async () => {
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          "/admin/media", "POST", form
-        );
-        if (res.success) { showToast("Media added", "success"); setCreating(false); fetchMedia(); }
-        else { showToast(res.error?.message || "Failed", "error"); }
+        // If a file is selected, use upload endpoint
+        if (selectedFile) {
+          await handleFileUpload();
+        } else {
+          // Otherwise use URL-based endpoint
+          const formData = {
+            ...form,
+            is_primary: String(form.is_primary),
+          };
+          const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
+            "/admin/media", "POST", {}, formData
+          );
+          if (res.success) { showToast("Media added", "success"); setCreating(false); fetchMedia(); }
+          else { showToast(res.error?.message || "Failed", "error"); }
+        }
       } else if (editing) {
+        const formData = {
+          ...form,
+          is_primary: String(form.is_primary),
+        };
         const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(
-          `/admin/media/${editing.id}`, "PUT", form
+          `/admin/media/${editing.id}`, "PUT", {}, formData
         );
         if (res.success) { showToast("Media updated", "success"); setEditing(null); fetchMedia(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       }
     } catch { showToast("Request failed", "error"); }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile || !form.entity_id) {
+      setUploadError("Please select a file and heritage entity.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+    setUploadProgress(0);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("entity_id", form.entity_id);
+      formData.append("caption", form.caption);
+      formData.append("alt_text", form.alt_text);
+      formData.append("credit", form.credit);
+      formData.append("is_primary", String(form.is_primary));
+      formData.append("display_order", "0");
+
+      const response = await fetch("/api/admin/media/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        showToast("Media uploaded successfully", "success");
+        setCreating(false);
+        setSelectedFile(null);
+        setFilePreview(null);
+        fetchMedia();
+      } else {
+        setUploadError(data.error?.message || "Upload failed. Please try again.");
+        showToast(data.error?.message || "Upload failed", "error");
+      }
+    } catch (err) {
+      setUploadError("Upload failed. Please check your connection and try again.");
+      showToast("Upload failed", "error");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedVideoTypes = ["video/mp4", "video/webm", "video/quicktime"];
+    const isImage = allowedImageTypes.includes(file.type);
+    const isVideo = allowedVideoTypes.includes(file.type);
+    if (!isImage && !isVideo) {
+      setUploadError("Unsupported format. Please upload JPG, PNG, WebP, MP4, WebM, or MOV.");
+      return;
+    }
+
+    // Validate file size
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const limit = isVideo ? "50 MB" : "5 MB";
+      setUploadError(`${isVideo ? "Video" : "Image"} exceeds the allowed file size of ${limit}.`);
+      return;
+    }
+
+    setSelectedFile(file);
+    setUploadError(null);
+
+    // Auto-set type based on file MIME
+    if (isVideo && form.type === "image") {
+      setForm(prev => ({ ...prev, type: "video" }));
+    } else if (isImage && form.type === "video") {
+      setForm(prev => ({ ...prev, type: "image" }));
+    }
+
+    // Create preview (images only — videos use object URL)
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setFilePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // For videos, create an object URL for preview
+      const url = URL.createObjectURL(file);
+      setFilePreview(url);
+    }
+  };
+
+  const handleFileRemove = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    setUploadError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleDelete = async () => {
@@ -632,7 +756,7 @@ function MediaTab({ showToast }: { showToast: (msg: string, type: "success" | "e
           <option value="document">Document</option>
           <option value="audio">Audio</option>
         </select>
-        <button onClick={() => { setCreating(true); setEditing(null); setForm({ entity_id: "", type: "image", url: "", caption: "", alt_text: "", credit: "", is_primary: false }); }}
+        <button onClick={() => { setCreating(true); setEditing(null); setForm({ entity_id: "", type: "image", url: "", caption: "", alt_text: "", credit: "", is_primary: false }); setSelectedFile(null); setFilePreview(null); setUploadError(null); }}
           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-terracotta text-white text-sm font-medium hover:bg-terracotta-dark">
           <Plus className="h-4 w-4" /> Add Media
         </button>
@@ -656,15 +780,105 @@ function MediaTab({ showToast }: { showToast: (msg: string, type: "success" | "e
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Type *</label>
               <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-terracotta">
+                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-terracotta" disabled={!!selectedFile}>
                 <option value="image">Image</option>
                 <option value="video">Video</option>
               </select>
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-muted mb-1">URL *</label>
-              <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://..."
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-terracotta" />
+              <label className="block text-xs font-medium text-muted mb-1">
+                {creating ? "Upload Media *" : "URL *"}
+              </label>
+              {creating ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+                      className="hidden"
+                      id="media-upload"
+                    />
+                    <label
+                      htmlFor="media-upload"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-terracotta/50 hover:bg-cream/30 transition-colors"
+                    >
+                      <Image className="h-5 w-5 text-muted" />
+                      <span className="text-sm text-muted">
+                        {selectedFile ? "Change file" : "Browse / Choose Media"}
+                      </span>
+                    </label>
+                    {selectedFile && (
+                      <button
+                        type="button"
+                        onClick={handleFileRemove}
+                        className="p-2 text-muted hover:text-red-600"
+                        title="Remove file"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* File info */}
+                  {selectedFile && (
+                    <div className="bg-cream/50 rounded-lg p-3">
+                      <div className="flex items-center gap-3">
+                        {filePreview && selectedFile.type.startsWith("video/") ? (
+                          <video
+                            src={filePreview}
+                            className="h-16 w-16 object-cover rounded-lg"
+                            controls
+                            muted
+                          />
+                        ) : filePreview ? (
+                          <img
+                            src={filePreview}
+                            alt="Preview"
+                            className="h-16 w-16 object-cover rounded-lg"
+                          />
+                        ) : null}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-charcoal truncate">
+                            {selectedFile.name}
+                          </p>
+                          <p className="text-xs text-muted">
+                            {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • {selectedFile.type.split("/")[1].toUpperCase()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Error message */}
+                  {uploadError && (
+                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      {uploadError}
+                    </div>
+                  )}
+
+                  {/* Upload progress */}
+                  {uploading && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs text-muted">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-terracotta h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://..."
+                  className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-terracotta" />
+              )}
             </div>
             <div>
               <label className="block text-xs font-medium text-muted mb-1">Caption</label>
@@ -767,13 +981,13 @@ function LocationsTab({ showToast }: { showToast: (msg: string, type: "success" 
   useEffect(() => { fetchLocations(); }, [fetchLocations]);
 
   const handleSave = async () => {
-    const payload = { ...form, latitude: form.latitude ? parseFloat(form.latitude) : null, longitude: form.longitude ? parseFloat(form.longitude) : null };
+    const payload = { ...form };
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/locations", "POST", payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/locations", "POST", {}, payload);
         if (res.success) { showToast("Location created", "success"); setCreating(false); fetchLocations(); } else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${editing.id}`, "PUT", payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/locations/${editing.id}`, "PUT", {}, payload);
         if (res.success) { showToast("Location updated", "success"); setEditing(null); fetchLocations(); } else { showToast(res.error?.message || "Failed", "error"); }
       }
     } catch { showToast("Request failed", "error"); }
@@ -1282,17 +1496,17 @@ function PeriodsTab({ showToast }: { showToast: (msg: string, type: "success" | 
   const handleSave = async () => {
     const payload = {
       name: form.name,
-      start_year: form.start_year ? parseInt(form.start_year) : null,
-      end_year: form.end_year ? parseInt(form.end_year) : null,
-      description: form.description || null,
+      start_year: form.start_year || "",
+      end_year: form.end_year || "",
+      description: form.description || "",
     };
     try {
       if (creating) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/periods", "POST", payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>("/admin/periods", "POST", {}, payload);
         if (res.success) { showToast("Period created", "success"); setCreating(false); fetchPeriods(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       } else if (editing) {
-        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${editing.id}`, "PUT", payload);
+        const res = await api.requestWithHeaders<{ success: boolean; error?: { message: string } }>(`/admin/periods/${editing.id}`, "PUT", {}, payload);
         if (res.success) { showToast("Period updated", "success"); setEditing(null); fetchPeriods(); }
         else { showToast(res.error?.message || "Failed", "error"); }
       }
