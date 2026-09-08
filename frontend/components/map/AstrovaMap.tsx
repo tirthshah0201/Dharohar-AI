@@ -123,10 +123,10 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusSt
   }>({ center: INDIA_CENTER, zoom: INDIA_ZOOM });
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
-  const [selectedFeature, setSelectedFeature] = useState<MapFeature | null>(
-    null
-  );
   const [focusFeature, setFocusFeature] = useState<MapFeature | null>(null);
+
+  // NOTE: selectedFeature removed — it was dead state set on marker click
+  // but never read in render output, causing unnecessary re-renders.
 
   // ---- Load data ----
   const loadData = useCallback(async () => {
@@ -194,7 +194,6 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusSt
     if (stateObj) {
       setSelState(stateObj.code);
       setFlyTarget({ center: stateObj.center, zoom: STATE_ZOOM });
-      setSelectedFeature(null);
       setFocusFeature(null);
     }
   }, [focusState, loading]);
@@ -274,7 +273,6 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusSt
       setSelState(state.code);
       setFlyTarget({ center: state.center, zoom: STATE_ZOOM });
     }
-    setSelectedFeature(null);
   }, []);
 
   // ---- GeoJSON event handlers for states ----
@@ -475,7 +473,7 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusSt
               icon={icon}
               eventHandlers={{
                 click: () => {
-                  setSelectedFeature(feature);
+                  // Leaflet Popup opens natively; no dead state needed
                 },
               }}
             >
@@ -588,12 +586,7 @@ export function AstrovaMap({ onAskAI, height = "500px", focusLocationId, focusSt
         onAskAI={onAskAI}
       />
 
-      {/* OSM Attribution (redundant but ensures visibility) */}
-      <div className="absolute bottom-1 right-1 z-10">
-        <div className="bg-white/80 backdrop-blur-sm rounded px-1.5 py-0.5 text-[8px] text-muted">
-          © OpenStreetMap contributors
-        </div>
-      </div>
+      {/* OSM Attribution — handled by Leaflet's built-in attributionControl */}
     </div>
   );
 }
